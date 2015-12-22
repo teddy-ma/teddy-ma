@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="zh-cmn-Hans" class="han-init">
+  <head>
+    <meta charset="utf-8">
+    <title>编程青年 - 没有银弹</title>
+    <meta name="description" content="编程青年的博客，记录着软件开发中的点点滴滴">
+    <meta name="copyright" content="Ma Lucheng 2014-2015">
+    <meta name="generator" content="pandoc">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+
+    <link href="/css/app.css" rel="stylesheet">
+    <link href="//cdn.bootcss.com/highlight.js/8.9.1/styles/solarized_light.min.css" rel="stylesheet">
+  </head>
+
+  <body class="container">
+    <header class="global-header row">
+      <h1 class="global-header__logo four columns"><a href="/" class="blog-title-link">编程青年</a></h1>
+      <nav id="menu1" class="navbar eight columns">
+        <ul class="navbar-list">
+          
+            <li class="navbar-item">
+              <a href="/posts/" class="navbar-link" target='_self'>posts</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="/essays/" class="navbar-link" target='_self'>essays</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="/reading/" class="navbar-link" target='_self'>reading</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="http://songofcode.com/how-to-learn-emacs-chinese-edition/" class="navbar-link" target='_blank'>emacs</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="/about/" class="navbar-link" target='_self'>about</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="https://github.com/teddy-ma/" class="navbar-link" target='_blank'>github</a>
+            </li>
+          
+        </ul>
+      </nav>
+      <nav id="menu2" class="path-nav path-nav-top-right">
+        <a href="#menu2" class="path-nav-expander">
+          <div class="ball"></div>
+        </a>
+        <a href="#" class="path-nav-close"></a>
+        <ul>
+          
+            <li>
+              <a href="/posts/" target='_self'>posts</a>
+            </li>
+          
+            <li>
+              <a href="/essays/" target='_self'>essays</a>
+            </li>
+          
+            <li>
+              <a href="/reading/" target='_self'>reading</a>
+            </li>
+          
+            <li>
+              <a href="http://songofcode.com/how-to-learn-emacs-chinese-edition/" target='_blank'>emacs</a>
+            </li>
+          
+            <li>
+              <a href="/about/" target='_self'>about</a>
+            </li>
+          
+            <li>
+              <a href="https://github.com/teddy-ma/" target='_blank'>github</a>
+            </li>
+          
+        </ul>
+      </nav>
+    </header>
+
+    <main id="baseline" role="main" class="page-main typo yue row">
+      <div class="section typeset twelve columns">
+        <!-- 文章视图 -->
+<article>
+  <p># 缺乏上下文切换能力的 Rails</p>
+<p>Rails 是一个 Ruby 的 Web framework。其核心思想就是 MVC 和 RestFul，然后对资源进行 CRUD。</p>
+<p>简单来说，Rails 让你『在知道自己在做什么的时候』可以达到非常高的效率。不过『效率高』和『以正确的方式做事』可不能划等号。</p>
+<p>Web 框架大多大同小异，无非由一下几点组成。</p>
+<ol type="1">
+<li>路由，起到分发导航的功能，根据 HTTP 所请求的 URL 和 ACTION （GET POST PUT DELET）等调用对应的 endpoint。</li>
+<li>控制器，就是上面提到的 endpoint，负责接收 HTTP 请求的参数。然后返回 HTTP 的 Response。</li>
+<li>模型，这一层应该是最复杂的，这和应用的具体业务有关，不像其他组件有着固定的固定的处理方式。</li>
+<li>视图，User Interface。</li>
+</ol>
+<p>Rails 的一个重大问题就是把整个这一些列组件作为一个整体，虽然组件可以被单独使用，但是不凑在一起就无法发挥威力。（恐龙战队）</p>
+<p>回过头想想，那个著名的 15 分钟创建一个博客应用的例子，就是利用了脚手架的自动生成代码，和约定大于配置的规则，其实就是俗称的『把一切问题转化成钉子』的思路。</p>
+<p>可是，不是所有问题都能转化为钉子的，就算勉强转了，也是强扭的瓜不甜。</p>
+<p>在开发好一个 Rails 应用后，如果去做一些『运营』的工作的话，你可能会发现，很难使用简单的几句代码去实现一个业务逻辑。</p>
+<p>就是因为，在 Rails 中，『用例』都是被打撒了的。很难把业务逻辑集中在一个地方。</p>
+<p>就拿 『当前用户』来说吧，一般都是在一个 base_controller 中，根据 session 中的数据，取出当前用户的对象。</p>
+<p>然后 controller 需要 『知道』这次请求要取出的是『当前用户』的动态。</p>
+<p>View 层应该是职责很清楚的，只要把它所知道的数据展示出来就可以了，可是 Rails 中的 View 层真心不给力。</p>
+<p>首先是没有地方做简单的逻辑处理，然后 Helper 又都是全局的 Module ！！！完全没有任何 oo 的概念。</p>
+<p>至于 ActiveRecord，它的功能是强大的，可是被用错了地方。</p>
+<p>ActiveRecord 这个名字出自于 《企业架构实战》中的一个模式，意为：</p>
+<p>很明显这个模式的用途是操作数据库（表）的，并不符合我们通常意义上的 （domain） model。</p>
+<p>它顶多就是数据库表的一个模型（model）。</p>
+<p>既然在 Rails 中，一个 model （比如 User）对应的是一个表（类）和表中的一条记录（实例）。</p>
+<p>那么一个 model 的所有方法都是关于数据表的，所谓的 callback，就类似于数据库的触发器。</p>
+<p>那这样的架构，和『远古』时代的 sql 脚本的开发方式又有什么区别？</p>
+<p>领域模型根本没有生存的空间。比如 post 和 post-content，就是由于表结构的问题，不得不分开定义。</p>
+<p>也就是说，在开发 Rails 应用的时候，你既需要知道 HTTP 是怎么一回事，也要知道数据库是怎么一回事。</p>
+<p>难怪 Rails 被认为是『不适合初学者的框架』了。</p>
+<p>很明显这样什么都要知道的做法是不符合『单一职责』原则的。</p>
+<p>我们开发的应用应该只是将 web 作为一种输入和输出的媒介，不应该和具体的业务逻辑有过多的耦合。</p>
+<p>== Rails 就是火车</p>
+<p>在粗粒度的场景是很适合 Rails 的。但是粒度一细就不给力了。</p>
+<p>MVC 也太粗了，需要更细的操作就傻眼了。</p>
+<p>缺乏分层。</p>
+<p>Controller 层最最失败的设计就是 strong_paramter。</p>
+<p>它最大的问题就是 <em>让控制层知道了业务逻辑</em> 。</p>
+<p>在上下文方面，Rails 一向很弱。controller 层的 strongparamter</p>
+<p>感觉像是解决了问题，分为 api 和 admin， api不可以更新 role</p>
+<p>admin 可以更新。</p>
+<p>还有 model 层的上下文切换，也非常乏力，最多就是一个单表继承问题。</p>
+<p>像什么 to——json 这样的反模式我都无力吐槽了。</p>
+<p>理想的状态是根据用例来切分上下文。（书本）</p>
+<p>view 层也太薄，其实应该分为 presence 层和 template</p>
+<p>（先生、女士）（js 数据格式等） helper 又是全局的类方法，无力吐槽。</p>
+<h2 id="section"></h2>
+<p>看看 (http://guides.rubyonrails.org/testing.html#functional-tests-for-your-controllers)[rails guide] 是怎么写的</p>
+<blockquote>
+<p>http://guides.rubyonrails.org/testing.html#functional-tests-for-your-controllers</p>
+</blockquote>
+
+</article>
+
+      </div>
+    </main> <!-- 网页主体 -->
+
+    <!-- 评论框 -->
+
+    <footer role="contentinfo" class="global-footer row">
+      <p class="copyright">© Ma Lucheng 2014-2015 — All content is licensed under the
+        <a href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons BY-SA 3.0</a>.
+      </p>
+
+      <figure class="footer-zfm">
+        <img src="http://javaer.qiniudn.com/zhifuma.png" alt="支付宝二维码" />
+        <figcaption>觉得文章对你有帮助，可以打赏一杯咖啡支持一下</figcaption>
+      </figure>
+    </footer><!-- 页脚 -->
+
+    <script src="/js/vendor.js"></script>
+    <script src="/js/app.js"></script>
+    <script src="//cdn.bootcss.com/highlight.js/8.9.1/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <script>require('main').init();</script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-68587267-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+
+    <script src="//cdn.bootcss.com/instantclick/3.0.1/instantclick.min.js"></script>
+    <script>
+      InstantClick.on('change', function() {
+        var blocks = document.querySelectorAll('pre code');
+        for (var i = 0; i < blocks.length; i++) {
+          hljs.highlightBlock(blocks[i]);
+        }
+      });
+    </script>
+
+    <script type="text/javascript" src=""></script>
+  </body>
+</html>

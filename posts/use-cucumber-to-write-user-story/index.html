@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="zh-cmn-Hans" class="han-init">
+  <head>
+    <meta charset="utf-8">
+    <title>编程青年 - 使用 cucumber 编写用户故事</title>
+    <meta name="description" content="编程青年的博客，记录着软件开发中的点点滴滴">
+    <meta name="copyright" content="Ma Lucheng 2014-2015">
+    <meta name="generator" content="pandoc">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+
+    <link href="/css/app.css" rel="stylesheet">
+    <link href="//cdn.bootcss.com/highlight.js/8.9.1/styles/solarized_light.min.css" rel="stylesheet">
+  </head>
+
+  <body class="container">
+    <header class="global-header row">
+      <h1 class="global-header__logo four columns"><a href="/" class="blog-title-link">编程青年</a></h1>
+      <nav id="menu1" class="navbar eight columns">
+        <ul class="navbar-list">
+          
+            <li class="navbar-item">
+              <a href="/posts/" class="navbar-link" target='_self'>posts</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="/essays/" class="navbar-link" target='_self'>essays</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="/reading/" class="navbar-link" target='_self'>reading</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="http://songofcode.com/how-to-learn-emacs-chinese-edition/" class="navbar-link" target='_blank'>emacs</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="/about/" class="navbar-link" target='_self'>about</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="https://github.com/teddy-ma/" class="navbar-link" target='_blank'>github</a>
+            </li>
+          
+        </ul>
+      </nav>
+      <nav id="menu2" class="path-nav path-nav-top-right">
+        <a href="#menu2" class="path-nav-expander">
+          <div class="ball"></div>
+        </a>
+        <a href="#" class="path-nav-close"></a>
+        <ul>
+          
+            <li>
+              <a href="/posts/" target='_self'>posts</a>
+            </li>
+          
+            <li>
+              <a href="/essays/" target='_self'>essays</a>
+            </li>
+          
+            <li>
+              <a href="/reading/" target='_self'>reading</a>
+            </li>
+          
+            <li>
+              <a href="http://songofcode.com/how-to-learn-emacs-chinese-edition/" target='_blank'>emacs</a>
+            </li>
+          
+            <li>
+              <a href="/about/" target='_self'>about</a>
+            </li>
+          
+            <li>
+              <a href="https://github.com/teddy-ma/" target='_blank'>github</a>
+            </li>
+          
+        </ul>
+      </nav>
+    </header>
+
+    <main id="baseline" role="main" class="page-main typo yue row">
+      <div class="section typeset twelve columns">
+        <!-- 文章视图 -->
+<article>
+  <h1 id="使用-cucumber-编写用户故事">使用 cucumber 编写用户故事</h1>
+<p>cucumber 是一款 BDD 的工具，通常用于集成测试。 活力果的后端只提供 API 给手机端应用。本来并不是很适合使用 cucumber。 不过随着开发的深入，我越来越觉得单纯的 API 测试（controller 层）无法表达用户的意图。而目前整个团队对于产品的用例也不是非常清楚，更没有文档可言，于是我打算使用 cucumber 来编写用例。</p>
+<h2 id="使用-cucumber-的好处">使用 cucumber 的好处</h2>
+<p>在开发应用时，我们会把大的工点点分解成小的功能。但是在理解业务逻辑时，我们要从更宏观的角度看待系统。 Rails 框架的统一编程风格并不足以让人非常舒服的熟悉一个系统。因为 ActiveRecord 的特性，我们只能看到模型之间的关系，而看不到用户是是如何和它们交互的。 这就像给你一堆齿轮，转轴和马达一样，你知道如何拼装它们，但你看不到它们所组成的到底是汽车，飞机还是轮船。 通过用户故事，无论是开发人员还是业务人员都能对系统有一个快速直观的理解。 而 cucumber 就是将用户故事代码化的一款工具。</p>
+<h2 id="get-started">Get Started</h2>
+<p>活力果项目使用 rails 自带的 minitest 测试框架。添加 cucumber 的步骤如下。</p>
+<h3 id="在-gemfile-中添加">在 Gemfile 中添加</h3>
+<pre class="ruby"><code>group :test, :development do
+  gem &#39;cucumber-rails&#39;, :require =&gt; false
+  gem &#39;database_cleaner&#39;
+end</code></pre>
+<h3 id="安装">安装</h3>
+<pre class="sh"><code>bundle install
+rails generate cucumber:install</code></pre>
+<h3 id="编写第一个-feature">编写第一个 feature</h3>
+<pre class="ruby"><code>@require_login
+Feature: XiaomiSports
+  In order to know about my xiaomi sports
+  As a care user with xiaomi profile binding
+  I want list of my xiaomi sports
+
+Scenario: List of the xiaomi sports
+  Given the system knows my xiaomi profile
+  And the system knows about the following sports::
+    |  record_on |  step |
+    | 2015-05-25 |  8000 |
+    | 2015-05-26 | 10000 |
+    | 2015-05-27 | 12000 |
+  When the client requests GET &quot;/api/v1/xiaomi_profile/exercise_data?fromDate=2015-05-25&amp;toDate=2015-05-27&quot;
+  Then response should be &quot;200&quot;
+  And the JSON response should be an array with 3 &quot;step&quot; elements</code></pre>
+<h3 id="执行-binrake-cucumber-并且实现相应步骤">执行 <code>bin/rake cucumber</code> 并且实现相应步骤</h3>
+<p>cucumber 会自动输出实现步骤的提示代码类似于:</p>
+<pre class="sh"><code>You can implement step definitions for undefined steps with these snippets:
+
+Given(/^the system knows about the processions of my corp$/) do
+  pending # express the regexp above with the code you wish you had
+end</code></pre>
+<p>只要把上述代码拷贝到 <code>features/step_definitions/xxxx_steps.rb</code>中, 然后填写测试代码, 那么执行到这段&quot;情节&quot;时, 代码块中的代码就会被执行.</p>
+<h2 id="tips">tips</h2>
+<h3 id="使用-tag-来实现-aop-的效果">使用 tag 来实现 AOP 的效果</h3>
+<p>我在上面的代码中使用了 <span class="citation" data-cites="require_login">@require_login</span> 这个 tag, 表示下面的步骤是需要在用户登录状态下才能完成的. 可以对 tag 添加钩子函数来 DRY</p>
+<p><code>features/support/hooks.rb</code></p>
+<pre class="ruby"><code>Before(&#39;@require_login&#39;) do
+  # login logic
+end</code></pre>
+<h3 id="table-的使用">table 的使用</h3>
+<p>在 cucumber 中使用 table 可以非常直观的表达一组数据结构, 比如上面提到的：</p>
+<pre class="ruby"><code>|  record_on |  step |
+| 2015-05-25 |  8000 |
+| 2015-05-26 | 10000 |
+| 2015-05-27 | 12000 |</code></pre>
+<p>在 step 中可以这样获取:</p>
+<pre class="ruby"><code>Given(/^the system knows about the following sports::$/) do |table|
+  table.hashes #=&gt; [{&quot;record_on&quot;=&gt;&quot;2015-05-25&quot;, &quot;step&quot;=&gt;&quot;8000&quot;}, {&quot;record_on&quot;=&gt;&quot;2015-05-26&quot;, &quot;step&quot;=&gt;&quot;10000&quot;}, {&quot;record_on&quot;=&gt;&quot;2015-05-27&quot;, &quot;step&quot;=&gt;&quot;12000&quot;}]
+end</code></pre>
+<h3 id="request-header-的设置方式">request header 的设置方式</h3>
+<p>直接上代码, 模拟客户端的请求</p>
+<pre class="ruby"><code>@current_user = FactoryGirl.create(:access_token).user
+header &#39;Accept&#39;, &#39;application/json&#39;
+header &#39;Content-Type&#39;, &#39;application/json&#39;
+header &#39;Token&#39;, @current_user.access_tokens.last.token</code></pre>
+<h2 id="参考文档">参考文档</h2>
+<p><a href="https://cucumber.io/docs/reference/rails" class="uri">https://cucumber.io/docs/reference/rails</a></p>
+<p><a href="http://anthonyeden.com/2013/07/10/testing-rest-apis-with-cucumber-and-rack.html" class="uri">http://anthonyeden.com/2013/07/10/testing-rest-apis-with-cucumber-and-rack.html</a></p>
+<p><a href="http://www.emilsoman.com/blog/2013/05/18/building-a-tested/" class="uri">http://www.emilsoman.com/blog/2013/05/18/building-a-tested/</a></p>
+
+</article>
+
+      </div>
+    </main> <!-- 网页主体 -->
+
+    <!-- 评论框 -->
+
+    <footer role="contentinfo" class="global-footer row">
+      <p class="copyright">© Ma Lucheng 2014-2015 — All content is licensed under the
+        <a href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons BY-SA 3.0</a>.
+      </p>
+
+      <figure class="footer-zfm">
+        <img src="http://javaer.qiniudn.com/zhifuma.png" alt="支付宝二维码" />
+        <figcaption>觉得文章对你有帮助，可以打赏一杯咖啡支持一下</figcaption>
+      </figure>
+    </footer><!-- 页脚 -->
+
+    <script src="/js/vendor.js"></script>
+    <script src="/js/app.js"></script>
+    <script src="//cdn.bootcss.com/highlight.js/8.9.1/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <script>require('main').init();</script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-68587267-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+
+    <script src="//cdn.bootcss.com/instantclick/3.0.1/instantclick.min.js"></script>
+    <script>
+      InstantClick.on('change', function() {
+        var blocks = document.querySelectorAll('pre code');
+        for (var i = 0; i < blocks.length; i++) {
+          hljs.highlightBlock(blocks[i]);
+        }
+      });
+    </script>
+
+    <script type="text/javascript" src=""></script>
+  </body>
+</html>

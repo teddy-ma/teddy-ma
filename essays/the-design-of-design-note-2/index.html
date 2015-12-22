@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="zh-cmn-Hans" class="han-init">
+  <head>
+    <meta charset="utf-8">
+    <title>编程青年 - 『设计原本』读书笔记 2</title>
+    <meta name="description" content="编程青年的博客，记录着软件开发中的点点滴滴">
+    <meta name="copyright" content="Ma Lucheng 2014-2015">
+    <meta name="generator" content="pandoc">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+
+    <link href="/css/app.css" rel="stylesheet">
+    <link href="//cdn.bootcss.com/highlight.js/8.9.1/styles/solarized_light.min.css" rel="stylesheet">
+  </head>
+
+  <body class="container">
+    <header class="global-header row">
+      <h1 class="global-header__logo four columns"><a href="/" class="blog-title-link">编程青年</a></h1>
+      <nav id="menu1" class="navbar eight columns">
+        <ul class="navbar-list">
+          
+            <li class="navbar-item">
+              <a href="/posts/" class="navbar-link" target='_self'>posts</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="/essays/" class="navbar-link" target='_self'>essays</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="/reading/" class="navbar-link" target='_self'>reading</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="http://songofcode.com/how-to-learn-emacs-chinese-edition/" class="navbar-link" target='_blank'>emacs</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="/about/" class="navbar-link" target='_self'>about</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="https://github.com/teddy-ma/" class="navbar-link" target='_blank'>github</a>
+            </li>
+          
+        </ul>
+      </nav>
+      <nav id="menu2" class="path-nav path-nav-top-right">
+        <a href="#menu2" class="path-nav-expander">
+          <div class="ball"></div>
+        </a>
+        <a href="#" class="path-nav-close"></a>
+        <ul>
+          
+            <li>
+              <a href="/posts/" target='_self'>posts</a>
+            </li>
+          
+            <li>
+              <a href="/essays/" target='_self'>essays</a>
+            </li>
+          
+            <li>
+              <a href="/reading/" target='_self'>reading</a>
+            </li>
+          
+            <li>
+              <a href="http://songofcode.com/how-to-learn-emacs-chinese-edition/" target='_blank'>emacs</a>
+            </li>
+          
+            <li>
+              <a href="/about/" target='_self'>about</a>
+            </li>
+          
+            <li>
+              <a href="https://github.com/teddy-ma/" target='_blank'>github</a>
+            </li>
+          
+        </ul>
+      </nav>
+    </header>
+
+    <main id="baseline" role="main" class="page-main typo yue row">
+      <div class="section typeset twelve columns">
+        <!-- 文章视图 -->
+
+<article>
+  <p>设计的理论是普通的搜索理论，即在巨大的组合空间搜索。 我对此的理解是：『文章本天成，妙手偶得之』。 设计是一种组合，当然这种组合不是类似于暴力破解密码那样的机械重复尝试。它是有着清晰的模型的。分为： 1. 目标 2. 必要条件 3. 效用函数 4. 约束 5. 资源分配 6. 设计树</p>
+<p>以一个软件项目为例，目标就是上线，必要条件就是客户的核心需求，效用函数则是 ui 和易用性等要素。 约束通常是需要负责人和客户进行沟通才能获得的一些隐性（软性）要求。资源分配在当今的软件开发中几乎可以等价于人了，不过根据『人月神话』的理论，人力的分配和效用函数一样，并非越多越好。 最后就是设计树，设计是一个迭代的过程，每当获得一个需求，无论规模大小，工程师都会进行一轮设计。 一个功能点划分成几个小模块，然后估算小模块的可实现性和时间等因素，最后判断是否可以开发该需求。 这个过程是一个简单的搜索过程，并且工程师会找到一个『不错的解法』（通常并非最优解，因为要考虑时间成本等其他因素）。</p>
+
+</article>
+
+      </div>
+    </main> <!-- 网页主体 -->
+
+    <!-- 评论框 -->
+
+    <footer role="contentinfo" class="global-footer row">
+      <p class="copyright">© Ma Lucheng 2014-2015 — All content is licensed under the
+        <a href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons BY-SA 3.0</a>.
+      </p>
+
+      <figure class="footer-zfm">
+        <img src="http://javaer.qiniudn.com/zhifuma.png" alt="支付宝二维码" />
+        <figcaption>觉得文章对你有帮助，可以打赏一杯咖啡支持一下</figcaption>
+      </figure>
+    </footer><!-- 页脚 -->
+
+    <script src="/js/vendor.js"></script>
+    <script src="/js/app.js"></script>
+    <script src="//cdn.bootcss.com/highlight.js/8.9.1/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <script>require('main').init();</script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-68587267-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+
+    <script src="//cdn.bootcss.com/instantclick/3.0.1/instantclick.min.js"></script>
+    <script>
+      InstantClick.on('change', function() {
+        var blocks = document.querySelectorAll('pre code');
+        for (var i = 0; i < blocks.length; i++) {
+          hljs.highlightBlock(blocks[i]);
+        }
+      });
+    </script>
+
+    <script type="text/javascript" src=""></script>
+  </body>
+</html>

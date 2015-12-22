@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="zh-cmn-Hans" class="han-init">
+  <head>
+    <meta charset="utf-8">
+    <title>编程青年 - 当 Backbone.js 遇上非 CRUD API</title>
+    <meta name="description" content="编程青年的博客，记录着软件开发中的点点滴滴">
+    <meta name="copyright" content="Ma Lucheng 2014-2015">
+    <meta name="generator" content="pandoc">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+
+    <link href="/css/app.css" rel="stylesheet">
+    <link href="//cdn.bootcss.com/highlight.js/8.9.1/styles/solarized_light.min.css" rel="stylesheet">
+  </head>
+
+  <body class="container">
+    <header class="global-header row">
+      <h1 class="global-header__logo four columns"><a href="/" class="blog-title-link">编程青年</a></h1>
+      <nav id="menu1" class="navbar eight columns">
+        <ul class="navbar-list">
+          
+            <li class="navbar-item">
+              <a href="/posts/" class="navbar-link" target='_self'>posts</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="/essays/" class="navbar-link" target='_self'>essays</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="/reading/" class="navbar-link" target='_self'>reading</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="http://songofcode.com/how-to-learn-emacs-chinese-edition/" class="navbar-link" target='_blank'>emacs</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="/about/" class="navbar-link" target='_self'>about</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="https://github.com/teddy-ma/" class="navbar-link" target='_blank'>github</a>
+            </li>
+          
+        </ul>
+      </nav>
+      <nav id="menu2" class="path-nav path-nav-top-right">
+        <a href="#menu2" class="path-nav-expander">
+          <div class="ball"></div>
+        </a>
+        <a href="#" class="path-nav-close"></a>
+        <ul>
+          
+            <li>
+              <a href="/posts/" target='_self'>posts</a>
+            </li>
+          
+            <li>
+              <a href="/essays/" target='_self'>essays</a>
+            </li>
+          
+            <li>
+              <a href="/reading/" target='_self'>reading</a>
+            </li>
+          
+            <li>
+              <a href="http://songofcode.com/how-to-learn-emacs-chinese-edition/" target='_blank'>emacs</a>
+            </li>
+          
+            <li>
+              <a href="/about/" target='_self'>about</a>
+            </li>
+          
+            <li>
+              <a href="https://github.com/teddy-ma/" target='_blank'>github</a>
+            </li>
+          
+        </ul>
+      </nav>
+    </header>
+
+    <main id="baseline" role="main" class="page-main typo yue row">
+      <div class="section typeset twelve columns">
+        <!-- 文章视图 -->
+<article>
+  <h1 id="当-backbone.js-遇上非-crud-api">当 Backbone.js 遇上非 CRUD API</h1>
+<p>最近使用 Backbone.js 开发客户端时发现了一个看似很小，实则非常麻烦的问题：</p>
+<p>如何与非 CRUD 式的 RESTFul API 交互。</p>
+<p>举个例子，有一个活动 activity 模型，它可以被开启或者停止，有两种解决方案：</p>
+<ol>
+<li>使用 put 或者 patch，比如 <code>/service/activities/:id</code> 并传递参数 <code>{status: :active}</code></li>
+<li>使用额外的 endpoint, 比如 <code>/service/activities/:id/active</code></li>
+</ol>
+<p>如果使用第一种方式，那么就是标准的 CRUD 式的 API，Backbone.js 默认就支持。</p>
+<p>但是实际上开启一个活动是一个比较大的动作，可能需要调用其他模块的功能，不是简单的改一个字段。</p>
+<p>因此从 api 设计的角度我是倾向于使用第二种方式的。可是奇怪的是关于 Backbone.js 调用 CRUD 以外 的 API 的文章非常少，我翻遍 google 就勉强找到了<a href="http://www.veriday.com/let-backbone-slide-extending-restful-web-services/"> 这篇</a> 。通过临时改变 model 的 url 属性来实现的。 并没有太让我满意。</p>
+<p>正好晚上向 <a href="https://ruby-china.org/vincent">vincent</a> 请教了一下这个问题，因为讨论的重点是 api 设计而不是 backbone 的具体实现， 反而开阔了我的思路。</p>
+<p>重新复习了一下 RESTful 的相关知识，发现了一个常见误区：</p>
+<blockquote>
+<p>最常见的一种设计错误，就是URI包含动词。因为&quot;资源&quot;表示一种实体，所以应该是名词，URI不应该有动词，动词应该放在HTTP协议中。</p>
+</blockquote>
+<p>对于这个观点争论不少，毕竟类似于 <code>/service/activities/:id/active</code> 这样的设计还是很常见的。 这个 AOE 范围有点大。。。<a href="http://stackoverflow.com/questions/2001773/understanding-rest-verbs-error-codes-and-authentication">stackoverflow 上有个讨论可以参考</a> 。其中我比较赞同的一点是：</p>
+<blockquote>
+<p>In general, when you think you need more verbs, it may actually mean that your resources need to be re-identified.</p>
+</blockquote>
+<p><a href="http://www.vinaysahni.com/best-practices-for-a-pragmatic-restful-api#restful">这里</a> 提出的三种解决方案也可以参考。</p>
+<p>举个例子：</p>
+<p><img src="http://javaer.qiniudn.com/assets/posts/images/rest/print_book.png" alt="" /></p>
+<p>你是想打印一本书，还是发起一个打印的订单请求？</p>
+<p>一样的道理，我是要激活一个活动，还是发起一个激活活动的请求？</p>
+<p>这个例子中，使用了名词代替动词。一旦变成了名词，我立马想到可以新建一个 model。</p>
+<p>这下，只要创建一个 Backbone.js 的模型 <code>startActivity</code>, 把它的 url 指向 <code>/service/activities/:id/active</code> 。</p>
+<p>当发起请求后（激活由于业务逻辑的限制，未必就会成功），后续的逻辑就可以都放在这个 <code>startActivity</code> 对象中。</p>
+<p>如果激活失败就显示错误信息，成功则通知 <code>activity</code> 模型重新渲染自己的视图。</p>
+<p>这样结构更加清晰。这未必是最好的解决方案，但是不失为一种不错的思路。</p>
+<p>这次我犯的错误是，一开始总是从 Backbone.js 的方面找问题。想要把 Backbone.js 变成 一把锤子来解决这个钉子。二是对 RESTful 这样比较基础的知识的理解还是不够，否则思路也不会这么局限。</p>
+
+</article>
+
+      </div>
+    </main> <!-- 网页主体 -->
+
+    <!-- 评论框 -->
+
+    <footer role="contentinfo" class="global-footer row">
+      <p class="copyright">© Ma Lucheng 2014-2015 — All content is licensed under the
+        <a href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons BY-SA 3.0</a>.
+      </p>
+
+      <figure class="footer-zfm">
+        <img src="http://javaer.qiniudn.com/zhifuma.png" alt="支付宝二维码" />
+        <figcaption>觉得文章对你有帮助，可以打赏一杯咖啡支持一下</figcaption>
+      </figure>
+    </footer><!-- 页脚 -->
+
+    <script src="/js/vendor.js"></script>
+    <script src="/js/app.js"></script>
+    <script src="//cdn.bootcss.com/highlight.js/8.9.1/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <script>require('main').init();</script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-68587267-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+
+    <script src="//cdn.bootcss.com/instantclick/3.0.1/instantclick.min.js"></script>
+    <script>
+      InstantClick.on('change', function() {
+        var blocks = document.querySelectorAll('pre code');
+        for (var i = 0; i < blocks.length; i++) {
+          hljs.highlightBlock(blocks[i]);
+        }
+      });
+    </script>
+
+    <script type="text/javascript" src=""></script>
+  </body>
+</html>

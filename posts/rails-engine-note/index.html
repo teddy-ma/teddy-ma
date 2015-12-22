@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="zh-cmn-Hans" class="han-init">
+  <head>
+    <meta charset="utf-8">
+    <title>编程青年 - Rails 引擎初探</title>
+    <meta name="description" content="编程青年的博客，记录着软件开发中的点点滴滴">
+    <meta name="copyright" content="Ma Lucheng 2014-2015">
+    <meta name="generator" content="pandoc">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+
+    <link href="/css/app.css" rel="stylesheet">
+    <link href="//cdn.bootcss.com/highlight.js/8.9.1/styles/solarized_light.min.css" rel="stylesheet">
+  </head>
+
+  <body class="container">
+    <header class="global-header row">
+      <h1 class="global-header__logo four columns"><a href="/" class="blog-title-link">编程青年</a></h1>
+      <nav id="menu1" class="navbar eight columns">
+        <ul class="navbar-list">
+          
+            <li class="navbar-item">
+              <a href="/posts/" class="navbar-link" target='_self'>posts</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="/essays/" class="navbar-link" target='_self'>essays</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="/reading/" class="navbar-link" target='_self'>reading</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="http://songofcode.com/how-to-learn-emacs-chinese-edition/" class="navbar-link" target='_blank'>emacs</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="/about/" class="navbar-link" target='_self'>about</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="https://github.com/teddy-ma/" class="navbar-link" target='_blank'>github</a>
+            </li>
+          
+        </ul>
+      </nav>
+      <nav id="menu2" class="path-nav path-nav-top-right">
+        <a href="#menu2" class="path-nav-expander">
+          <div class="ball"></div>
+        </a>
+        <a href="#" class="path-nav-close"></a>
+        <ul>
+          
+            <li>
+              <a href="/posts/" target='_self'>posts</a>
+            </li>
+          
+            <li>
+              <a href="/essays/" target='_self'>essays</a>
+            </li>
+          
+            <li>
+              <a href="/reading/" target='_self'>reading</a>
+            </li>
+          
+            <li>
+              <a href="http://songofcode.com/how-to-learn-emacs-chinese-edition/" target='_blank'>emacs</a>
+            </li>
+          
+            <li>
+              <a href="/about/" target='_self'>about</a>
+            </li>
+          
+            <li>
+              <a href="https://github.com/teddy-ma/" target='_blank'>github</a>
+            </li>
+          
+        </ul>
+      </nav>
+    </header>
+
+    <main id="baseline" role="main" class="page-main typo yue row">
+      <div class="section typeset twelve columns">
+        <!-- 文章视图 -->
+<article>
+  <h1 id="rails-引擎初探">Rails 引擎初探</h1>
+<p>当出现同一个功能模块需要被多个 Rails 项目使用时， Rails 引擎（engine） 就是一个很好的选择。</p>
+<p>关于 Rails Engine, <a href="http://guides.rubyonrails.org/engines.html">官方文档</a>已经写的很详细了。</p>
+<p>这里我记录一下开发一个引擎时各部分的写法。</p>
+<h2 id="初始化">初始化</h2>
+<p><code>rails plugin new foo --mountable</code></p>
+<p>这会创建一个引擎的基本骨架，这里 <code>foo</code> 就是引擎的名字，由于使用了 <code>--mountable</code> 选项。 <code>Foo</code> 这个单词会作为命名空间的存在，非常重要。</p>
+<h2 id="目录结构">目录结构</h2>
+<p>一个引擎的目录简单来说就是一个加了命名空间的 rails 项目。其 controller model view 包括 assets layout 都要加命名空间（rails 中命名空间就对应文件目录）。</p>
+<p>一个常规的 rails 项目本身也是一个引擎，宿主和引擎之间没什么本质的区别，存在的差异只是因为职责的不同而已。</p>
+<p>由于引擎是依附于宿主 rails 应用的，因此引擎有自己的 <code>gemspec</code>（e.g <code>foo.gemspec</code>），引擎以 gem 的形式存在。</p>
+<p>只不过相比于普通的 gem，它更加全面，mvc 三层都被覆盖到了。</p>
+<p>不过引擎一般没有自己的持久化配置，因为引擎是要被宿主调用的，因此数据库配置一般都是由宿主决定的，引擎只提供逻辑代码。</p>
+<p>另外引擎可以有自己的 migration，宿主可以使用命令 <code>rake foo:install:migrations</code> 来把存在于引擎 <code>foo</code> 中的 migration 复制到自己的 <code>db/migrate</code> 目录下，便于执行。</p>
+<h2 id="与宿主的交互">与宿主的交互</h2>
+<p>在编写引擎的逻辑时和一般的 rails 应用没什么区别，重点就是如何和宿主应用进行交互。</p>
+<h3 id="路由">路由</h3>
+<p>一个最简单的引擎只需要被宿主挂载就可以了，只要在宿主的路由中加入一行： <code>mount Foo::Engine =&gt; &quot;/foo&quot;</code>, 意为引擎 <code>Foo</code> 的 <code>base url</code> 就是 <code>/foo</code> 。 如果不用这个 <code>base url</code> 把路由区分开来的话，就有可能出现路由被覆盖的情况。 注意这里的 <code>base url</code> 和引擎的命名空间完全没有关系, 因此引擎当中的所有内部跳转 <em>必须</em> 全部使用 具名路由来表示，这样才不会被 <code>base url</code> 所影响。</p>
+<h3 id="assets">assets</h3>
+<p>引擎的 assets 是完全独立的，要设定 precompile 的话需要在 <code>lib/foo/engine.rb</code> 中定义：</p>
+<pre class="ruby"><code>initializer &quot;foo.assets.precompile&quot; do |app|
+  app.config.assets.precompile += %w(foo/admin.css foo/admin.js)
+end</code></pre>
+<p>assets 的路径（包含 css，js，图片等）都要使用 rails 提供的 helper 方法（assets_path 等）来指定。否则会出现和路由一样的问题。</p>
+<h3 id="view">view</h3>
+<p>view 层是最不通用的一层，用过 <a href="https://github.com/plataformatec/devise">devise</a> 的都知道， view 层是几乎一定会被 overwrite 的。 所以写引擎的时候尽量把 view 层写的简洁一些，不要有复杂逻辑，这样 overwrite 的时候比较方便。 注意 layout 文件的位置是 <code>layouts/foo/xxx</code> 而不是 <code>foo/layouts/xxx</code> 哦。</p>
+<h3 id="model">model</h3>
+<p>引擎中的模型都是带有命名空间的（它们对应的表名也有命名空间的前缀）, 在调用时最好加上命名空间（不然可能出现找不到定义的情况）。这点可以参考 <a href="https://github.com/tryshoppe/shoppe">Shoppe</a>，包括在定义模型的关系时，也最好指定带有命名控件的 Class Name。</p>
+<h3 id="controller">controller</h3>
+<p>这是有点麻烦的一层，跟宿主的耦合比较严重，比如说如果我想要复用宿主应用中的权限管理（在宿主的 <code>app/controller/admin/base_controller.rb</code> 中），那么我不得不让引擎的 <code>base_controller</code> 都继承 <code>::Admin::BaseController</code> 才行，这是非常严重的耦合。 rails guide 是这么写的：</p>
+<pre><code>An easy way to provide this access is to change the engine&#39;s scoped ApplicationController to inherit from the main application&#39;s ApplicationController.</code></pre>
+<p>意思是说哪怕是非常简单的获得 <code>current_user</code> 的方法，我也要定义在宿主应用的 <code>application_controller</code> 中才能让引擎调用到，我写在 <code>base_controller</code> 中就不行了。 目前看起来这个问题无解。。。好在自己开发引擎的情况绝大多数都是给内部应用使用的，所以这也不算很大的问题。</p>
+<h2 id="tips">tips</h2>
+<h3 id="独立数据源">独立数据源</h3>
+<p>如果引擎需要自己的独立数据库，可以让引擎中的 model 都继承一个 base_model, 在其中配置数据源：</p>
+<pre class="ruby"><code>module Foo
+  class BaseModel &lt; ActiveRecord::Base
+    self.abstract_class = true
+    establish_connection &quot;foo_#{Rails.env}&quot;.to_sym
+  end
+end</code></pre>
+<p>ps: 如果宿主使用的不是 <code>active_record</code>，而引擎是的话，这种情况可以不指定 <code>establish_conecton</code>, 一样可以做到引擎有独立的数据源, 因为框架还是会读取 <code>config/database.yml</code>，然后根据使用的持久化框架来自动指定对应的数据库。</p>
+<h3 id="元编程">元编程</h3>
+<p>在引擎中难免需要和宿主中的类和对象进行交互，这样就需要动态的修改宿主程序。 这就要用到元编程了，在 ruby 语言中，使用元编程更是家常便饭了。 在引擎中一般都在 <code>lib/foo.rb</code> 中个引擎同名文件中进行一些初始化工作，当然也包含元编程。 这里需要引入 <a href="https://github.com/parndt/decorators">decorators</a> 这个 gem，然后就可以开始对宿主的类和对象开刀啦。 要使用 <code>decorators</code>，要先在 <code>lib/foo/engine.rb</code> 中初始化：</p>
+<pre class="ruby"><code>class &lt;&lt; self
+  attr_accessor :root
+  def root
+    @root ||= Pathname.new(File.expand_path(&#39;../../../&#39;, __FILE__))
+  end
+end
+config.to_prepare do
+  Decorators.register! Engine.root, Rails.root
+end</code></pre>
+<p>常见的例子就是给宿主的 User 类添加一些和引擎的逻辑相关的方法。</p>
+<pre class="ruby"><code>require &#39;decorators&#39;
+module Foo
+  mattr_accessor :user_class
+  class &lt;&lt; self
+    def decorate_user_class!
+      Foo.user_class.class_eval do
+        def say_hello
+          puts &quot;hello from foo&quot;
+        end
+      end
+    end
+    def user_class
+      Object.const_get(@@user_class)
+    end
+  end
+end</code></pre>
+<p>顺便说一句，这里的 <code>User(用户）</code>的类名是可以在宿主里指定的，只要在宿主初始化的时候定义诸如： <code>Foo.user_class = &quot;Student&quot;</code> 这样的一行代码就行了。</p>
+
+</article>
+
+      </div>
+    </main> <!-- 网页主体 -->
+
+    <!-- 评论框 -->
+
+    <footer role="contentinfo" class="global-footer row">
+      <p class="copyright">© Ma Lucheng 2014-2015 — All content is licensed under the
+        <a href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons BY-SA 3.0</a>.
+      </p>
+
+      <figure class="footer-zfm">
+        <img src="http://javaer.qiniudn.com/zhifuma.png" alt="支付宝二维码" />
+        <figcaption>觉得文章对你有帮助，可以打赏一杯咖啡支持一下</figcaption>
+      </figure>
+    </footer><!-- 页脚 -->
+
+    <script src="/js/vendor.js"></script>
+    <script src="/js/app.js"></script>
+    <script src="//cdn.bootcss.com/highlight.js/8.9.1/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <script>require('main').init();</script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-68587267-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+
+    <script src="//cdn.bootcss.com/instantclick/3.0.1/instantclick.min.js"></script>
+    <script>
+      InstantClick.on('change', function() {
+        var blocks = document.querySelectorAll('pre code');
+        for (var i = 0; i < blocks.length; i++) {
+          hljs.highlightBlock(blocks[i]);
+        }
+      });
+    </script>
+
+    <script type="text/javascript" src=""></script>
+  </body>
+</html>

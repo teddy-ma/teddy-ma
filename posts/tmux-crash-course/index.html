@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="zh-cmn-Hans" class="han-init">
+  <head>
+    <meta charset="utf-8">
+    <title>编程青年 - tmux 快速入门</title>
+    <meta name="description" content="编程青年的博客，记录着软件开发中的点点滴滴">
+    <meta name="copyright" content="Ma Lucheng 2014-2015">
+    <meta name="generator" content="pandoc">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+
+    <link href="/css/app.css" rel="stylesheet">
+    <link href="//cdn.bootcss.com/highlight.js/8.9.1/styles/solarized_light.min.css" rel="stylesheet">
+  </head>
+
+  <body class="container">
+    <header class="global-header row">
+      <h1 class="global-header__logo four columns"><a href="/" class="blog-title-link">编程青年</a></h1>
+      <nav id="menu1" class="navbar eight columns">
+        <ul class="navbar-list">
+          
+            <li class="navbar-item">
+              <a href="/posts/" class="navbar-link" target='_self'>posts</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="/essays/" class="navbar-link" target='_self'>essays</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="/reading/" class="navbar-link" target='_self'>reading</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="http://songofcode.com/how-to-learn-emacs-chinese-edition/" class="navbar-link" target='_blank'>emacs</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="/about/" class="navbar-link" target='_self'>about</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="https://github.com/teddy-ma/" class="navbar-link" target='_blank'>github</a>
+            </li>
+          
+        </ul>
+      </nav>
+      <nav id="menu2" class="path-nav path-nav-top-right">
+        <a href="#menu2" class="path-nav-expander">
+          <div class="ball"></div>
+        </a>
+        <a href="#" class="path-nav-close"></a>
+        <ul>
+          
+            <li>
+              <a href="/posts/" target='_self'>posts</a>
+            </li>
+          
+            <li>
+              <a href="/essays/" target='_self'>essays</a>
+            </li>
+          
+            <li>
+              <a href="/reading/" target='_self'>reading</a>
+            </li>
+          
+            <li>
+              <a href="http://songofcode.com/how-to-learn-emacs-chinese-edition/" target='_blank'>emacs</a>
+            </li>
+          
+            <li>
+              <a href="/about/" target='_self'>about</a>
+            </li>
+          
+            <li>
+              <a href="https://github.com/teddy-ma/" target='_blank'>github</a>
+            </li>
+          
+        </ul>
+      </nav>
+    </header>
+
+    <main id="baseline" role="main" class="page-main typo yue row">
+      <div class="section typeset twelve columns">
+        <!-- 文章视图 -->
+<article>
+  <h1 id="tmux-快速入门">tmux 快速入门</h1>
+<h2 id="为什么要用-tmux">为什么要用 tmux</h2>
+<p>如果你对 tmux 的疑问还停留在：我可以开多个 terminal 的 tab 啊， 为什么要用 tmux 呢？那我只能呵呵了。 tmux 的强大之处在于：</p>
+<ul>
+<li>可以连接本地或远程的 sessions</li>
+<li>强大的 window 和 pane 管理</li>
+<li>在不同的 session 之间移动 window</li>
+<li>自动化脚本</li>
+</ul>
+<h2 id="基本概念">基本概念</h2>
+<p>tmux 这个单词是 terminal multiplexer 的缩写。 tmux 可以让你在一个屏幕中管理多个终端窗口。 先看图：</p>
+<p><img src="http://javaer.qiniudn.com/assets/posts/images/tmux/tmux.png" alt="" /></p>
+<h3 id="session">session</h3>
+<p>tmux 是被设计为 cs 结构的。因此当你启动 tmux 的时候, 实际上你启动的是 tmux 的 client。 服务端可能也在你的电脑上或者其他服务器上，总之要连接 client 和 server， 就需要一个 session。一般来说一个 session 对应这一个 project。</p>
+<h3 id="window">window</h3>
+<p>一个 session 包含多个 window，这里的 window 比较类似一般 terminal 模拟器的 tab。</p>
+<h3 id="pane">pane</h3>
+<p>一个 window 可以被分割为多个 pane，方便同时查看多个进程的状态。</p>
+<h2 id="快捷键">快捷键</h2>
+<p>tmux 的快捷键可以非常灵活地自定义</p>
+<h3 id="配置">配置</h3>
+<p>tmux 的配置文件位于 <code>$HOME/.tmux.conf</code> (以及一个全局的 <code>/etc/tmux.conf</code>) 和大多数 dotfile 一样，把配置项写到这个文件中，启动 tmux 的时候就会自动读取了。 下面是一些常用配置。</p>
+<h3 id="前缀">前缀</h3>
+<p>这个是所有快捷键的基础，设定了一个 prefix，系统才能知道你后续的操作是对于 tmux 的。 几乎所有的快捷键都是要先输入 prefix 的。默认的 prefix 是 C-b 。不过这和 emacs 的 back 冲突了。 网上比较主流的设定是 C-a ，一来这两个键很近，二来虽然这和 emacs 的回到行首冲突，不过相对于 C-b, C-a 多按几次也没有副作用，并且用的频率没那么高，所以大多数人都会选择用 C-a 作为 prefix。 当然，也有人觉得 C-t （t for tmux）是一个不错的选择，anyway，把 prefix 当成一个变量即可。</p>
+<p>配置项：</p>
+<pre class="dot"><code>set -g prefix C-a # 设定前缀
+unbind C-b  # 取消默认的前缀
+set -s escape-time 1 # 设定前缀的作用时间
+bind C-a send-prefix # 确保可以在其他应用中可以发送 Ctrl-A
+</code></pre>
+<h3 id="常用操作">常用操作</h3>
+<p>这里列出的快捷键都是按照上面的配置配好之后的结果。 其中有些操纵是默认值所以并没出现在配置 list 中。</p>
+<p><strong>使用 <code>prefix - ?</code> 可以随时查看快捷键列表。</strong></p>
+<h4 id="session-1">session</h4>
+<p>配置项：</p>
+<pre class="dot"><code>bind C-c new-session # 创建新的 session
+bind C-f command-prompt -p find-session &#39;switch-client -t %%&#39; # 查找 session
+</code></pre>
+<p>说明：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">功能</th>
+<th style="text-align: left;">快捷键</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">新建 session</td>
+<td style="text-align: left;">prefix - C-c</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">返回 session</td>
+<td style="text-align: left;">tmux attach -t session-name</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">列出 sessions</td>
+<td style="text-align: left;">tmux list-sessions</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">查找 session</td>
+<td style="text-align: left;">prefix - C-f</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">重命名 session</td>
+<td style="text-align: left;">tmux rename-seesion session-name</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">切换 session</td>
+<td style="text-align: left;">tmux switch -t session-name</td>
+</tr>
+</tbody>
+</table>
+<h4 id="window-1">window</h4>
+<p>配置项：</p>
+<pre class="dot"><code>bind -r C-h previous-window # 选定上一个 window
+bind -r C-l next-window     # 选定下一个 window
+</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">功能</th>
+<th style="text-align: left;">快捷键</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">新建 window</td>
+<td style="text-align: left;">prefix-c</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">关闭 window</td>
+<td style="text-align: left;">prefix-&amp;</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">重命名 window</td>
+<td style="text-align: left;">prefix-,</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">列出 windows</td>
+<td style="text-align: left;">prefix-w</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">切换 window</td>
+<td style="text-align: left;">prefix-[0-9]</td>
+</tr>
+</tbody>
+</table>
+<h4 id="panel">panel</h4>
+<p>配置项：</p>
+<pre class="dot"><code>bind - splitw -v # 分割成上下两个窗口
+bind | splitw -h # 分割成左右两个窗口
+</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">功能</th>
+<th style="text-align: left;">快捷键</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">横向切分 window</td>
+<td style="text-align: left;">prefix - 竖杠</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">纵向切分 window</td>
+<td style="text-align: left;">prefix - 横杠</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">最大化 pane</td>
+<td style="text-align: left;">prefix-z</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">改变 pane 的 layout</td>
+<td style="text-align: left;">prefix-space</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">调整 pane 尺寸</td>
+<td style="text-align: left;">prefix 然后按住(shift)FBNP</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">切换 pane(顺序跳转）</td>
+<td style="text-align: left;">prefix - o</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">切换 pane(选择编号)</td>
+<td style="text-align: left;">prefix - q 然后按对应的编号</td>
+</tr>
+</tbody>
+</table>
+<h2 id="模式">模式</h2>
+<p>正如 vi 有不同的模式一样，tmux 也有自己的模式：</p>
+<h3 id="default-mode">default mode</h3>
+<p>默认模式，就是我们一直在操作的模式。</p>
+<h3 id="copy-mode">copy mode</h3>
+<p>快捷键 <code>prefix-[</code> 就会进入 copy mode。在这个模式下，你可以查看历史记录， 复制粘贴内容，类似于 vi 的 normal mode。</p>
+<h3 id="command-mode">command mode</h3>
+<p>类似于在 emacs 下直接输入指令。一些复杂或冷门的操作可以在这里直接调用。</p>
+<h3 id="clock-mode">clock mode</h3>
+<p>快捷键 <code>prefix-t</code>, 会显示一个时钟。。。这真的不是一个彩蛋吗。。。 想要把 prefix 设置成 t 的同学不需要担心覆盖掉这个模式了，这模式压根就没用啊。。。</p>
+<h2 id="高阶技巧插件">高阶技巧(插件)</h2>
+<h3 id="结对编程">结对编程</h3>
+<p>如果在结对编程时两个脑袋凑在一个屏幕前是不是有点挤啊。。。 有了 tmux 就不怕啦。只需要一个 server 端，然后两个 client 一起连上去。 不但可以共享『屏幕』，还能一起操作同一个文件。 这样的 common pattern 已经有人封装好了工具了，就是<a href="https://github.com/zolrath/wemux">这个</a> -- wemux。 不但可以选择共享模式（mirror,pair,rogue）。还可以踢人哦。。。</p>
+<h3 id="初始化工作区">初始化工作区</h3>
+<p>什么？！这个项目需要开启两个 redis 端口，一个 rails server，一个 sidekiq 进程。 这还是没包括 mysql 和 es 这样的常用服务，以及 guard 这样的可选工具的情况下。 别怕，有了 tmux，一切都是这么简单： 试试<a href="https://github.com/tmuxinator/tmuxinator">这个插件吧</a> -- 叫做 <code>tmuxinator</code> 的一个 ruby gem。 跟着 README 操作一下吧，非常容易入门的。</p>
+
+</article>
+
+      </div>
+    </main> <!-- 网页主体 -->
+
+    <!-- 评论框 -->
+
+    <footer role="contentinfo" class="global-footer row">
+      <p class="copyright">© Ma Lucheng 2014-2015 — All content is licensed under the
+        <a href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons BY-SA 3.0</a>.
+      </p>
+
+      <figure class="footer-zfm">
+        <img src="http://javaer.qiniudn.com/zhifuma.png" alt="支付宝二维码" />
+        <figcaption>觉得文章对你有帮助，可以打赏一杯咖啡支持一下</figcaption>
+      </figure>
+    </footer><!-- 页脚 -->
+
+    <script src="/js/vendor.js"></script>
+    <script src="/js/app.js"></script>
+    <script src="//cdn.bootcss.com/highlight.js/8.9.1/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <script>require('main').init();</script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-68587267-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+
+    <script src="//cdn.bootcss.com/instantclick/3.0.1/instantclick.min.js"></script>
+    <script>
+      InstantClick.on('change', function() {
+        var blocks = document.querySelectorAll('pre code');
+        for (var i = 0; i < blocks.length; i++) {
+          hljs.highlightBlock(blocks[i]);
+        }
+      });
+    </script>
+
+    <script type="text/javascript" src=""></script>
+  </body>
+</html>

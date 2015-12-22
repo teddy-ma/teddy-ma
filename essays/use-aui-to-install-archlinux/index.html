@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="zh-cmn-Hans" class="han-init">
+  <head>
+    <meta charset="utf-8">
+    <title>编程青年 - 使用 aui 安装 archlinux</title>
+    <meta name="description" content="编程青年的博客，记录着软件开发中的点点滴滴">
+    <meta name="copyright" content="Ma Lucheng 2014-2015">
+    <meta name="generator" content="pandoc">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+
+    <link href="/css/app.css" rel="stylesheet">
+    <link href="//cdn.bootcss.com/highlight.js/8.9.1/styles/solarized_light.min.css" rel="stylesheet">
+  </head>
+
+  <body class="container">
+    <header class="global-header row">
+      <h1 class="global-header__logo four columns"><a href="/" class="blog-title-link">编程青年</a></h1>
+      <nav id="menu1" class="navbar eight columns">
+        <ul class="navbar-list">
+          
+            <li class="navbar-item">
+              <a href="/posts/" class="navbar-link" target='_self'>posts</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="/essays/" class="navbar-link" target='_self'>essays</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="/reading/" class="navbar-link" target='_self'>reading</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="http://songofcode.com/how-to-learn-emacs-chinese-edition/" class="navbar-link" target='_blank'>emacs</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="/about/" class="navbar-link" target='_self'>about</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="https://github.com/teddy-ma/" class="navbar-link" target='_blank'>github</a>
+            </li>
+          
+        </ul>
+      </nav>
+      <nav id="menu2" class="path-nav path-nav-top-right">
+        <a href="#menu2" class="path-nav-expander">
+          <div class="ball"></div>
+        </a>
+        <a href="#" class="path-nav-close"></a>
+        <ul>
+          
+            <li>
+              <a href="/posts/" target='_self'>posts</a>
+            </li>
+          
+            <li>
+              <a href="/essays/" target='_self'>essays</a>
+            </li>
+          
+            <li>
+              <a href="/reading/" target='_self'>reading</a>
+            </li>
+          
+            <li>
+              <a href="http://songofcode.com/how-to-learn-emacs-chinese-edition/" target='_blank'>emacs</a>
+            </li>
+          
+            <li>
+              <a href="/about/" target='_self'>about</a>
+            </li>
+          
+            <li>
+              <a href="https://github.com/teddy-ma/" target='_blank'>github</a>
+            </li>
+          
+        </ul>
+      </nav>
+    </header>
+
+    <main id="baseline" role="main" class="page-main typo yue row">
+      <div class="section typeset twelve columns">
+        <!-- 文章视图 -->
+
+<article>
+  <p>自从 ubuntu 使用了那个脑残的 unity 以后, 我就一直在寻找合适的 linux 发行版, 后来终于被我找到了 archlinux , 但是安装起来稍微有点麻烦, 还好找到了这个安装脚本 <a href="https://github.com/helmuthdu/aui/">aui</a></p>
+<p>自己折腾了一段时间发现走了很多弯路, 还发现了一个 <a href="https://github.com/helmuthdu/aui/issues/118">bug</a>, 不过作者貌似没完美修复这个问题, 不过增加了一个 <a href="https://github.com/helmuthdu/aui/commit/b1067c2510059f6c506d1f0566eb269e25be560d">skip</a>选项来跳过网络验证, 不至于出现根本没法运行脚本的尴尬情况.</p>
+<p>下面把我的安装过程记录下来以便造福人类. 读者可以使用 virtualbox 等虚拟机工具来测试此脚本.</p>
+<p><em>心急的同学可以先看底部的视频</em></p>
+<p>首先使用虚拟机加载 arch 的 iOS 镜像. 之后第一步就是 <code>pacman -Syu</code> (网速不给力的话可以先修改镜像源)</p>
+<p>网速被考验过后先要安装 git, 这样才能下载到 aui 脚本</p>
+<pre><code>pacman -S git</code></pre>
+<p>安装后就能下载脚本了</p>
+<pre><code>git clone git://github.com/helmuthdu/aui</code></pre>
+<p><code>cd</code> 进入 <code>aui</code> 文件夹,会看到 <code>ais</code> 和 <code>aui</code> 两个文件夹</p>
+<p><em>记住</em> <code>ais</code>(Archlinux Install Script) 是用来安装系统的... 我一开始一直直接运行 <code>aui</code>(Archlinux Ultimate Install) , 老是提示容量不足……</p>
+<p>执行 <code>ais</code> 脚本后你会看到 14 个选项, 就是安装 archlinux 的 14 个步骤,其实这些步骤 wiki 上都有, 但是有了这个脚本我们就可以更好的参考作者的使用意图.</p>
+<p>第一步, 第二步和第三步其实不需要执行, 只要你的键盘不是太特别, editor默认的vi就够了, 主要是选择了editor脚本会去安装一些插件和配置, 这在安装过程中是不必要的, 很浪费时间, 至于第三步选择镜像, 如果你之前没设置成符合国情的源的话, 我很好奇你是怎么坚持到这里的....</p>
+<p>现在直接跳到第四步, 创建分区, linux 的分区如何分配已经是老生长谈的东西了, 此处不赘述了, 但是使用此脚本最好只用两个分区, 一个 root, 一个swap, 这样后面的设置就可以直接使用默认的了.</p>
+<p>按下4并且回车,就会看到屏幕提示和选项,这是这个脚本做的很好的地方,不但帮你执行安装命令,还会告诉你参考资料.比如最后第二步 Configure mkinitcpio 我以前在手动安装的时候就从来没遇到过, 通过查看 <a href="https://wiki.archlinux.org/index.php/Mkinitcpio">wiki</a> 才知道 是一个用来创建初始化内存盘（initial ramdisk，简称initrd）的bash脚本.</p>
+<p>这里我们选择 1 cfdisk</p>
+<p>硬盘通常就一块,直接选择</p>
+<p>然后分区上面说了,留下1到2倍内容的硬盘作为 swap (类型82),剩下的都作为一个大分区直接挂载根目录</p>
+<p>之后就 write 然后 quit</p>
+<p>接着执行第5步,格式化硬盘,先选择 partition ,再选择操作, swap 文件系统就选partition 就行了</p>
+<p>之后就是第六步安装基本系统,又到了考验网速的时候了, have a cup of coffee :)</p>
+<p>后面几步就是设置时间和主机名之类的简单操作, 毫无压力</p>
+<p>最后安装 loader,这里选择 grub2,选择 auto</p>
+<p>最后设置密码,然后按d完成脚本,重启系统,选择 <code>boot exist system</code>, 一切顺利的话就会启动硬盘中的 archlinux 了</p>
+<p><em>安装过程中如果一屏幕不够看就用 <code>shift pageup/pagedown</code> 滚屏</em></p>
+<p>第一季ais完</p>
+<video src="http://javaer.qiniudn.com/assets/essays/videos/ais.mp4" controls>
+</video>
+
+</article>
+
+      </div>
+    </main> <!-- 网页主体 -->
+
+    <!-- 评论框 -->
+
+    <footer role="contentinfo" class="global-footer row">
+      <p class="copyright">© Ma Lucheng 2014-2015 — All content is licensed under the
+        <a href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons BY-SA 3.0</a>.
+      </p>
+
+      <figure class="footer-zfm">
+        <img src="http://javaer.qiniudn.com/zhifuma.png" alt="支付宝二维码" />
+        <figcaption>觉得文章对你有帮助，可以打赏一杯咖啡支持一下</figcaption>
+      </figure>
+    </footer><!-- 页脚 -->
+
+    <script src="/js/vendor.js"></script>
+    <script src="/js/app.js"></script>
+    <script src="//cdn.bootcss.com/highlight.js/8.9.1/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <script>require('main').init();</script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-68587267-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+
+    <script src="//cdn.bootcss.com/instantclick/3.0.1/instantclick.min.js"></script>
+    <script>
+      InstantClick.on('change', function() {
+        var blocks = document.querySelectorAll('pre code');
+        for (var i = 0; i < blocks.length; i++) {
+          hljs.highlightBlock(blocks[i]);
+        }
+      });
+    </script>
+
+    <script type="text/javascript" src=""></script>
+  </body>
+</html>

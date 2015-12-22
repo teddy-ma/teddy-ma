@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>reveal.js - The HTML Presentation Framework</title>
+    <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+    <meta name="author" content="Hakim El Hattab">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="../reveal/css/reveal.css">
+    <link rel="stylesheet" href="../reveal/css/theme/black.css" id="theme">
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../reveal/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? '../reveal/css/print/pdf.css' : '../reveal/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+	<script src="../reveal/lib/js/html5shiv.js"></script>
+	<![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides" id="main-container">
+	      <h1 id="基于-backbone-开发-spa-应用">基于 backbone 开发 spa 应用</h1>
+<p>author: 马陆骋&lt;ma.lc@vcooline.com&gt;</p>
+<h2 id="目录">目录</h2>
+<ul>
+<li>什么是 backbone</li>
+<li>什么是 spa</li>
+<li>开发spa和传统页面的区别</li>
+<li>如何开发一个spa</li>
+<li>开发语言</li>
+<li>构建工具</li>
+<li>backbone的组成</li>
+<li>tips</li>
+<li>demo</li>
+</ul>
+<h2 id="什么是-backbone">什么是 backbone</h2>
+<p>Backbone.js gives structure to web applications by providing models with key-value binding and custom events, collections with a rich API of enumerable functions, views with declarative event handling, and connects it all to your existing API over a RESTful JSON interface.</p>
+<h3 id="backbone-的-mv">backbone 的 MV*</h3>
+<p>In Smalltalk-80’s MVC, the View and Controller both observe the Model:</p>
+<ul>
+<li>Rails does not notify views from the model or controllers - it just passes model data directly to the view.</li>
+</ul>
+<h2 id="什么是-spa">什么是 spa</h2>
+<p>single page application</p>
+<h3 id="spa-的优势">spa 的优势</h3>
+<ul>
+<li>(使用) 用户体验更好</li>
+<li>(开发) 前后端分离</li>
+<li>(性能) 请求量少</li>
+</ul>
+<h3 id="spa-的不足">spa 的不足</h3>
+<ul>
+<li>对SEO支持不是太好</li>
+<li>首屏加载慢</li>
+<li>入门门槛高</li>
+</ul>
+<h3 id="spa-的适用场景">spa 的适用场景</h3>
+<ul>
+<li>应用型而非展示型</li>
+<li>在大型应用中局部嵌入</li>
+</ul>
+<h3 id="开发体验">开发体验</h3>
+<ul>
+<li>无需关心后台业务逻辑 (只需要和 api 进行交互)</li>
+<li>统一语言 <strong>javascript</strong></li>
+</ul>
+<h2 id="如何开发一个-spa">如何开发一个 spa</h2>
+<ul>
+<li>编程语言: javascript(coffeescript)</li>
+<li>构建工具: yeoman(grunt, bower)</li>
+<li>后端支持: 推荐但不限于 restful 接口</li>
+<li>本地数据: 数据持久化在浏览器端</li>
+</ul>
+<h2 id="编程语言---javascript">编程语言 - javascript</h2>
+<ul>
+<li>这里的 javascript 是一门真正的编程语言</li>
+<li>与操作 dom 时的脚本语言javascript不同</li>
+<li>面向对象的 javascript (Object Orient)</li>
+</ul>
+<h2 id="编程语言---coffeescript">编程语言 - coffeescript</h2>
+<ul>
+<li>什么是 coffeescript</li>
+<li>语法简介</li>
+</ul>
+<p><img src="http://javaer.qiniudn.com/assets/slides/images/backbone-and-spa/creator.png" alt="" /></p>
+<h3 id="什么是-coffeescript">什么是 coffeescript</h3>
+<p>CoffeeScript is a little language that compiles into JavaScript</p>
+<h3 id="定义变量">定义变量</h3>
+<pre class="coffee"><code>  number   = 42
+  opposite = true
+</code></pre>
+<ul>
+<li>无需 `var`, 默认就是局部变量, 预防不良代码</li>
+</ul>
+<h3 id="定义方法">定义方法</h3>
+<pre class="coffee"><code>square = (x) -&gt; x * x
+cube   = (x) -&gt; square(x) * x
+</code></pre>
+<ul>
+<li>减少冗长的 `function` 书写</li>
+</ul>
+<h3 id="条件分支">条件分支</h3>
+<pre class="coffee"><code>grade = (student) -&gt;
+  if student.excellentWork
+    &quot;A+&quot;
+  else if student.okayStuff
+    if student.triedHard then &quot;B&quot; else &quot;B-&quot;
+  else
+    &quot;C&quot;
+
+eldest = if 24 &gt; 21 then &quot;Liz&quot; else &quot;Ike&quot;
+</code></pre>
+<ul>
+<li>没有各种圆括号和方括号</li>
+</ul>
+<h3 id="注释">注释</h3>
+<pre class="coffee"><code># this is a comment
+</code></pre>
+<ul>
+<li>ruby 风格注释</li>
+</ul>
+<h3 id="loops">loops</h3>
+<pre class="coffee"><code>for animal in animals
+  console.log animal
+</code></pre>
+<ul>
+<li>写过 js 原生循环的都觉得这个爽</li>
+</ul>
+<h2 id="构建工具">构建工具</h2>
+<ul>
+<li>yeoman (脚手架)</li>
+<li>grunt (构建工具)</li>
+<li>bower (包管理器)</li>
+</ul>
+<h2 id="install">install</h2>
+<ul>
+<li>use npm</li>
+</ul>
+<h3 id="yo">yo</h3>
+<pre class="bash"><code>npm install -g yo
+</code></pre>
+<p><img src="http://javaer.qiniudn.com/assets/slides/images/backbone-and-spa/yeoman_cli.png" alt="" /></p>
+<h3 id="grunt">grunt</h3>
+<pre class="bash"><code>npm install -g grunt-cli
+</code></pre>
+<p><img src="http://javaer.qiniudn.com/assets/slides/images/backbone-and-spa/grunt_cli.png" alt="" /></p>
+<h3 id="bower">bower</h3>
+<pre class="bash"><code>npm install -g bower
+</code></pre>
+<p><img src="http://javaer.qiniudn.com/assets/slides/images/backbone-and-spa/bower_cli.png" alt="" /></p>
+<h2 id="yoeman">yoeman</h2>
+<p>THE WEB'S SCAFFOLDING TOOL FOR MODERN WEBAPPS</p>
+<p><img src="http://javaer.qiniudn.com/assets/slides/images/backbone-and-spa/yeoman.png" alt="" /></p>
+<h2 id="grunt-1">grunt</h2>
+<p>The JavaScript Task Runner</p>
+<p>build tool like rake for ruby and ant(maven) for java</p>
+<p><img src="http://javaer.qiniudn.com/assets/slides/images/backbone-and-spa/grunt.png" alt="" /></p>
+<h2 id="bower-1">bower</h2>
+<p>A package manager for the web</p>
+<p><img src="http://javaer.qiniudn.com/assets/slides/images/backbone-and-spa/bower.png" alt="" /></p>
+<h2 id="backbone的组成">backbone的组成</h2>
+<p><img src="http://javaer.qiniudn.com/assets/slides/images/backbone-and-spa/backbone.png" alt="" /></p>
+<ul>
+<li>model</li>
+<li>collection</li>
+<li>view</li>
+<li>routes</li>
+<li><strong>controller</strong></li>
+</ul>
+<h3 id="架构">架构</h3>
+<p><img src="http://javaer.qiniudn.com/assets/slides/images/backbone-and-spa/backbone_mvc.png" alt="" /></p>
+<h3 id="model">model</h3>
+<p>数据结构的载体, 以及与服务端 api 的交互</p>
+<h3 id="collection">collection</h3>
+<p>模型的集合, 方便开发者对一个以上的模型进行操作</p>
+<h3 id="view">view</h3>
+<p>view 是 backbone 的核心组件, 负责事件的绑定和 template 的渲染</p>
+<ul>
+<li>可以嵌套</li>
+<li>可以继承</li>
+<li>绑定数据</li>
+<li>手动管理内存</li>
+<li>传统 mvc 中 c 的位置</li>
+</ul>
+<h3 id="controller">controller</h3>
+<p>backbone 没有专门的 controller, controller 的职责由 view 承担</p>
+<h3 id="route">route</h3>
+<p>单页应用中路由是可选的,它甚至不是 mvc 的一部分. 路由主要用途就是根据 url 决定页面的状态</p>
+<h2 id="tips">tips</h2>
+<h3 id="object-的引用">object 的引用</h3>
+<p>在 JavaScript 中, object 是通过引用传递的, 所以如果一个对象的某个默认值是一个 object. 那么需要把 default 作为一个函数来定义</p>
+<pre class="coffee"><code>  defaults: -&gt;
+    page_id: &quot;&quot;
+    position: 0
+    settings: {}
+    status: &quot;unable&quot;
+    template_type: &quot;&quot;
+</code></pre>
+<h3 id="手动管理-view">手动管理 view</h3>
+<p>view 需要被手动管理不然会出现多重事件绑定</p>
+<pre><code>if window.current_settings_view
+  window.current_settings_view.remove() # make sure view events removed
+</code></pre>
+<h3 id="忘掉-jquery">忘掉 jQuery</h3>
+<p>不要用 jQuery 的思想去创建 dom 元素, 要把这些元素绑定到模型, 这样模型更新时 dom 会自定被更新</p>
+<h2 id="demo">demo</h2>
+<p><img src="http://javaer.qiniudn.com/assets/slides/images/backbone-and-spa/wshop_front.png" alt="" /></p>
+
+      </div>
+
+    </div>
+
+    <!-- hook html struct -->
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <script src="../reveal/org-adapter.js"></script>
+    <script>
+      // for #main-container
+      revealjs_adapter();
+    </script>
+
+    <script src="../reveal/lib/js/head.min.js"></script>
+    <script src="../reveal/js/reveal.js"></script>
+
+    <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: '../reveal/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '../reveal/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '../reveal/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: '../reveal/plugin/zoom-js/zoom.js', async: true },
+          { src: '../reveal/plugin/notes/notes.js', async: true }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>

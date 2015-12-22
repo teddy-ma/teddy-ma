@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="zh-cmn-Hans" class="han-init">
+  <head>
+    <meta charset="utf-8">
+    <title>编程青年 - capistrano 入门</title>
+    <meta name="description" content="编程青年的博客，记录着软件开发中的点点滴滴">
+    <meta name="copyright" content="Ma Lucheng 2014-2015">
+    <meta name="generator" content="pandoc">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+
+    <link href="/css/app.css" rel="stylesheet">
+    <link href="//cdn.bootcss.com/highlight.js/8.9.1/styles/solarized_light.min.css" rel="stylesheet">
+  </head>
+
+  <body class="container">
+    <header class="global-header row">
+      <h1 class="global-header__logo four columns"><a href="/" class="blog-title-link">编程青年</a></h1>
+      <nav id="menu1" class="navbar eight columns">
+        <ul class="navbar-list">
+          
+            <li class="navbar-item">
+              <a href="/posts/" class="navbar-link" target='_self'>posts</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="/essays/" class="navbar-link" target='_self'>essays</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="/reading/" class="navbar-link" target='_self'>reading</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="http://songofcode.com/how-to-learn-emacs-chinese-edition/" class="navbar-link" target='_blank'>emacs</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="/about/" class="navbar-link" target='_self'>about</a>
+            </li>
+          
+            <li class="navbar-item">
+              <a href="https://github.com/teddy-ma/" class="navbar-link" target='_blank'>github</a>
+            </li>
+          
+        </ul>
+      </nav>
+      <nav id="menu2" class="path-nav path-nav-top-right">
+        <a href="#menu2" class="path-nav-expander">
+          <div class="ball"></div>
+        </a>
+        <a href="#" class="path-nav-close"></a>
+        <ul>
+          
+            <li>
+              <a href="/posts/" target='_self'>posts</a>
+            </li>
+          
+            <li>
+              <a href="/essays/" target='_self'>essays</a>
+            </li>
+          
+            <li>
+              <a href="/reading/" target='_self'>reading</a>
+            </li>
+          
+            <li>
+              <a href="http://songofcode.com/how-to-learn-emacs-chinese-edition/" target='_blank'>emacs</a>
+            </li>
+          
+            <li>
+              <a href="/about/" target='_self'>about</a>
+            </li>
+          
+            <li>
+              <a href="https://github.com/teddy-ma/" target='_blank'>github</a>
+            </li>
+          
+        </ul>
+      </nav>
+    </header>
+
+    <main id="baseline" role="main" class="page-main typo yue row">
+      <div class="section typeset twelve columns">
+        <!-- 文章视图 -->
+<article>
+  <h1 id="capistrano-入门">capistrano 入门</h1>
+<p>在我学习 capistrano 的时候, 就觉得相关的资料非常少. 而且这个部署工具很有可能已经由你的前辈们配置好了, 部署时输入命令就行了. 这样就更导致了不少同学根本不会从头配置 capistrano 的情况. 所以我在这里总结一下以供参考.</p>
+<h2 id="什么是-capistrano">什么是 capistrano</h2>
+<p>capistrano 是一个部署工具, 虽然是用 ruby 写成的, 但是它并不限于部署 rails 应用, 相反很多国外资料中提到用它部署 php 的不在少数.</p>
+<h3 id="关于版本">关于版本</h3>
+<p>capistrano 3 是目前的最新版, 相对于2, 3是一个重写的版本, 本文不会涉及到2的内容, 作为一个单独的部署工具, 没有理由不去升级它.</p>
+<h3 id="关于安装">关于安装</h3>
+<p>capistrano 是一个 ruby gem， 安装非常简单:</p>
+<pre class="bash"><code>$ gem install capistrano
+</code></pre>
+<p>然后在要部署的项目的根目录下执行：</p>
+<pre class="bash"><code>$ bundle exec cap install
+</code></pre>
+<p>就会生成如下的文件结构（注意： capistrano完全是一个client端的工具， 所以在rails项目中应该 把它安装在 development 的 group 下）</p>
+<pre><code>├── Capfile
+├── config
+│   ├── deploy
+│   │   ├── production.rb
+│   │   └── staging.rb
+│   └── deploy.rb
+└── lib
+    └── capistrano
+            └── tasks
+</code></pre>
+<h2 id="capistrano-的功能">capistrano 的功能</h2>
+<p>capistrano 3 是基于 rake 的, 通过 ssh 到远程服务器来执行一些列部署的命令. 因为你很难描述 capistrano 到底是干什么的. 因为 理论上只要能连接到服务器并且有权限, 你可以做任何事.</p>
+<h3 id="capistrano-的文件结构">capistrano 的文件结构</h3>
+<p>先看一下 capistrano 在服务器上留下的文件结构：</p>
+<pre class="bash"><code>  deploy@VM-204-84-ubuntu:~$ tree apps/ -L 2 -A
+  apps/
+  ├── current -&gt; /home/deploy/apps/releases/20150209075227
+  ├── releases
+  │   ├── 20150205044932
+  │   ├── 20150205052719
+  │   ├── 20150205070603
+  │   ├── 20150205072850
+  │   └── 20150209075227
+  ├── repo
+  │   ├── branches
+  │   ├── config
+  │   ├── description
+  │   ├── FETCH_HEAD
+  │   ├── HEAD
+  │   ├── hooks
+  │   ├── info
+  │   ├── objects
+  │   ├── packed-refs
+  │   └── refs
+  ├── revisions.log
+  └── shared
+      ├── bin
+      ├── bundle
+      ├── config
+      ├── log
+      ├── public
+      └── tmp
+
+</code></pre>
+<p>可以看到， 每次部署后， release 文件夹下会有一个时间戳格式的文件夹， 代表着一次部署 而 current 这个软链接就是当表当前运行着的版本， 是不是和 git 很像。在配合nginx之类的 web服务器一起使用时， nginx上配的路径就是current文件夹的路径。</p>
+<h3 id="capistrano-的基本工作原理">capistrano 的基本工作原理</h3>
+<p>最最“原生”的 capistrano 的工作就是在目标服务器上拉取git仓库中的项目，然后发布一个release， 再把current软链接到当前的release版本（这些操作是和项目语言无关的）。当然为了完成一次部署 光这样是远远不够的， 所以需要安装一些插件或者自己写一些命令。</p>
+<h3 id="capistrano-的配套插件">capistrano 的配套插件</h3>
+<p>以 rails 为例， 部署少不了的操作就是执行数据库的 migrate， 重启 web 服务器等。 这些任务绝大部分都有现成的插件了， 用bundler安装后在 Capfile 中 require 就行了。</p>
+<h3 id="capistrano-的基本配置">capistrano 的基本配置</h3>
+<p>capistrano 的配置基本就在 config/deploy.rb 和 deploy/ 文件夹下的配置文件这两个地方（lib/capistrano/tasks/） 文件夹下可以写自己的rake task， 不过用的比较少。</p>
+<h4 id="deploy.rb-的配置">deploy.rb 的配置</h4>
+<p>这里是一些全局的配置，可以设定一些变量， 如 ruby 版本啊， git 仓库什么的。</p>
+<h4 id="configdeploy-下的配置">config/deploy 下的配置</h4>
+<p>这里的rb文件一般以环境名称命名， 比如 production.rb, staging.rb 等，里面定义了不同环境下的 特殊变量， 如部署文件位置， 环境变量， 分支等。</p>
+<h2 id="capistrano-的职责">capistrano 的职责</h2>
+<p>打一个比方. 服务器就像是一个拎包入住的酒店. capistrano 所发布的应用就是酒店的客人. 有些东西是酒店自带的, 比如床, 马桶, 桌子椅子之类的, 这对应服务器上的 web 服务器, 数据库服务等 而客人就是来来往往的发布版本. 客人会去调用一些基础设施, 比如重启 web 服务器. 而有些设备处于灰色地带, 比如拖鞋, 这个客人可以用酒店的, 也可以用自带的. 我们在使用 capistrano 的时候也要注意, 通常经常变化的部分就是 capistrano 的职责范围. 不太变化的部分交给其他工具来完成.</p>
+<h3 id="服务器需要的基础设施">服务器需要的基础设施</h3>
+<p>这块每个项目的需求都不同， 实在是超出讨论 capistrano 的范围了， 如果是 rails 项目的话， 可以 参考下面的几个链接</p>
+<ul>
+<li><a href="https://coderwall.com/p/yz8cha/deploying-rails-app-using-nginx-unicorn-postgres-and-capistrano-to-digital-ocean" class="uri">https://coderwall.com/p/yz8cha/deploying-rails-app-using-nginx-unicorn-postgres-and-capistrano-to-digital-ocean</a></li>
+<li><a href="https://coderwall.com/p/ttrhow/deploying-rails-app-using-nginx-puma-and-capistrano-3" class="uri">https://coderwall.com/p/ttrhow/deploying-rails-app-using-nginx-puma-and-capistrano-3</a></li>
+<li><a href="http://jesktop.com/2014/02/23/capistrano3-with-puma/" class="uri">http://jesktop.com/2014/02/23/capistrano3-with-puma/</a></li>
+</ul>
+<h2 id="实战">实战</h2>
+<p>未完待续。。。。。。</p>
+
+</article>
+
+      </div>
+    </main> <!-- 网页主体 -->
+
+    <!-- 评论框 -->
+
+    <footer role="contentinfo" class="global-footer row">
+      <p class="copyright">© Ma Lucheng 2014-2015 — All content is licensed under the
+        <a href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons BY-SA 3.0</a>.
+      </p>
+
+      <figure class="footer-zfm">
+        <img src="http://javaer.qiniudn.com/zhifuma.png" alt="支付宝二维码" />
+        <figcaption>觉得文章对你有帮助，可以打赏一杯咖啡支持一下</figcaption>
+      </figure>
+    </footer><!-- 页脚 -->
+
+    <script src="/js/vendor.js"></script>
+    <script src="/js/app.js"></script>
+    <script src="//cdn.bootcss.com/highlight.js/8.9.1/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <script>require('main').init();</script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-68587267-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+
+    <script src="//cdn.bootcss.com/instantclick/3.0.1/instantclick.min.js"></script>
+    <script>
+      InstantClick.on('change', function() {
+        var blocks = document.querySelectorAll('pre code');
+        for (var i = 0; i < blocks.length; i++) {
+          hljs.highlightBlock(blocks[i]);
+        }
+      });
+    </script>
+
+    <script type="text/javascript" src=""></script>
+  </body>
+</html>

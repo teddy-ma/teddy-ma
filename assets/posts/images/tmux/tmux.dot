@@ -1,0 +1,31 @@
+digraph tmux{
+    node[shape=record]
+    subgraph cluster_terminal{
+      label ="terminal";
+      subgraph cluster_session2{
+        label = "session2";
+        subgraph cluster_window3 {
+          label="window3";
+          store6 [label="ls /tmp"];
+        }
+        subgraph cluster_window4 {
+          label="window4";
+          store7 [label="pane1"]
+          store8 [label="pane2"]
+        }
+      }
+      subgraph cluster_session1{
+        label = "session1";
+
+        subgraph cluster_window1 {
+          label="window1";
+          store2 [label="ls /tmp"];
+        }
+        subgraph cluster_window2 {
+          label="window2";
+          store3 [label="pane1"]
+          store4 [label="pane2"]
+        }
+      }
+    }
+}

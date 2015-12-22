@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>reveal.js - The HTML Presentation Framework</title>
+    <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+    <meta name="author" content="Hakim El Hattab">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="../reveal/css/reveal.css">
+    <link rel="stylesheet" href="../reveal/css/theme/black.css" id="theme">
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../reveal/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? '../reveal/css/print/pdf.css' : '../reveal/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+	<script src="../reveal/lib/js/html5shiv.js"></script>
+	<![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides" id="main-container">
+	      <h1 id="那些年我们用过的-rake">那些年我们用过的 Rake</h1>
+<p>author: 马陆骋&lt;malucheng@boohee.com&gt;</p>
+<h2 id="目录">目录</h2>
+<ul>
+<li>什么是 Rake</li>
+<li>Rake 的常见用途</li>
+<li>无处不在的 Rake</li>
+<li>一些简单的例子</li>
+<li>编写 Rake Task 的技巧</li>
+<li>Rake in Action</li>
+<li>小贴士</li>
+</ul>
+<h2 id="什么是-rake">什么是 Rake</h2>
+<p>Rake 是一个 ruby 版的 make。</p>
+<p>make 是一个 c 语言的构建工具。</p>
+<p>所以说 Rake 是一个 ruby 编写的构建工具。</p>
+<ul>
+<li>Rake 是一个 Ruby 的内部 DSL 哦~</li>
+<li>这意味着在 Rake 中可以编写任意的 Ruby 代码</li>
+</ul>
+<h2 id="rake-的常见用途">Rake 的常见用途</h2>
+<ul>
+<li>自动化脚本</li>
+<li>文件处理</li>
+<li>程序入口</li>
+</ul>
+<h2 id="无处不在的-rake">无处不在的 Rake</h2>
+<ul>
+<li>rails [route, db, assets, custom task]</li>
+<li>octopress [new post, build, deploy]</li>
+<li>almost all the ruby projects can be tested by rake test</li>
+</ul>
+<h2 id="一些简单的例子">一些简单的例子</h2>
+<h3 id="清理临时文件">清理临时文件</h3>
+<h3 id="启动一个-web-server">启动一个 web server</h3>
+<h3 id="生成一个-licence-文件">生成一个 licence 文件</h3>
+<h3 id="根据-org-文件生成-slide">根据 org 文件生成 slide</h3>
+<h3 id="转化-api-文档">转化 API 文档</h3>
+<h2 id="编写-rake-task-的技巧">编写 Rake Task 的技巧</h2>
+<h3 id="小步前进">小步前进</h3>
+<p>一次只定义一个任务，然后把它们串联起来</p>
+<h3 id="使用命名空间">使用命名空间</h3>
+<p>更好的组织形式</p>
+<h3 id="记录日志">记录日志</h3>
+<p>了解程序的运行过程</p>
+<h3 id="委托复杂业务">委托复杂业务</h3>
+<p>让 Rake 做好自己的事情</p>
+<h2 id="rake-in-action">Rake in Action</h2>
+<p>simple blog generator</p>
+<h2 id="查找定义源文件">查找定义源文件</h2>
+<h2 id="动态定义-file-task">动态定义 file task</h2>
+<h2 id="执行动作">执行动作</h2>
+<h2 id="并发处理">并发处理</h2>
+<h2 id="任务依赖">任务依赖</h2>
+<h2 id="refactor">refactor</h2>
+<ul>
+<li>提取 model 和 view</li>
+</ul>
+<h2 id="小贴士">小贴士</h2>
+<h3 id="全局的-rake-task">全局的 Rake Task</h3>
+<p>存放在 $HOME/.rake/ 文件夹下</p>
+<p>使用 <code>rake -g xxx</code> 调用</p>
+<h3 id="rake-task-的-desc">Rake Task 的 desc</h3>
+<ul>
+<li><p>不写的话 <code>rake -T</code> 不会显示</p></li>
+<li><p>不过用 <code>rake -T -A</code> 就能显示了</p></li>
+</ul>
+<h3 id="传参数给-rake-task">传参数给 Rake Task</h3>
+<h3 id="error">error</h3>
+<p><code>bin/rake report:build_report_with_date &quot;2015-09-07&quot;</code></p>
+<ul>
+<li>rake aborted!</li>
+</ul>
+<h3 id="correct">correct</h3>
+<p><code>bin/rake report:build_report_with_date[&quot;2015-09-07&quot;]</code></p>
+<h2 id="thanks">Thanks</h2>
+<p>Questions?</p>
+
+      </div>
+
+    </div>
+
+    <!-- hook html struct -->
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <script src="../reveal/org-adapter.js"></script>
+    <script>
+      // for #main-container
+      revealjs_adapter();
+    </script>
+
+    <script src="../reveal/lib/js/head.min.js"></script>
+    <script src="../reveal/js/reveal.js"></script>
+
+    <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: '../reveal/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '../reveal/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '../reveal/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: '../reveal/plugin/zoom-js/zoom.js', async: true },
+          { src: '../reveal/plugin/notes/notes.js', async: true }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>

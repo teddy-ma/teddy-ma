@@ -1,0 +1,60 @@
+digraph slide {
+
+	subgraph cluster_before {
+
+		node [label="h1"] a0;
+		node [label="p"] a1;
+		node [label="h2"] a2;
+		node [label="p"] a3;
+    node [label="h3"] a4;
+    node [label="img"] a5;
+    node [label="h2"] a6;
+    node [label="img"] a7;
+
+		a0 -> a1 -> a2 -> a3 -> a4 -> a5 -> a6 -> a7;
+		label = "before";
+	}
+
+	subgraph cluster_after {
+    label = "after";
+
+    subgraph cluster_1 {
+      label="";
+      store1 [label="h1"];
+      store2 [label="p"];
+    }
+
+    subgraph cluster_window3 {
+      label="";
+
+      subgraph cluster_window6 {
+        label="";
+        store3 [label="h2"];
+        store4 [label="p"];
+        store5 [label="ul"];
+      }
+      subgraph cluster_window7 {
+        label="";
+        store6 [label="h3"];
+        store7 [label="p"];
+      }
+    }
+
+    subgraph cluster_window4 {
+      label="";
+      store8 [label="h2"]
+      store9 [label="img"]
+    }
+
+    store1 -> store2 -> store3 -> store4 -> store5 -> store6 -> store7 -> store8 -> store9
+		/*node [] b0;
+		node [] b1;
+		node [] b2;
+		node [] b3;
+
+		b0 -> b1 -> b2 -> b3;
+		label = "process #2";*/
+
+	}
+
+}

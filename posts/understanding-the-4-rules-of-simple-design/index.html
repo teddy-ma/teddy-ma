@@ -1,0 +1,357 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_understanding-the-4-rules-of-simple-design posts_understanding-the-4-rules-of-simple-design_index typo"> <article> <h1>Understanding the 4 rules of simple design 读书笔记</h1> <p>这本书通过很多例子来解释了 Kent Beck 提出的四个简单设计的规则</p> <ol> <li>Tests Pass</li> <li>Expresses Intent</li> <li>No Duplicatoin (DRY)</li> <li>Small</li> </ol> <p>书中的例子都来自于一个叫 <a href=" https://en.wikipedia.org/wiki/Conway%2527s_game_of_life">&#8220;生命游戏(Game of life)&#8221;</a> 的程序，因为一千个人对同一个游戏有一千种写法，所以书中例子前后不一致甚至出现矛盾都是正常的。</p> <p>强烈建议看书前先自己实现一遍 GOL, 否则看书里代码片断就会云里雾里。 下面就开始看实例吧。</p> <h2>测试名称应该影响对象的 API</h2> <p>看一下下面两个测试：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_a_new_world_is_empty</span>
+  world = <span style="color:#036;font-weight:bold">World</span>.new
+  assert_equal <span style="color:#00D">0</span>, world.living_cells.count
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_a_cell_can_be_added_to_the_world</span>
+  world = <span style="color:#036;font-weight:bold">World</span>.new world.set_living_at(<span style="color:#00D">1</span>, <span style="color:#00D">1</span>)
+  assert_equal <span style="color:#00D">1</span>, world.living_cells.count
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>看起来很正常，两个测试说明了一个新的世界在刚开始的时候，活着的细胞数量是 0, 再加入一个活细胞后数量是 1。 不过从 <span style="text-decoration:underline;">test should express intent</span> 的角度来看，这样的写法明显不妥。</p> <p>先看第一个测试，测试的方法名中提到了 empty 这个关键词，但是在测试代码中，并没有表达出这个关键词。 目前我们表达 empty 的方式是，计算 world 内部的一个集合的总数，如果是 0, 那么可以认为是 empty. 这样显然太麻烦了。 你也不希望在系统的其他地方，每次要判断 world 是否是 empty 都要写这么麻烦的一段代码吧，更何况这样把内部细节暴露出来的写法肯定是有问题的。 那么我们可以改成这样：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_a_new_world_is_empty</span>
+  world = <span style="color:#036;font-weight:bold">World</span>.new
+  assert_true world.empty?
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>这样不仅表达了意图，也隐藏了 world 的那内部细节，以及提供了更友好的 API 给系统的其他地方调用。</p> <p>再看看第二个测试，测试的方法名表示要测试的是一个被添加进去的细胞，但是在验证时仅仅验证了活细胞的总数，并没有提及那个被进入的细胞。 我们可以这样改：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_a_cell_can_be_added_to_the_world</span>
+  world = <span style="color:#036;font-weight:bold">World</span>.new
+  world.set_living_at(<span style="color:#00D">1</span>, <span style="color:#00D">1</span>)
+  assert_true world.alive_at?(<span style="color:#00D">1</span>, <span style="color:#00D">1</span>)
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>除了例子1中提到的好处外，我们可以发现现在我们已经在开始构建系统的 API 了（这里我们添加了一个 <code>alive_at?</code> 的 API）。 我们可以利用这个 API (以及之前的 <code>empty</code> 方法)构建另一个测试了：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_after_adding_a_cell_the_world_is_not_empty</span>
+  world = <span style="color:#036;font-weight:bold">World</span>.new
+  world.set_living_at(<span style="color:#00D">1</span>, <span style="color:#00D">1</span>)
+  assert_false world.empty?
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>下次当你开始 TDD 时，要注意一下你所测试的东西到底是不是你想要测试的东西。</p> <h2>知识的重复</h2> <p>看看下面的 <code>Word</code> 和 <code>Cell</code> 类的代码：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">World</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">set_living_at</span>(x, y)
+    <span style="color:#777">#...</span>
+  <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">alive_at?</span>(x, y)
+    <span style="color:#777">#...</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">LivingCell</span>
+  attr_reader <span style="color:#A60">:x</span>, <span style="color:#A60">:y</span>
+<span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">DeadCell</span>
+  attr_reader <span style="color:#A60">:x</span>, <span style="color:#A60">:y</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>这里有一个不易察觉的重复（真的吗＝ =!），一个探测重复的方法是问问自己如果要修改一个地方的话，哪些地方也会受到影响。 那么，这里的例子的问题就是，当我们要把细胞的坐标从二维改成三维的话，要改哪些地方呢？ 答案很明显，这里我们犯的错误是把二维坐标这个知识散布在系统的各个地方。 所以我们应该抽象出一个 <code>Location</code> 类：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Location</span>
+  attr_reader <span style="color:#A60">:x</span>, <span style="color:#A60">:y</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>那么，之前的类就会变成：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">World</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">set_living_at</span>(location)
+    <span style="color:#777">#...</span>
+  <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">alive_at?</span>(location)
+    <span style="color:#777">#...</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">LivingCell</span>
+  attr_reader <span style="color:#A60">:location</span>
+<span style="color:#080;font-weight:bold">end</span>
+
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">DeadCell</span>
+  attr_reader <span style="color:#A60">:location</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>上面这个问题我们也可以把它看成一个命名的问题，我们缺乏有效的表达意图的手段。 <code>x</code> 和 <code>y</code> 这样的命名无疑是很糟糕的。如果出现糟糕的命名，通常是因为没有正确的抽象出一个概念。</p> <h2>行为吸引者</h2> <p>假设我们目前的程序有如下两个类：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">World</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">set_living_at</span>(x, y)
+    <span style="color:#777">#...</span>
+  <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">alive_at?</span>(x, y)
+    <span style="color:#777">#...</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Cell</span>
+  attr_reader <span style="color:#A60">:x</span>, <span style="color:#A60">:y</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">alive_in_next_generation?</span>
+    <span style="color:#777"># run rules</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>下面我们需要一个方法来得到一个坐标的相邻坐标：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">neighbors_of</span>(x, y)
+  <span style="color:#777"># calculate the coordinates of neighbors</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>那么问题来了，这个方法应该放在哪里呢？放在 <code>Cell</code> 中似乎很合理，但是它已经有了判断下一代是否存活的职责了， 再强行加入这个放方法就不符合但单一职责员原则了。 那么放 <code>World</code> 类呢，好像也很合理，闭经毕竟它张掌握着“世界”嘛，不过很明显，这样的话它就真的是”上帝类“ 了。</p> <p>其实这种情况我们会经常碰到，我们需要一个行为，但是不知道把它放在哪里。这个例子中，我们可以（像上一节一样）， 创建一个 <code>Location</code> 类，并负责这个行为，获取相邻坐标这样的新行为放在这里再适合不过了。 这个就是标题所说的，作者称之为行为吸引者的例子。 我们会为了一个新的行行为而创建新的类，不是新的类接受了这个行为，而是新的类吸引了这个习行为。</p> <p>通常当我们出现很难把一个行为放到已有的类中时，就说明有一个概念没有在系统中被很好的表达。</p> <h2>测试状态还是测试行为</h2> <p>一般来说，由外到内的设计，我们都会先涉及最外层的类。 比如下面这个测试，一个新的世界是没有任何活细胞的：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_a_world_starts_out_empty</span>
+  world = <span style="color:#036;font-weight:bold">World</span>.new
+  assert_true world.empty?
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>那么接下来, 理所当然的，下一个测试就是看看放入一个活细胞后系统的状态：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_world_is_not_empty_after_setting_a_living_cell</span>
+  world = <span style="color:#036;font-weight:bold">World</span>.new
+  location = <span style="color:#036;font-weight:bold">Location</span>.random
+  world.set_living_at(location)
+  assert_false world.empty?
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>这样的步骤很自然，我们先进行一通操作，然后检查系统的状态。 下面我们来看看另一种方式，关注系统的行为而不是状态。 想想你什么样的行为是你期望的，然后让测试基于它来构建。</p> <p>基于行为来构建系统的意思就是在需求必要的时候，只构建绝对需要的东西。 这样，我们就会得到刚刚好可以支持用例的代码。</p> <p>当我要构建一个东西时，我会问自己：我的系统需要什么样的行为？ 在这个例子中，问题有两个：</p> <ul> <li>为什么我们要设置一个独立的细胞</li> <li>为什么我们想要检查这个世界是否是空的</li> </ul> <p>一般这样自问自答得到的答案会是类似 &#8220;因为xx行为需要它&#8221; 这样的句式。 那么我们来试试吧：</p> <p>为什么我们要设置一个独立的细胞呢？</p> <p>因为我们要设置一个初始化的状态呀，那为什么我们需要一个初始化的状态？</p> <p>因为游戏需要计算下一个回合。</p> <p>这样我们就得到一个基本的行为：计算下一回合。</p> <p>在我们的系统中，这个基本行为发生在嘀嗒（tick）中，进入下一回合。</p> <p>下面就可以写测试了，一个空的世界，下一个回合也还是空的。</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_an_empty_world_stays_empty_after_a_tick</span>
+  world = <span style="color:#036;font-weight:bold">World</span>.new
+  next_world = world.tick
+  assert_true next_world.empty?
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>这样就是更加基于行为的测试方法。</p> <h2>不要让测试依赖别的测试</h2> <p>看看之前提到的一个例子：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_an_empty_world_stays_empty_after_a_tick</span>
+  world = <span style="color:#036;font-weight:bold">World</span>.new
+  next_world = world.tick
+  assert_true next_world.empty?
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>这个例子有点问题：我们怎么知道 new 出来的 World 就是空的呢？ 当然之前有测试会覆盖这个问题，但现在的问题不是测试是否覆盖，而是测试之间产生了依赖。</p> <p>如果 <code>World</code> 的初始化方法修改了，改成会设置一些 seed 细胞，那么这个测试也会连带着失败。 失败不可怕，问题的重点是，空的世界的下一个回合依然是空世界这一逻辑并没有修改，也没有错误。 但是这个测试却因为一个不相关的修改而出错，这样的问题 debug 起来也会非常麻烦。</p> <p>我们不应该让这个测试是基于 new World 一定是空的这一假设为前提的。 我们应该明确指定需要一个空的 World:</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_an_empty_world_stays_empty_after_a_tick</span>
+  world = <span style="color:#036;font-weight:bold">World</span>.empty
+  next_world = world.tick
+  assert_true next_world.empty?
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>这样一来，初始化的代码修改就不会影响这个测试了。</p> <h2>破坏抽象层次</h2> <p>脆弱的测试套件在面对修改时很容易出现大量的错误，为此甚至有人会倾向于少写单元测试而只写集成测试， 当然这是不对的，出现这种情况的话，我们应该去调查为什么会出现这种脆弱性并修正它。</p> <p>看看下面的例子：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_world_is_not_empty_after_adding_a_cell</span>
+  world = <span style="color:#036;font-weight:bold">World</span>.empty
+  world.set_living_at(<span style="color:#036;font-weight:bold">Location</span>.new(<span style="color:#00D">1</span>,<span style="color:#00D">1</span>))
+  assert_false world.empty?
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>这里的问题是，在这个测试中，我们暗示了 world 的 empty 与否是与坐标 (1, 1) 相关的，这让这个测试的抽象没有处于同一个层次， 和之前提到过的一样，如果把二维坐标改成三维坐标的话，可以想象会有大量的单元测试报错。</p> <p>我们可以使用 Mock 对象或者制造一个随机的 Location 来解决这个问题：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_world_is_not_empty_after_adding_a_cell</span>
+  world = <span style="color:#036;font-weight:bold">World</span>.empty
+  world.set_living_at(<span style="color:#036;font-weight:bold">Location</span>.random)
+  assert_false world.empty?
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>注意，这里的 Location.random 和 Location.new(1,1) 的区别并不是 (1,1) 是具体的位置， 而是抽象层次的统一，（1,1） 是具体的 x, y 坐标， 而 world 是否 empty 只和 location 有关， x, y 是 location 所关心的问题，不应该与 world 出现在一起。</p> <h2>天真的重复</h2> <p>对于细胞下一回合是生存还是死亡，开头的游戏规则已经说明了，这段逻辑并不难</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Cell</span>
+  attr_reader <span style="color:#A60">:alive</span> <span style="color:#777"># true | false</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">alive_in_next_generation?</span>
+    <span style="color:#080;font-weight:bold">if</span> alive
+      number_of_neighbors == <span style="color:#00D">2</span> || number_of_neighbors == <span style="color:#00D">3</span>
+    <span style="color:#080;font-weight:bold">else</span>
+      number_of_neighbors == <span style="color:#00D">3</span>
+    <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>肯定有同学会发现这里有一个重复， 那就重构一下试试：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Cell</span>
+  <span style="color:#777"># ...</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">alive_in_next_generation?</span>
+    (alive &amp;&amp; number_of_neighbors == <span style="color:#00D">2</span>) || number_of_neighbors == <span style="color:#00D">3</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>代码看起来简介多了～， 但是 <span style="text-decoration:underline;">这是一个典型的对于 DRY 原则的错误理解</span> ！！</p> <p>DRY 原则的定义是：</p> <blockquote> <p>Every piece of knowledge has one and only one representation</p> </blockquote> <p>事实上，这句话中没有任何提到代码的地方。出现重复的代码和 DRY 有必然联系吗？ 回过头再看看我们的重构有没有问题，为了让问题看起来更清晰，不妨抽象出两个方法：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Cell</span>
+  <span style="color:#777"># ...</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">alive_in_next_generation?</span>
+    <span style="color:#080;font-weight:bold">if</span> alive
+      stable_neighborhood?
+    <span style="color:#080;font-weight:bold">else</span>
+      genetically_fertile_neighborhood?
+    <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">end</span>
+
+  private
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">stable_neighborhood</span>
+    number_of_neighbors == <span style="color:#00D">2</span> || number_of_neighbors == <span style="color:#00D">3</span>
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">genetically_fertile_neighborhood?</span>
+    number_of_neighbors == <span style="color:#00D">3</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>现在你还觉得第一次的重构是正确的吗？ DRY 原则应该从意图上去理解，而不是单纯的代码的字面重复。</p> <h2>程序上的多态</h2> <p>继续上面提到的代码：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Cell</span>
+  <span style="color:#777"># ...</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">alive_in_next_generation?</span>
+    <span style="color:#080;font-weight:bold">if</span> alive
+      stable_neighborhood?
+    <span style="color:#080;font-weight:bold">else</span>
+      genetically_fertile_neighborhood?
+    <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>首先 <code>alive_in_next_generation?</code> 是一个状态查询式的命名，而不是一个行为。 我们为什么对于是否 alive 感兴趣呢？ 对于当前已经活着的细胞，它就是 alive 的， 而对于死掉的细胞，它下一回合可能会“复活”，看来很难取一个更好的名字来统一这两种（以后可能更多）的情况。</p> <p>说到多种情况，这种充斥 if else 的代码，稍有经验的同学都知道可以用多态来解耦。</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">LivingCell</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">alive_in_next_generation?</span>
+    <span style="color:#777"># neighbor_count == 2 || neighbor_count == 3</span>
+    stable_neighborhood?
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">DeadCell</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">alive_in_next_generation?</span>
+    <span style="color:#777"># neighbor_count == 3</span>
+    genetically_fertile_neighborhood?
+  <span style="color:#080;font-weight:bold">end</span>
+</pre> <p>这样，就算以后有了生死以外的状态，也可以通过新增一个类来处理了，比如：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">ZombieCell</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">alive_in_next_generation?</span>
+    <span style="color:#777"># new, possibly more complex rules</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>不过，为了多态， <code>alive_in_next_generation?</code> 这个名字还是不能修改，如果为每种情况设置一个更好的名字， 比如 <code>stays_alive?</code> 和 <code>comes_to_life</code> :</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">LivingCell</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">stays_alive?</span>
+    neighbor_count == <span style="color:#00D">2</span> || neighbor_count == <span style="color:#00D">3</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">DeadCell</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">comes_to_life?</span>
+    neighbor_count == <span style="color:#00D">3</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>这样就失去了多态的好处了，当然这取决于你是如果调用这些类的，不过至少，提取出多态类给了你重新命名的机会。</p> <h2>对用例做出假设</h2> <p>看看这个例子：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">LivingCell</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">stays_alive?</span>(number_of_neighbors)
+    number_of_neighbors == <span style="color:#00D">2</span> || number_of_neighbors == <span style="color:#00D">3</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">DeadCell</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">comes_to_life?</span>(number_of_neighbors)
+    number_of_neighbors == <span style="color:#00D">3</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>对于一个 entity, 当一个查询方法需要外部参数（而不是内部状态）来实现时，就要注意了，可能有职责上的设计问题。 那么一个细胞的下一回合状态如何，是否可以用一个 Rule 类来处理呢，这样的职责划分就更清晰了。 注意，这里的关键来了，在这个例子中（代码没有省略的部分），我们可以直接把两个类的名字改掉：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">LivingCellRules</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">stays_alive?</span>(number_of_neighbors)
+    number_of_neighbors == <span style="color:#00D">2</span> || number_of_neighbors == <span style="color:#00D">3</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">DeadCellRules</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">comes_to_life?</span>(number_of_neighbors)
+    number_of_neighbors == <span style="color:#00D">3</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>注意上面的变化是改类名哦，那意味着现在不存在 LivingCell 或者 DeadCell 了。 感觉不可思议吗？一个 Game of Life 的游戏，居然没有 Cell 类。 但仔细想想，Location 类可以直接和 Rule 类关联吗？或者说，我们的世界是一个无尽的世界， 我们需要跟踪每一个 cell 吗？又或者 Location 类已经包含了 Rule 的职责。。。 &#8220;我们需要这个抽象吗？&#8221; 这个问题很常见， 我们常常假设在未来某个时候我们会用到它， 但真正的答案只有在实际存在的用例面前才会出现，不要过早抽象。</p> <h2>展开一个对象</h2> <p>类似 Ruby 这样的语言，都有一个设计就是方法的最后一个表达式会被作为返回值。</p> <p>不过现在我们要讨论的是编写 <span style="text-decoration:underline;">没有返回值</span> 的代码。</p> <p>这样的写法会让你不再能获取对象的属性（没有查询方法），这样有助于构建高内聚的对象（只借助对象自己来管理内部状态）。 不过问题来了，那我们怎么测试呢？比如我想知道两个 location 对象是不是同一个坐标。 看看下面的例子：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Location</span>
+  attr_reader <span style="color:#A60">:x</span>, <span style="color:#A60">:y</span>
+<span style="color:#080;font-weight:bold">end</span>
+
+location1 = <span style="color:#036;font-weight:bold">Location</span>.new(<span style="color:#00D">1</span>, <span style="color:#00D">1</span>)
+location2 = <span style="color:#036;font-weight:bold">Location</span>.new(<span style="color:#00D">1</span>, <span style="color:#00D">2</span>)
+
+<span style="color:#080;font-weight:bold">if</span> location1.equals?(location2)
+  <span style="color:#777"># Do something interesting</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>你可以这样写：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Location</span>
+  attr_reader <span style="color:#A60">:x</span>, <span style="color:#A60">:y</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">equals?</span>(other_location)
+    <span style="color:#069">self</span>.x == other_location.x &amp;&amp; <span style="color:#069">self</span>.y == other_location.y
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+location1.equals?(location2)
+</pre> <p>不过这样犯规了，你向 other_location 询问了它的 x 和 y 属性。</p> <p>来看看作者使用的 ”展开（unwrapping）“ 技巧吧：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Location</span>
+  attr_reader <span style="color:#A60">:x</span>, <span style="color:#A60">:y</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">equals?</span>(other_location)
+    other_location.equals_coordinate?(<span style="color:#069">self</span>.x, <span style="color:#069">self</span>.y)
+  <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">equals_coordinate?</span>(other_x, other_y)
+    <span style="color:#069">self</span>.x == other_x &amp;&amp; <span style="color:#069">self</span>.y == other_y
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>通过把对象自己的属性传递给 other_location 对象，巧妙的避开了规则的限制。 等等，这样真的就 OK 了吗？ <code>equals?</code> 方法可是返回了一个布尔值啊～ 好吧，因为之前提到的 Ruby 的特性，我们先把返回值手动清除：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Location</span>
+  attr_reader <span style="color:#A60">:x</span>, <span style="color:#A60">:y</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">equals?</span>(other_location)
+    other_location.equals_coordinate?(<span style="color:#069">self</span>.x, <span style="color:#069">self</span>.y)
+    <span style="color:#069">nil</span>
+  <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">equals_coordinate?</span>(other_x, other_y)
+    <span style="color:#069">self</span>.x == other_x &amp;&amp; <span style="color:#069">self</span>.y == other_y
+    <span style="color:#069">nil</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>深入想想，我们为什么要知道两个 location 是相等的？ 肯定是因为我们要做一些操作，前提条件是它们相等。 那么， 一般的写法是：</p> <pre class=src lang=ruby>
+count_of_locations = <span style="color:#00D">0</span>
+<span style="color:#080;font-weight:bold">if</span> location1.equals?(location2)
+  count_of_locations++
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>不过我们的 <code>equals?</code> 方法已经没有返回值了，所以我们要用一些技巧来实现上面的功能。</p> <pre class=src lang=ruby>
+count_of_locations = <span style="color:#00D">0</span>
+location1.equals?(location2, -&gt; { count_of_locations++ })
+</pre> <p>没想到吧，这里使用 lambda 表达式巧妙的实现了同样的功能，具体的 Location 类内部实现如下：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Location</span>
+  attr_reader <span style="color:#A60">:x</span>, <span style="color:#A60">:y</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">initialize</span>(x, y)
+    <span style="color:#33B">@x</span> = x
+    <span style="color:#33B">@y</span> = y
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">equals?</span>(other_location, if_equal)
+    other_location.equals_coordinate?(<span style="color:#069">self</span>.x, <span style="color:#069">self</span>.y, if_equal)
+    <span style="color:#069">nil</span>
+  <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">equals_coordinate?</span>(other_x, other_y, if_equal)
+    <span style="color:#080;font-weight:bold">if</span> <span style="color:#069">self</span>.x == other_x &amp;&amp; <span style="color:#069">self</span>.y == other_y
+      if_equal.()
+    <span style="color:#080;font-weight:bold">end</span>
+    <span style="color:#069">nil</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>if_euqal 函数就是当两个 location 相当时要做的事情。</p> <h2>倒转组合替代继承</h2> <p>看看下面的 Cell 类：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">LivingCell</span>
+  attr_reader <span style="color:#A60">:location</span>
+<span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">DeadCell</span>
+  attr_reader <span style="color:#A60">:location</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>我们已经抽象出了 location, 不过可以看到， location 本身还是出现了两次。 不过正如之前在 DRY 原则中提到的，我们要确定，这真的是同一个知识（knowledge）的重复吗？ 可以说是的，因为两种 Cell 都通过 location 关联到了世界的一个位置。</p> <p>那么如何消除这个重复呢？最容易想到的就是继承了：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Cell</span>
+  attr_reader <span style="color:#A60">:location</span>
+<span style="color:#080;font-weight:bold">end</span>
+
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">LivingCell</span> &lt; <span style="color:#036;font-weight:bold">Cell</span>
+<span style="color:#080;font-weight:bold">end</span>
+
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">DeadCell</span> &lt; <span style="color:#036;font-weight:bold">Cell</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>但是这样真的好吗？新增了一个类，但是没有任何新的领域概念，这不符合 &#8220;small&#8221; 这个简单设计原则。 继承应该是被用来创建可重用的代码而不是消除重复（两者还是有区别的）。 不用继承的话，我们试试 Ruby 中的 module 吧：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">LivingCell</span>
+  include <span style="color:#036;font-weight:bold">HasLocation</span>
+<span style="color:#080;font-weight:bold">end</span>
+
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">DeadCell</span>
+  include <span style="color:#036;font-weight:bold">HasLocation</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>感觉也差不多， module 算是一种多重继承的实现方式，它的问题和上面单继承提到的一样。</p> <p>好好看看这个问题，两个类型需要连接同一个类型，那么不妨试试把依赖倒转过来，让一个类型去连接两个类型。</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Location</span>
+  attr_reader <span style="color:#A60">:x</span>, <span style="color:#A60">:y</span>
+  attr_reader <span style="color:#A60">:cell</span>
+<span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">LivingCell</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">stays_alive?</span>(number_of_neighbors)
+    number_of_neighbors == <span style="color:#00D">2</span> || number_of_neighbors == <span style="color:#00D">3</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">DeadCell</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">comes_to_life?</span>(number_of_neighbors)
+    number_of_neighbors == <span style="color:#00D">3</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>这样还有一个小问题， 就是 cell 有一个 location, 而不是 location 有一个 cell, 只要把 Location 类改名为 Coordinate 就行了。</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Coordinate</span>
+  attr_reader <span style="color:#A60">:x</span>, <span style="color:#A60">:y</span>
+  attr_reader <span style="color:#A60">:cell</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/understanding-the-4-rules-of-simple-design"></script> </body> </html>

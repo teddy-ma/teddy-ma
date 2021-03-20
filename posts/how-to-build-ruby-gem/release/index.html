@@ -1,0 +1,114 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_how-to-build-ruby-gem posts_how-to-build-ruby-gem_release posts_how-to-build-ruby-gem_release_index typo"> <article> <h1>构建一个 Ruby Gem 第五章 发布</h1> <p>在第二章中, 我们简要的看了一下默认的 bundler 给我们创建的 Rakefile：</p> <pre class=src lang=ruby>
+require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">bundler/gem_tasks</span><span style="color:#710">&quot;</span></span>
+</pre> <p>这单独的一行可以让我们轻松的发布我们的 gem。如果我们在命令行输入 <code>rake -T</code> ，我们会看到下面的内容：</p> <pre class=src lang=sh>
+$ rake -T
+rake build   # Build mega_lotto-0.0.1.gem into the pkg directory
+rake install  # Build and install mega_lotto-0.0.1.gem into system gems
+rake release  # Create tag v0.0.1 and build and push mega_lotto-0.0.1.gem
+                       # to Rubygems
+</pre> <p><code>rake build</code> 将会创建一个带版本号的 <code>.gem</code> 文件在我们的 gem 的 <code>pkg/</code> 目录下， bundler 创建了一个 <code>.gitignore</code> 文件来把 <code>pkg/</code> 目录排除到 git 版本控制之外。 所以即使在运行 <code>rake build</code> 命令后，被打包的 <code>*.gem</code> 文件也不会被提交到源码库。</p> <p><code>rake install</code> 顾名思义，将会把 gem 安装到本地。不过既然我们可以<a href="http://bundler.io/v1.5/gemfile.html">在一个Gemfile 中指定本地路径的gem</a> (通过 <code>path</code> 选项)，我没发现这个任务有什么有用的地方。</p> <p><code>rake release</code> 正如我们从命令的描述中看到的一样，它检查我们的 gem 的当前版本并且建议它要发布=v0.0.1= 版本，基于 <code>lib/mega_lotto/version.rb</code> 文件。</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+  <span style="color:#036;font-weight:bold">VERSION</span> = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">0.0.1</span><span style="color:#710">&quot;</span></span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>执行 <code>rake release</code> 命令将会做如下的事情：</p> <ol> <li>构建我们的gem包并且把它放在 <code>pkg/</code> 目录下</li> <li>为当前版本(0.01)创建一个 git tag 并且把我们的改变推送到Github上</li> <li>把我们打包好的gem推送到 Rubygems，让它能被公开访问</li> </ol> <p>注意: 如果你不想开源你的 gem，=rake release= 目前不适合你。</p> <h2>源代码管理</h2> <p>虽然 <code>git</code> 不是唯一的源代码管理选择，它是 bundler 的内建工具并且可以轻松的和Github同步。 如果你没有选择其他工具的理由，git 和 Github 将会是我的源代码管理和远程仓库的选择。</p> <p><code>rake release</code> task 假定我们已经设置好了本地的git仓库并且和Github的远程仓库同步，所以让我们这样做把。</p> <p>我们可以在 gem 的根目录运行 <code>git init</code> 。一旦初始化后，我们将会通过 <code>git add</code> 。 并且创建一个提交叫做 &#8220;Initial commit&#8221; 来暂存我们迄今为止的工作。</p> <p>为了能远程同步，我们将会在 Github 上创建一个新的仓库。我们把它命名为 <code>mega_lotto</code> 并且配置它为公开仓库因为我们的目的是开源这个项目。 虽然仓库的名字不一定非要和gem的名字相符，但是取不同的名字会使人迷惑。对于剩下的选项，我们保持默认值。</p> <p>现在远程仓库被创建好了，我们将要在我们的本地仓库加上引用。下面的命令就是为我们做这件事的：</p> <pre class=src lang=sh>
+$ git remote add origin git@github.com:brandonhilkert/mega_lotto.git
+</pre> <p>注意：远程 git 仓库的路径将会包含你的 Github 用户名和你的仓库的名字。要替换掉相应的内容。</p> <p>现在我们的远程仓库已经被正确的配置了，我们将会推送我们的本地仓库的内容到 Github 使用命令：</p> <pre class=src lang=sh>
+$ git push -u origin master
+</pre> <p>今后，任何时候我们想要同步到 Github，使用缩写 git push 命令就可以了！</p> <h2>发布</h2> <p>让我们再次运行我们测试套件来确保事情都很顺利：</p> <pre class=src lang=sh>
+$ rake
+....
+
+Finished in 0.00401 seconds
+4 examples, 0 failures
+
+Randomized with seed 63009
+</pre> <p>测试通过，感觉良好。</p> <p>注意：如果我们想要我们的 gem 被上传到 rubygems.org，我们首先要<a href="https://rubygems.org/sign_up">创建一个账号</a>。</p> <p>运行 <code>rake release</code> 命令：</p> <pre class=src lang=sh>
+$ rake release
+mega_lotto 0.0.1 built to pkg/mega_lotto-0.0.1.gem.
+Tagged v0.0.1.
+Pushed git commits and tags.
+Pushed mega_lotto 0.0.1 to rubygems.org.
+</pre> <p>注意：Rubygems 不允许提交重复名字的 gems。因为我之前已经发布了名叫 MegaLotto 的gem，如果你照着上面的做法做的话会返回的一个rubygems的错误。</p> <p>注意: Rubygems 要求身份验证，所以你在发布之前会被要求输入你的email和密码。</p> <p><code>rake release</code> 的结果会产生在<a href="https://rubygems.org/gems/mega_lotto">这个页面</a>上。正如你所看到的，它解析了 <code>mega_lotto.gemspec</code> 的内容并且加上了我的名字，照片，gem 的版本， 发布的日期和 gem的依赖。它也推送到github gem 的 <a href="https://github.com/brandonhilkert/mega_lotto/releases">release tag</a>。</p> <h2>下一次发布</h2> <p>假设我们想要让 <code>mega_lotto gem</code> 返回6个 integers 而不是5个。为了实现它，我们改变了 specs：</p> <pre class=src lang=ruby>
+it <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">returns an array with 5 elements</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+  expect(draw.size).to eq(<span style="color:#00D">5</span>)
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>改为:</p> <pre class=src lang=ruby>
+it <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">returns an array with 6 elements</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+  expect(draw.size).to eq(<span style="color:#00D">6</span>)
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>正如预期的，我们的测试套件现在失败了因为我们还没有升级我们的实现：</p> <pre class=src lang=sh>
+$ rake
+..F.
+Failures:
+  1) MegaLotto::Drawing#draw returns an array with 6 elements
+      Failure/Error: expect(draw.size).to eq(6)
+
+         expected: 6          
+              got: 5
+
+        (compared using ==)
+      # ./spec/mega_lotto/drawing_spec.rb:13
+
+Finished in 0.00325 seconds
+4 examples, 1 failure
+
+Failed examples:
+
+rspec ./spec/mega_lotto/drawing_spec.rb:12
+# MegaLotto::Drawing#draw returns an array with 6 elements
+Randomized with seed 8922
+</pre> <p>现在让我们改变我们的实现：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+  <span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Drawing</span>
+    <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">draw</span>
+      <span style="color:#777"># This value used to be 5</span>
+      <span style="color:#00D">6</span>.times.map { single_draw }
+    <span style="color:#080;font-weight:bold">end</span>
+    private
+    <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">single_draw</span>
+      rand(<span style="color:#00D">0</span>...<span style="color:#00D">60</span>)
+    <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>并且运行测试再次确认：</p> <pre class=src lang=sh>
+$ rake
+....
+
+Finished in 0.00482 seconds
+4 examples, 0 failures
+
+Randomized with seed 14164
+</pre> <p>很好！让我们继续前进&#8230; 通常来说，我们将会创建一个紧随其后的提交来 bumping <code>lib/mega_lotto/version.rb</code> 文件里的版本号常量：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+  <span style="color:#036;font-weight:bold">VERSION</span> = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">0.0.2</span><span style="color:#710">&quot;</span></span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>注意：我们在下一章会讨论的，推荐遵从语义化的版本控制。通过改变 <code>mega_lotto</code> gem 返回 6 个数字而不是 5 个，我们改变了实现。 如果我们拘泥于遵从语义化版本控制，我们应该发布一个主版本号而不是一个补丁。做实验并没有什么错只要你让用户知晓。 最好的方式就是说明这个 gem 正在开发中。</p> <p>开发 public API 多半就是不断改变版本。通常来说，这适用于版本小于 1.0 的情况，这和项目相应变化。 现在我们的新版本已经准备好要发布了，让我们再次快速看看 rake 命令的说明：</p> <pre class=src lang=sh>
+$ rake -T
+rake build   # Build mega_lotto-0.0.2.gem into the pkg directory
+rake install  # Build and install mega_lotto-0.0.2.gem into system gems
+rake release  # Create tag v0.0.2 and build and push mega_lotto-0.0.2.gem
+                        # to Rubygems
+</pre> <p>正如我们看到的，rake 命令知道我们将要发布 0.0.2 版本 (因为我们 bumped 了 lib/mega_lotto/version 的VERSION 常量)。所以我们还在等什么呢？？？发布吧！</p> <pre class=src lang=sh>
+$ rake release
+mega_lotto 0.0.2 built to pkg/mega_lotto-0.0.2.gem.
+Tagged v0.0.2.
+Pushed git commits and tags.
+Pushed mega_lotto 0.0.2 to rubygems.org.
+</pre> <p>我们的新版本会在 <a href="https://rubygems.org/gems/mega_lotto">Rubygems landing page</a> 和 <a href="https://github.com/brandonhilkert/mega_lotto/releases">the Github releases page</a> 被显示出来。</p> <h2>何时发布</h2> <p>很不幸，没有关于何时发布方面的规则。然而，你大概注意到了，在大型软件项目中 (Google Chrome, Mozilla Firefox 等等)，更小更频繁的发布是主流方式。 语义化版本号已经创建了一个可信赖的模式来发布可预测的软件。</p> <p>我非常确定我同意 &#8220;有 bug 就发布一个 fix&#8221; 的说法 (但是我们都写没 bug 的代码，不是吗?!?!)</p> <p>除此以外，你将不得不平衡多少特性或者改变你一次想要发布。并且这会，几乎一定，在项目的生命周期中不断变化。在开发初期，预期会有大量的改变是合理的。虽然有一些不太可靠。然而，随着项目的成熟和越来越多的人依赖它，我的建议是更频繁的发布小的改变。</p> <h2>总结</h2> <p>从启动项目到提供发布任务，在我们的 gem 开发过程中 bundler 是一个必不可少的工具。不必担心元数据或在 git 中应用正确的版本号，bundler 出现在需要它的地方。 在下一章，我们会近距离看看语义化版本号并学习一个可预测版本系统所带来的好处。我们也会看到版本在管理 gem 依赖中扮演的角色。</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/how-to-build-ruby-gem/release"></script> </body> </html>

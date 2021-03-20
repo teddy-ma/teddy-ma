@@ -1,0 +1,900 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_bad-programming-101 posts_bad-programming-101_index typo"> <article> <h1>坏代码的最佳实战</h1> <p><img src="https://truth.bahamut.com.tw/s01/201609/56b3bdb4ae876d5a000408b6be8ca471.JPG" alt="https://truth.bahamut.com.tw/s01/201609/56b3bdb4ae876d5a000408b6be8ca471.JPG"/> 习惯了学习正确的东西，让我们看看错误的东西吧。 本文列出的，都是错误的例子！！！</p> <h2>学习编程</h2> <h3>阅读编程手册，忽略练习部分</h3> <p>又不是说为了学习牛顿力学就要自动动手造一个巨型离心机。看看书一样学编程。</p> <h4>有异议</h4> <p>就像学习人类语言一样，学习编程语言需要不断的练习练习再练习</p> <h3>按步就班地学习</h3> <p>如果自己挑选习题来练习，那么你就没法控制自己练习的强度和全面性，所以不要“挑食”。</p> <h4>有异议</h4> <p>挑选自己喜欢的项目来练习，你就会享受这个过程，给你更大的动力去学习。</p> <h3>做一个脚本小子</h3> <p>碰到一个问题，上网找答案（也许这个答案并不好）。复制粘贴代码，好像它们是你自己写的一样。</p> <h4>有异议</h4> <p>学习好的例子是有益的，但是你要自己努力去理解为什么那些解决方案是好的。</p> <h3>独自学习</h3> <p>要成为独立自主的新时代青年</p> <h4>有异议</h4> <p>和他人一起学习，你可以：</p> <ol> <li>学习他人的想法和观点来提高自己</li> <li>通过教育别人来巩固自己的知识</li> <li>通过别人的解释来提高自己的理解</li> <li>更好的提问与回答的能力</li> <li>接触到真实项目中团队的交流方式</li> </ol> <h3>选择你的工具</h3> <p>作为一个初学者，使用方便的工具可以辅助你的学习，让你能用更少的痛苦来完成挑战，熟练使用 IDE 还能让你给周围的人留下深刻印象。</p> <h4>有异议</h4> <p>应该根据自己的能力来选择工具。 如果你还处于学习编程的早期，比如还不熟悉变量和循环，那么一个可视化的编程环境会更适合你。 如果你熟悉了基本的编程套路，那么就可以选择 IDE 这样更高级的工具。工具可以自动化任务，但是记住。 你必须要了解这个任务，只是需要工具来更快的完成它，如果不是这样，使用工具会让你得不到锻炼。</p> <h3>使用最时髦的工具</h3> <p>最新的 iPhone, 最大的屏幕，新版的包含新特性的 JDK, 最时髦的版本控制工具，这些新的东西带来新的特性，让你学到更多。</p> <h4>有异议</h4> <p>没有银弹！如果过渡追求时髦，就会陷入选择恐惧。何况一个好的程序员，一定是会使用多种工具的。 每过一段时间，都会出现一个新的工具，号称比之前的工具都要更棒，这个新的工具是历史上最好的，直到下一个这样的工具出现。。。</p> <h2>布局和结构</h2> <h3>让空格和缩进不一致</h3> <p>对于格式不敏感的编程语言来说，无论有没有缩进，都不影响计算机对代码的执行，所以，不用浪费时间在格式化代码上。</p> <h4>有异议</h4> <p>代码，是用来和其他人交流的。计算机认识的，不是 Java 这样的高级语言，而是二进制代码。 而高级语言存在的意义就是让程序员们可以更方便的编写和理解代码。 缩进让代码更清晰易懂，也更容易发现 bug.</p> <h3>混用空格和tab</h3> <p>只要能起到缩进的作用，空格和 tab 都可以混着用</p> <h4>有异议</h4> <p>不一致是代码混乱的一大元凶。Java 代码规范就规定不要使用 tab, 另外现代编辑器和 IDE 都会强制规定空格和 tab 的规则。 另外一些 code review 的工具也会进行检查。</p> <h3>没用的代码</h3> <p>代码是复杂的，如果代码中有无用的部分，或者永远不会被执行的部分，那会加大程序员的认知成本。 都是，当你发现这样的代码时，你会害怕，如果哪天我又需要它们了呢？ 那我就把它们注释掉吧，反正编译器不会在意这些注释。</p> <h4>有异议</h4> <p>如果是没用的代码，那么就删掉它们。所有没用的代码，都是浪费，甚至会成为潜在的 bug. 不要担心万一以后需要它们，你可以使用版本控制工具找回它们。</p> <h3>不要写注释</h3> <p>不要写注释，因为难写的东西，读起来也会很难。如果需要注释，那就说明代码难读，应该让代码变得简单，而不是添加注释。</p> <h4>有异议</h4> <p>注释的意义是让代码变得清晰。对于简单的代码的确不需要注释，但是对于复杂一些的代码，注释是必要的。 另外注释还可以用于生成文档。</p> <h3>重复代码的注释</h3> <p>下面的注释解释了 if 条件里发生了什么</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">if</span> (numbers[j -<span style="color:#00D">1</span>] &gt; numbers[j]) {
+    <span style="color:#777">// numbers[j -1] is assigned to temp</span>
+    <span style="color:#0a8;font-weight:bold">Integer</span> temp = numbers[j - <span style="color:#00D">1</span>];
+    <span style="color:#777">// numbers[j] is assigned to numbers[j - 1];</span>
+    numbers[j - <span style="color:#00D">1</span>] = numbers[j];
+    <span style="color:#777">// temp is assigned to numbers[j]</span>
+    numbers[j] = temp;
+}
+</pre> <h4>有异议</h4> <p>好的注释会解释代码*背后*的含义。它们*添加×信息，而不是简单的重复代码说明的内容。 程序员明白单独的步骤是怎么回事，一般需要注释的是整体的行为，比如上面的例子可以改成下面这样：</p> <pre class=src lang=java>
+<span style="color:#777">// Compare the values of two consecutive numbers.</span>
+<span style="color:#777">// Swap their positions in the numbers array if</span>
+<span style="color:#777">// the earlieer is greatre than the latter</span>
+<span style="color:#080;font-weight:bold">if</span> (numbers[j -<span style="color:#00D">1</span>] &gt; numbers[j]) {
+    <span style="color:#0a8;font-weight:bold">Integer</span> temp = numbers[j - <span style="color:#00D">1</span>];
+    numbers[j - <span style="color:#00D">1</span>] = numbers[j];
+    numbers[j] = temp;
+}
+</pre> <h3>过期的注释</h3> <p>当你修改了一段包含注释的代码，而没有修改它的注释后。别人会发现这样一段和注释不同的代码。 那么，可能的问题是：</p> <ol> <li>代码有问题</li> <li>注释有问题</li> </ol> <p>你修改了一个地方，却造成了两处可能存在的错误，真是厉害。</p> <h4>有异议</h4> <p>修改代码时必须要同步更改注释，就算有同事给你 code review, 但一般 review 的时候只会注意到修改的部分， 不容易发现没修改的部分的问题。</p> <h3>不划分子程序</h3> <blockquote> <p>In general, Bigger is better.</p> </blockquote> <p>所以不要把代码分成子程序，大段的代码是更好的。</p> <h4>有异议</h4> <p>代码可以分为两层：低层和高层。 低层更偏重细节，比如简单的语句和变量的赋值。 高层更远离细节，侧重描述概念而不是实际的细节。</p> <p>把代码分成子程序，能代码更清晰，也可以去除重复代码，封装变化。</p> <blockquote> <p>Duplicate! Spread stuff around; don&#8217;t consolidate things.</p> </blockquote> <h2>变量</h2> <h3>没有意义的名字</h3> <p>想象一下，amount 这个词由6个字母组成，如果输入20次，那就是120个字母。 不如我们把它改成 a 吧，这样就节省了 100 个字母的输入时间了，何况你的同事一定能理解 a 就是 amount 的意思：）</p> <h4>有异议</h4> <p>现代的 IDE 都能自动补全变量名，你的同事也不必去猜变量名的意思，阅读代码会更流畅。</p> <h3>去掉元音字母</h3> <p>把 count 写成 cnt, price 写成 prc, 这样既减少了输入量，也不太影响代码的阅读。</p> <h4>有异议</h4> <p>看看这些 Style Guide 是怎么说的：</p> <ol> <li>如果必须简写，把它限制在一个简单的上下文中 (GNU)</li> <li>缩短单词，但不要减少单词的字母 (Google)</li> <li>使用通用的简写，比如 num 和 url. 不要混用简写和全名（Apple）</li> </ol> <h3>懒得命名</h3> <p>既然命名那么麻烦，那就别费力了，随便取个名字，反正不影响功能的实现。</p> <pre class=src lang=java>
+<span style="color:#0a8;font-weight:bold">String</span> string;
+<span style="color:#339;font-weight:bold">int</span> number;
+<span style="color:#339;font-weight:bold">boolean</span> flag;
+</pre> <p>有时声明变量也懒得多打字，一起声明吧</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">int</span> scoreBob, scoreJohn = <span style="color:#00D">10</span>;
+</pre> <h4>有异议</h4> <p>这个 string 是什么字符串？这个 number 是哪个数字？这个 flag &#8230; 当然是个布尔阿，这有什么意义呢？ John 的成绩是 10, 但是 Bob 是 0, 可怜的 Bob &#8230;</p> <h3>平面作用域</h3> <p>你没法确定一个变量会在什么地方被用到，那为什么不让变量可以被全局访问呢？</p> <h4>有异议</h4> <p>全局变量会造成不当的复用，变量之前的状态可能会影响之后被调用时的行为。 因为全局变量可以在任何地方被修改，所以要跟踪它的状态会非常困难。</p> <h3>把 number 作为神秘代码</h3> <p>假设有一个硬件设备，会返回一个错误码，所以我们可以这样接收：</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">int</span> status_code = connect_to_devise();
+
+<span style="color:#080;font-weight:bold">switch</span> (status_code) {
+<span style="color:#080;font-weight:bold">case</span> <span style="color:#00D">0</span>:
+    display_info(info_messages[<span style="color:#00D">1</span>]);
+    <span style="color:#080;font-weight:bold">break</span>;
+<span style="color:#080;font-weight:bold">case</span> <span style="color:#00D">1</span>:
+    reattempt();
+    <span style="color:#080;font-weight:bold">break</span>;
+<span style="color:#080;font-weight:bold">case</span> <span style="color:#00D">2</span>:
+    display_warning(warning_messages[<span style="color:#00D">3</span>]);
+    <span style="color:#080;font-weight:bold">break</span>;
+}
+</pre> <h4>有异议</h4> <p>虽说返回错误码挺常见的，但是我们可以有更好的方法。 比如 Java 可以用枚举来代表数字：</p> <pre class=src lang=java>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">enum</span> DeviseStatus {
+    SUCCESS = <span style="color:#00D">0</span>,
+    WARNING_CONNECTION_SLOW,
+    ERROR_NO_PINGBACK
+}
+
+<span style="color:#339;font-weight:bold">int</span> status_code = connect_to_devise();
+
+<span style="color:#080;font-weight:bold">switch</span> (status_code) {
+<span style="color:#080;font-weight:bold">case</span> SUCCESS:
+    display_info(info_messages[<span style="color:#00D">1</span>]);
+    <span style="color:#080;font-weight:bold">break</span>;
+<span style="color:#080;font-weight:bold">case</span> ERROR_NO_PINGBACK:
+    reattempt();
+    <span style="color:#080;font-weight:bold">break</span>;
+<span style="color:#080;font-weight:bold">case</span> WARNING_CONNECTION_SLOW:
+    display_warning(warning_messages[<span style="color:#00D">3</span>]);
+    <span style="color:#080;font-weight:bold">break</span>;
+}
+</pre> <p>这样可以读性更高。</p> <h3>神奇的 String 可以是任何类型</h3> <p>布尔只能存放 true 和 false, Integer 只能存放数字，而 String 可以存放任意字符。 为什么要学那么多有限制的类型，直接把信息都放在 String 中不是很好吗</p> <h4>有异议</h4> <p>String 没什么限制是因为它能表达的意思很少，就是一串字符而已。 没有限制就意味着你没法享受到类型系统提供的验证功能。 比如：用 String 代表方向，那么如何判断 &#8220;north&#8221; 和 &#8220;North&#8221; 是不是一个方向？ 如果你用 String 储存数字，那么 &#8220;100&#8221; 和 &#8220;10O&#8221; 怎么区分？ 所以还是要使用更有意义的类型。</p> <h3>混合起来</h3> <p>使用集合来收集数据，在需要的时候取出来在转换成所需的对象，比如：</p> <pre class=src lang=java>
+<span style="color:#0a8;font-weight:bold">ArrayList</span>&lt;<span style="color:#0a8;font-weight:bold">Object</span>&gt; patientInfos = getPatient();
+
+<span style="color:#0a8;font-weight:bold">String</span> name = (<span style="color:#0a8;font-weight:bold">String</span>) patientInfos.get(<span style="color:#00D">0</span>);
+<span style="color:#0a8;font-weight:bold">Date</span> dob = (<span style="color:#0a8;font-weight:bold">Date</span>) patientInfos.get(<span style="color:#00D">1</span>);
+...
+</pre> <h4>有异议</h4> <p>记住，当语言内置的类型不能满足需求的时候，要创造自己的类型。 上面这个例子，应该改为自己创建一个 PatientRecord 类，并且创建类似 getName() getWeight() 这样的方法。</p> <h3>传播 Null</h3> <p>多你在编写自己的子程序时，确保你会返回 null, 特别是下面几种情况：</p> <ol> <li>定义一个最终会被返回的变量时，用 null 去初始化它。</li> <li>当子程序需要返回一个空的值时，返回 null</li> <li>不要给你的子程序调用者任何会返回 null 的线索</li> </ol> <h4>有异议</h4> <p>对 Null 的战斗一直存在，可以靠肉眼检查代码中有没有对 null 的检查。 如果子程序必须要返回 null, 也应该在注释中强调这一点， Java 中也有 annoatation @NotNull 来帮助 IDE 做检查。 另外现代编程语言也有 Optional 类型来对抗 null.</p> <h2>条件</h2> <h3>否则什么？</h3> <p>多做多错，所以省略 else 的情况能减少 bug 存在的可能。</p> <h4>有异议</h4> <p>省略 else 会产生潜在的错误，比如：</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">void</span> calculateGrade(<span style="color:#339;font-weight:bold">int</span> score) {
+    <span style="color:#080;font-weight:bold">if</span> (score &gt; <span style="color:#00D">60</span>) {
+        grade = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Pass</span><span style="color:#710">&quot;</span></span>
+    }
+}
+</pre> <p>这段代码，当成绩小于等于 60 时，它不会得到一个 Fail 的 grade.</p> <p>要解决也很简单</p> <pre class=src lang=java>
+  <span style="color:#339;font-weight:bold">void</span> calculateGrade(<span style="color:#339;font-weight:bold">int</span> score) {
+      <span style="color:#080;font-weight:bold">if</span> (score &gt; <span style="color:#00D">60</span>) {
+          grade = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Pass</span><span style="color:#710">&quot;</span></span>
+      } <span style="color:#080;font-weight:bold">else</span> {
+grade = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Fail</span><span style="color:#710">&quot;</span></span>}
+  }
+</pre> <p>这看起来太简单了，但实际上，这是一个非常容易犯的错误，一个好的习惯是，写下 if 后先补完 else.</p> <h3>正常和异常</h3> <p>人类的心理就是这样的：他们更喜欢优先考虑正常的情况，再考虑异常的情况。 所以你的代码也要符合阅读者的预期，先考虑正常的情况，再考虑异常。</p> <h4>有异议</h4> <p>使用 guard clauses, 一开始就返回异常的情况，这样人脑就能专注于一种情况，不必陷入各类条件的判断。</p> <h3>阶梯条件判断</h3> <p>当我们碰到阶梯式的判断条件时，一般会写出下面这样的代码。</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">if</span> (item.getType().equals(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">scannable</span><span style="color:#710">&quot;</span></span>)) {
+    price = item.scanBarcode();
+}
+<span style="color:#080;font-weight:bold">else</span> <span style="color:#080;font-weight:bold">if</span> (item.getType().equals(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">produce</span><span style="color:#710">&quot;</span></span>)) {
+    price = item.weigh();
+}
+<span style="color:#080;font-weight:bold">else</span> <span style="color:#080;font-weight:bold">if</span> (item.getType().equals(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">reduced</span><span style="color:#710">&quot;</span></span>)) {
+    price = item.keyInPrice();
+}
+</pre> <h4>有异议</h4> <p>一般来说，碰到这样的 if 条件，说明你需要一个更好的设计。 比如 switch 语句：</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">switch</span> (item.getType()) {
+<span style="color:#080;font-weight:bold">case</span> <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">scannable</span><span style="color:#710">&quot;</span></span>:
+    price = item.scanBarcode();
+    <span style="color:#080;font-weight:bold">break</span>;
+<span style="color:#080;font-weight:bold">case</span> <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">product</span><span style="color:#710">&quot;</span></span>:
+    price = item.weigh();
+    <span style="color:#080;font-weight:bold">break</span>;
+<span style="color:#080;font-weight:bold">case</span> <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">reduced</span><span style="color:#710">&quot;</span></span>:
+    price = item.keyInPrice();
+    <span style="color:#080;font-weight:bold">break</span>;
+}
+</pre> <h3>滥用表达式</h3> <p>越大越好，复杂的比简单要好。下面看个例子：</p> <pre class=src lang=java>
+<span style="color:#0a8;font-weight:bold">String</span> code = getSwiftCode();
+
+<span style="color:#0a8;font-weight:bold">String</span> mode = getMode();
+
+<span style="color:#080;font-weight:bold">if</span> (((code.length() == <span style="color:#00D">8</span> || code.length() == <span style="color:#00D">11</span>)) &amp;&amp; (code.substring(<span style="color:#00D">4</span>,<span style="color:#00D">6</span>).equals(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">DE</span><span style="color:#710">&quot;</span></span>)) &amp;&amp; ((mode + code.charAt(<span style="color:#00D">7</span>)).equals(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">L1</span><span style="color:#710">&quot;</span></span>) || (mode + code.charAt(<span style="color:#00D">7</span>)).equals(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">L2</span><span style="color:#710">&quot;</span></span>))) {
+    <span style="color:#777">// COde checks out</span>
+}
+</pre> <p>验证 SWIFT codes 就是这么复杂，我有什么办法呢？</p> <h4>有异议</h4> <p>你可以让表达式更具可读性，就算它们本身很复杂。 上面的那段代码难读的原因是：</p> <ol> <li>一行包含了太多内容</li> <li>一大堆的括号让人费解</li> <li>子表达式需要被计算，增加阅读负担</li> </ol> <p>我们可以先把子表达式提取：</p> <pre class=src lang=java>
+<span style="color:#0a8;font-weight:bold">String</span> tag = getMode() + mode.charAt(<span style="color:#00D">7</span>);
+
+<span style="color:#080;font-weight:bold">if</span> (((code.length() == <span style="color:#00D">8</span> || code.length() == <span style="color:#00D">11</span>)) &amp;&amp; (code.substring(<span style="color:#00D">4</span>,<span style="color:#00D">6</span>).equals(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">DE</span><span style="color:#710">&quot;</span></span>)) &amp;&amp; ((tag).equals(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">L1</span><span style="color:#710">&quot;</span></span>) || (tag).equals(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">L2</span><span style="color:#710">&quot;</span></span>))) {
+    <span style="color:#777">// ...</span>
+}
+</pre> <p>然后把单独的规则用换行隔开</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">if</span> (((code.length() == <span style="color:#00D">8</span> || code.length() == <span style="color:#00D">11</span>)) &amp;&amp;
+    (code.substring(<span style="color:#00D">4</span>,<span style="color:#00D">6</span>).equals(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">DE</span><span style="color:#710">&quot;</span></span>)) &amp;&amp;
+    ((tag).equals(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">L1</span><span style="color:#710">&quot;</span></span>) || (tag).equals(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">L2</span><span style="color:#710">&quot;</span></span>))) {
+      <span style="color:#777">// ...</span>
+}
+</pre> <p>最后，把单独的规则提取出来</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">if</span> ((validLength(code)) &amp;&amp;
+    (validCountry(code)) &amp;&amp;
+    (validMode(code, tag))) {
+    <span style="color:#777">//....</span>
+}
+
+<span style="color:#777">// ... private methods</span>
+</pre> <h3>不要不用双重否定</h3> <p>人类倾向于和过多的否定作斗争。好消息是：人类语言中的多重否定也能用在编程语言中。</p> <h4>有异议</h4> <p>人类更擅长处理正向的逻辑。比如：</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">while</span> (squaresUnavailable != <span style="color:#00D">9</span> &amp;&amp; noLinesAchieved)
+</pre> <p>可以改成这样</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">while</span> (squaresAvailable &gt; <span style="color:#00D">0</span> &amp;&amp; !linesArchived)
+</pre> <h3>空隙和重叠</h3> <p>处理范围的问题时很容易出错。看看下面这个例子：</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">if</span> (score &lt; <span style="color:#00D">40</span>) { grade = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">F</span><span style="color:#710">&quot;</span></span>; }
+<span style="color:#080;font-weight:bold">else</span> <span style="color:#080;font-weight:bold">if</span> (score &gt; <span style="color:#00D">40</span>) { grade = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">E</span><span style="color:#710">&quot;</span></span>; }
+<span style="color:#080;font-weight:bold">else</span> <span style="color:#080;font-weight:bold">if</span> (score &gt; <span style="color:#00D">50</span>) { grade = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">D</span><span style="color:#710">&quot;</span></span>; }
+<span style="color:#080;font-weight:bold">else</span> <span style="color:#080;font-weight:bold">if</span> (score &gt; <span style="color:#00D">60</span>) { grade = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">C</span><span style="color:#710">&quot;</span></span>; }
+<span style="color:#080;font-weight:bold">else</span> <span style="color:#080;font-weight:bold">if</span> (score &gt; <span style="color:#00D">70</span>) { grade = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">B</span><span style="color:#710">&quot;</span></span>; }
+<span style="color:#080;font-weight:bold">else</span> <span style="color:#080;font-weight:bold">if</span> (score &gt; <span style="color:#00D">80</span>) { grade = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">A</span><span style="color:#710">&quot;</span></span>; }
+</pre> <h4>有异议</h4> <p>这里有两个 bug, 第一个是 socre = 40 被漏掉了，第二个是所有大于 40 的条件都会被忽略。 可以这样修改：</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">if</span> (score &gt; <span style="color:#00D">80</span>) { grade = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">A</span><span style="color:#710">&quot;</span></span>; }
+<span style="color:#080;font-weight:bold">else</span> <span style="color:#080;font-weight:bold">if</span> (score &gt; <span style="color:#00D">70</span>) { grade = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">B</span><span style="color:#710">&quot;</span></span>; }
+<span style="color:#080;font-weight:bold">else</span> <span style="color:#080;font-weight:bold">if</span> (score &gt; <span style="color:#00D">60</span>) { grade = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">C</span><span style="color:#710">&quot;</span></span>; }
+<span style="color:#080;font-weight:bold">else</span> <span style="color:#080;font-weight:bold">if</span> (score &gt; <span style="color:#00D">50</span>) { grade = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">D</span><span style="color:#710">&quot;</span></span>; }
+<span style="color:#080;font-weight:bold">else</span> <span style="color:#080;font-weight:bold">if</span> (score &gt; <span style="color:#00D">40</span>) { grade = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">E</span><span style="color:#710">&quot;</span></span>; }
+<span style="color:#080;font-weight:bold">else</span> { grade = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">F</span><span style="color:#710">&quot;</span></span>; }
+</pre> <h2>循环</h2> <h3>Collections</h3> <p>当你要遍历一个集合时，使用 for 循环是一个最好的方法</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">for</span> (<span style="color:#339;font-weight:bold">int</span> i = <span style="color:#00D">0</span>; i &lt; shoppingList.size(); i++) {
+    Grocery g = shoppingList.get(i); <span style="color:#0a8;font-weight:bold">System</span>.out.println(g.getPrice());
+}
+</pre> <h4>有异议</h4> <p>使用一个循环的计数器 i 来跟踪当前在集合中的位置，可能会有问题。</p> <ol> <li>如果是 Set 这样的结构，那就根本没有下标的用法</li> <li>维护一个下标可能会带来额外的问题，不如使用 foreach 的循环</li> </ol> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">for</span> (Pet p : pets) {
+    p.feed();
+}
+</pre> <h3>Ranges</h3> <p>看一下这个 FizzBuzzes 的例子：</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">for</span> (<span style="color:#339;font-weight:bold">int</span> i = <span style="color:#00D">5</span>; i &lt;= <span style="color:#00D">100</span>; i += <span style="color:#00D">5</span>) {
+    <span style="color:#080;font-weight:bold">if</span> (i % <span style="color:#00D">3</span> == <span style="color:#00D">0</span>) {
+        <span style="color:#0a8;font-weight:bold">System</span>.out.println(i);
+    }
+}
+</pre> <p>loop 版本</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">int</span> i = <span style="color:#00D">5</span>;
+<span style="color:#080;font-weight:bold">while</span> (i &lt;= <span style="color:#00D">100</span>) {
+    <span style="color:#080;font-weight:bold">if</span> (i % <span style="color:#00D">3</span> == <span style="color:#00D">0</span>) {
+        <span style="color:#0a8;font-weight:bold">System</span>.out.println(i);
+        i += <span style="color:#00D">5</span>;
+    }
+}
+</pre> <p>找到问题了吧，i+=5 写错地方了，这个循环会变成死循环。所以说不要写 while 循环。</p> <h4>有异议</h4> <p>并不是说 loop 就不好，只是由于 loop 的条件限制并没有在一起定义，所以更容易出现错误。</p> <h3>Arbitrary Iterations</h3> <p>一个读取文件内容的例子：</p> <pre class=src lang=java>
+<span style="color:#0a8;font-weight:bold">List</span>&lt;<span style="color:#0a8;font-weight:bold">String</span>&gt; lines = Files.readAllLines(Paths.get(filename), StandardCharsets.UTF-<span style="color:#00D">8</span>);
+
+<span style="color:#080;font-weight:bold">for</span> (<span style="color:#0a8;font-weight:bold">String</span> line: lines) {
+    <span style="color:#777">// ...</span>
+}
+</pre> <p>一个接收用户输入的例子：</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">while</span>(<span style="color:#069">true</span>) {
+    input = keyboard.next();
+    <span style="color:#0a8;font-weight:bold">System</span>.out.println(input);
+}
+</pre> <p>第一个例子的问题是，会占用太多内存。 第二个例子的问题是，用户无法退出。 可见，使用循环是很不好的。</p> <h4>有异议</h4> <p>第一个例子，可以一行一行地读取：</p> <pre class=src lang=java>
+<span style="color:#0a8;font-weight:bold">BufferedReader</span> fileReader = <span style="color:#080;font-weight:bold">new</span> <span style="color:#0a8;font-weight:bold">BufferedReader</span>(<span style="color:#080;font-weight:bold">new</span> <span style="color:#0a8;font-weight:bold">FileReader</span>(file));
+<span style="color:#0a8;font-weight:bold">String</span> line = fileReader.readLine();
+
+<span style="color:#080;font-weight:bold">while</span> (line != <span style="color:#069">null</span>) {
+    <span style="color:#777">//</span>
+    line = fileReader.readLine();
+}
+</pre> <p>第二个例子，可以是 do while 解决：</p> <pre class=src lang=java>
+<span style="color:#0a8;font-weight:bold">Scanner</span> keyboard = <span style="color:#080;font-weight:bold">new</span> <span style="color:#0a8;font-weight:bold">Scanner</span>(<span style="color:#0a8;font-weight:bold">System</span>.in);
+<span style="color:#080;font-weight:bold">do</span> {
+    <span style="color:#0a8;font-weight:bold">System</span>.out.print(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">What now? &gt;</span><span style="color:#710">&quot;</span></span>);
+    input = keyboard.next();
+    <span style="color:#0a8;font-weight:bold">String</span> response = processInput(input);
+    <span style="color:#0a8;font-weight:bold">System</span>.out.println(response);
+} <span style="color:#080;font-weight:bold">while</span> (! input.equals(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">quit</span><span style="color:#710">&quot;</span></span>));
+</pre> <h3>无限循环</h3> <p>听说过 &#8220;停机问题&#8221; 吗？所以你不用担心自己的代码会陷入江局。</p> <h4>有异议</h4> <p>虽然没有办法可以解决停机问题，但是我们可以验证自己的 loop 方法有没有覆盖所有的条件。 讲个最有名的例子：</p> <pre class=src lang=java>
+Int year = <span style="color:#00D">1980</span>;
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> convertDays(<span style="color:#339;font-weight:bold">int</span> days) {
+    <span style="color:#080;font-weight:bold">while</span> (days &gt; <span style="color:#00D">365</span>) {
+        <span style="color:#080;font-weight:bold">if</span> (isLeapYear(year)) {
+            <span style="color:#080;font-weight:bold">if</span> (days &gt; <span style="color:#00D">366</span>) {
+                days -= <span style="color:#00D">365</span>;
+                year += <span style="color:#00D">1</span>;
+            }
+        }
+        <span style="color:#080;font-weight:bold">else</span> {
+            days -= <span style="color:#00D">365</span>;
+            year += <span style="color:#00D">1</span>;
+        }
+    }
+}
+</pre> <p>当时间是 2008 年 12 月 30 日的时候，代码会陷入死循环。</p> <h3>采取预防措施</h3> <p>看下面的例子，我们使用了 i != 50 来确保循环会停止。</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">int</span> i = <span style="color:#00D">0</span>;
+<span style="color:#339;font-weight:bold">int</span> year = <span style="color:#00D">2016</span>;
+<span style="color:#080;font-weight:bold">while</span> (i != <span style="color:#00D">50</span>) {
+    <span style="color:#080;font-weight:bold">if</span> (isLeapYear(year + <span style="color:#00D">1</span>)) {
+        <span style="color:#0a8;font-weight:bold">System</span>.out.println(i + <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20"> is a leap year</span><span style="color:#710">&quot;</span></span>);
+    }
+    i++;
+}
+</pre> <h4>有异议</h4> <p>i != 50 的写法不够健壮，想象一下， 如果程序修改为</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">int</span> i = <span style="color:#00D">0</span>;
+<span style="color:#339;font-weight:bold">int</span> year = <span style="color:#00D">2016</span>;
+<span style="color:#080;font-weight:bold">while</span> (i != <span style="color:#00D">50</span>) {
+    <span style="color:#080;font-weight:bold">if</span> (isLeapYear(year + <span style="color:#00D">1</span>)) {
+        <span style="color:#0a8;font-weight:bold">System</span>.out.println(i + <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20"> is a leap year</span><span style="color:#710">&quot;</span></span>);
+    }
+    i += <span style="color:#00D">4</span>;
+}
+</pre> <p>这样一来，i 就会从 48 跳到 52, 程序会进入死循环。 更好的写法是 i &lt; 50</p> <h3>不合适的退出</h3> <p>循环做一件事，如果达到目的了，就停下，这是很正常的。看下面的例子：</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">while</span> (<span style="color:#069">true</span>) {
+    <span style="color:#777">// If it's chocolate, I want it!</span>
+    <span style="color:#080;font-weight:bold">if</span> (currentSnack.getType().equals(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Chocolate</span><span style="color:#710">&quot;</span></span>)) {
+        chosenSnack = currentSnack;
+        <span style="color:#080;font-weight:bold">break</span>; }
+    <span style="color:#777">// Otherwise, I'll take a biscuit if it doesn't</span>
+    <span style="color:#777">// contain gluten.</span>
+    <span style="color:#080;font-weight:bold">else</span> <span style="color:#080;font-weight:bold">if</span> (currentSnack.getType().equals(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Biscuit</span><span style="color:#710">&quot;</span></span>)) {
+        <span style="color:#339;font-weight:bold">boolean</span> containsGluten = allergiesInfo.hasGluten(currentSnack);
+        <span style="color:#080;font-weight:bold">if</span> (!containsGluten) { chosenSnack = currentSnack; <span style="color:#080;font-weight:bold">break</span>;
+        } }
+    <span style="color:#080;font-weight:bold">if</span> (snackIterator.hasNext()) {
+        <span style="color:#777">// This didn't satisfy me, move to next one</span>
+        currentSnack = snackIterator.next();
+    }
+    <span style="color:#080;font-weight:bold">else</span> {
+        <span style="color:#777">// Didn't find any snacks at all!</span>
+        <span style="color:#080;font-weight:bold">break</span>;
+    }
+}
+</pre> <h4>有异议</h4> <p>多个退出点会迫使读者去花更精力去关注可能退出的情况，也更容易遗漏导致出错。</p> <pre class=src lang=java>
+<span style="color:#777">// 使用 for 循环，这样结束条件更显眼</span>
+<span style="color:#080;font-weight:bold">for</span> (<span style="color:#339;font-weight:bold">int</span> i = <span style="color:#00D">0</span>; chosenSnack == <span style="color:#069">null</span> &amp;&amp; i &lt; snack.size(); i++) {
+    currentSnack = snacks.get(i);
+    <span style="color:#777">// 提取出一个 switch 方法，这样 break 只会退出 switch</span>
+    <span style="color:#080;font-weight:bold">switch</span> (currentSnack.getType()) {
+    <span style="color:#080;font-weight:bold">case</span> <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Chocolate</span><span style="color:#710">&quot;</span></span>:
+        chosenSnack = currentSnack;
+        <span style="color:#080;font-weight:bold">break</span>;
+
+    <span style="color:#080;font-weight:bold">case</span> <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Biscuit</span><span style="color:#710">&quot;</span></span>:
+        <span style="color:#080;font-weight:bold">if</span> (allergiesInfo.hasGluten(currentSnack)) {
+            chosenSnack = currentSnack;
+        }
+        <span style="color:#080;font-weight:bold">break</span>;
+    }
+}
+</pre> <h3>Long Loops</h3> <p>长的循环迫使阅读者一次性记下大量细节，也更容易出现修改终止条件的情况。 因此编写一段很长的 loop 代码可以让人留下深刻印象，读者必须通过滚动和搜索才能看懂。</p> <h4>有异议</h4> <p>可以把长的 loop 抽出子程序：</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">while</span> (game.isRunning()) { <span style="color:#777">// ...</span>
+    <span style="color:#777">// Lots of code for checking user input</span>
+    <span style="color:#777">// ...</span>
+    <span style="color:#777">// Lots of code for updating position</span>
+    <span style="color:#777">// of each object in the game world</span>
+    <span style="color:#777">// ...</span>
+    <span style="color:#777">// Lots of code for detecting</span>
+    <span style="color:#777">// collisions between objects</span>
+    <span style="color:#777">// ...</span>
+    <span style="color:#777">// Lots of code for possibly creating</span>
+    <span style="color:#777">// new objects</span>
+}
+</pre> <p>变成：</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">while</span> (game.isRunning()) { getUserInput();
+    updatePositions();
+    detectCollisions();
+    createNewObjects();
+}
+</pre> <h3>Complex Loops</h3> <p>研究表明，loop 这种形式很不适合人类理解。为了增加理解的难度，下面有几个建议：</p> <ol> <li>把结束条件的修改散落到各个地方。</li> <li>使用好地 break 和 continue 来使得路径变复杂。</li> <li>增加嵌套层次。</li> </ol> <h4>有异议</h4> <p>除了把上面的三点纠正外，还可以考虑使用函数式风格的程序：</p> <pre class=src lang=java>
+<span style="color:#0a8;font-weight:bold">Iterator</span>&lt;<span style="color:#0a8;font-weight:bold">Integer</span>&gt; numbersIterator = numbers.iterator();
+<span style="color:#0a8;font-weight:bold">Set</span>&lt;<span style="color:#0a8;font-weight:bold">Integer</span>&gt; primeNumbers = <span style="color:#080;font-weight:bold">new</span> <span style="color:#0a8;font-weight:bold">HashSet</span>&lt;&gt;();
+<span style="color:#080;font-weight:bold">while</span> (numbersIterator.hasNext()) {
+    <span style="color:#339;font-weight:bold">int</span> n = numbersIterator.next();
+    <span style="color:#339;font-weight:bold">boolean</span> isPrime = <span style="color:#069">true</span>;
+    <span style="color:#080;font-weight:bold">for</span> (<span style="color:#339;font-weight:bold">int</span> i = <span style="color:#00D">2</span>; isPrime &amp;&amp; i &lt;= n / <span style="color:#00D">2</span>; i++) {
+        <span style="color:#080;font-weight:bold">if</span> (n % i == <span style="color:#00D">0</span>) {
+            isPrime = <span style="color:#069">false</span>;
+        }
+    }
+    <span style="color:#080;font-weight:bold">if</span> (isPrime) {
+        primeNumbers.add(n);
+    }
+}
+</pre> <p>改成：</p> <pre class=src lang=java>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">boolean</span> isPrime(<span style="color:#339;font-weight:bold">int</span> n) {
+    <span style="color:#080;font-weight:bold">return</span> IntStream.rangeClosed(<span style="color:#00D">2</span>, n / <span style="color:#00D">2</span>) .noneMatch(i -&gt; n % i == <span style="color:#00D">0</span>);
+}
+<span style="color:#777">// ...</span>
+<span style="color:#0a8;font-weight:bold">Set</span>&lt;<span style="color:#0a8;font-weight:bold">Integer</span>&gt; primeNumbers = numbers.stream()
+        .filter(n -&gt; isPrime(n))
+        .collect(Collectors.toSet());
+</pre> <h2>子程序</h2> <h3>把你的子程序搞的很大</h3> <p>正如之前所说的，越大越好。如果你把大段的代码分割成子程序，那么就会让读者有机会去细读你的每个子程序。</p> <h4>有异议</h4> <p>有经验的程序员会分割大的子程序。比如，子程序有大量细节，很难一次性理解，另外对于不同的任务，也要分解它们，方便复用。 大的子程序也很难维护，对子程序的一部分修改很容易会影响到其他部分。 大的子程序也更容易出 bug, 把子程序维持在小的规模可以让 bug 更少。</p> <h3>坏的名字</h3> <p>子程序也需要名字，尽量取一些诸如 doProcess 或者 runComputation 之类的名字，确保它们没有特殊的意义。 另外，也可以取一个不能完整描述子程序功能的名字，比如名字叫 searchInFile, 但实际搜索内容后还会把文件删除。 虽然这样的子程序会把事情搞的一团糟，但是这和名字又有什么关系呢？</p> <h4>有异议</h4> <p>糟糕的名字会让开发周期更长并且更容易出问题。你的同事会因为你清晰明确的命名而感谢你的。</p> <h3>高复杂度</h3> <p>你可以把子程序当作把不同代码块拼接的东西，最后的结果取决你拼接的技术。 如果你的子程序充满了复杂的 loop 或者条件语句，那么这个子程序必然是很复杂的。 每当你你一个额外的 loop 或者条件语句拼接到子程序中时，你就增加了理解子程序的难度。</p> <h4>有异议</h4> <p>要计算程序的复杂度有很多办法，我们用一种比较简单的方法，一下行为会增加复杂度</p> <ol> <li>一个条件语句或者循环结构</li> <li>一个 binary 操作在一个表达式中（比如 &amp;&amp; 和 ||）</li> </ol> <p>下面是减少复杂度的一些方法</p> <ol> <li>简化决策点的表达式</li> <li>去除一个子程序中的重复代码</li> <li>把代码的复杂部分移到它自己的子程序中。</li> </ol> <h3>太多的目的</h3> <p>如果你在野外求生，你希望自己只有一把轻薄的小刀，还是一把瑞士军刀？ 代码也一样，一个子程序能做的越多，它就越好。 比如：</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">void</span> acceptOrder(CustomerOrder order) { <span style="color:#777">// Validate it</span>
+    <span style="color:#080;font-weight:bold">if</span> (order.getName().length() == <span style="color:#00D">0</span> &amp;&amp; order.getItemNumber() == <span style="color:#00D">0</span>) {
+        <span style="color:#777">// Put up error message</span>
+    }
+    <span style="color:#777">// Print it</span>
+    <span style="color:#0a8;font-weight:bold">System</span>.out.println(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Order: </span><span style="color:#710">&quot;</span></span> + order.getId());
+    <span style="color:#0a8;font-weight:bold">System</span>.out.println(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Name: </span><span style="color:#710">&quot;</span></span> + order.getName());
+    <span style="color:#0a8;font-weight:bold">System</span>.out.println(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Items:</span><span style="color:#710">&quot;</span></span>);
+
+    <span style="color:#080;font-weight:bold">for</span> (OrderItem item : order.getItems()) {
+        <span style="color:#0a8;font-weight:bold">System</span>.out.println(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20"> - </span><span style="color:#710">&quot;</span></span> + item);
+    }
+    <span style="color:#777">// Save it</span>
+    DbConnection conn = openDbConnection();
+    conn.saveOrder(order);
+    conn.close();
+}
+</pre> <p>可以这样改：</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">void</span> acceptOrder(CustomerOrder order, <span style="color:#339;font-weight:bold">boolean</span> printOrder) {
+    <span style="color:#777">// Validate it</span>
+    <span style="color:#080;font-weight:bold">if</span> (order.getName().length() &gt; <span style="color:#00D">0</span> &amp;&amp;  order.getItemNumber() &gt; <span style="color:#00D">0</span>) {
+        <span style="color:#777">// Put up error message</span>
+    }
+
+    <span style="color:#777">// Print it</span>
+    <span style="color:#080;font-weight:bold">if</span> (printOrder) {
+        <span style="color:#0a8;font-weight:bold">System</span>.out.println(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Order: </span><span style="color:#710">&quot;</span></span> + order.getId());
+        <span style="color:#777">// etc...</span>
+    }
+    <span style="color:#777">// Better still would be to extract each individual task into its own subroutine:</span>
+    <span style="color:#339;font-weight:bold">boolean</span> isValid(CustomerOrder order) {
+        <span style="color:#080;font-weight:bold">return</span> order.getName().length() &gt; <span style="color:#00D">0</span> &amp;&amp; order.getItemNumber() &gt; <span style="color:#00D">0</span>;
+    }
+    <span style="color:#339;font-weight:bold">void</span> printOrder(CustomerOrder order) {
+        <span style="color:#0a8;font-weight:bold">System</span>.out.println(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Order: </span><span style="color:#710">&quot;</span></span> + order.getId());
+        <span style="color:#0a8;font-weight:bold">System</span>.out.println(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Name: </span><span style="color:#710">&quot;</span></span> + order.getName());
+        <span style="color:#0a8;font-weight:bold">System</span>.out.println(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Items:</span><span style="color:#710">&quot;</span></span>);
+        <span style="color:#080;font-weight:bold">for</span> (OrderItem item : order.getItems()) {
+            <span style="color:#0a8;font-weight:bold">System</span>.out.println(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20"> - </span><span style="color:#710">&quot;</span></span> + item);
+        }
+    }
+    <span style="color:#339;font-weight:bold">void</span> saveOrderToDb(CustomerOrder order) {
+        DbConnection conn = openDbConnection();
+        conn.saveOrder(order);
+        conn.close();
+    }
+}
+</pre> <h3>过渡使用参数</h3> <p>子程序需要信息才能工作，最好的方式就是通过参数。所以参数越多越好。</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">void</span> processCustomer(<span style="color:#0a8;font-weight:bold">String</span> forename, <span style="color:#339;font-weight:bold">int</span> age, <span style="color:#0a8;font-weight:bold">List</span>&lt;Order&gt; orders,
+                     <span style="color:#0a8;font-weight:bold">String</span> phoneNumber, <span style="color:#0a8;font-weight:bold">String</span> surname,
+                     <span style="color:#0a8;font-weight:bold">Date</span> dateOfBirth, <span style="color:#0a8;font-weight:bold">String</span> mothersMaidenName, <span style="color:#339;font-weight:bold">boolean</span> marketingEmails)
+</pre> <h4>有异议</h4> <p>参数过多可能的理由：</p> <ol> <li>子程序尝试做太多的事情</li> <li>大多数或全部的参数应该被定义为一个新的类型</li> </ol> <pre class=src lang=java>
+<span style="color:#777">// We created this new class...</span>
+<span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Customer</span> {
+    <span style="color:#0a8;font-weight:bold">String</span> forename;
+    <span style="color:#0a8;font-weight:bold">String</span> surname;
+    <span style="color:#0a8;font-weight:bold">Date</span> dateOfBirth;
+    <span style="color:#0a8;font-weight:bold">String</span> mothersMaidenName; <span style="color:#339;font-weight:bold">boolean</span> sendMarketingEmails; <span style="color:#0a8;font-weight:bold">List</span>&lt;Order&gt; orders;
+}
+<span style="color:#777">// ...</span>
+<span style="color:#777">// ... and replaced all the old parameters.</span>
+<span style="color:#339;font-weight:bold">void</span> addNewCustomer(Customer newCustomer)
+</pre> <h3>防御性编程</h3> <p>进攻是最好的防守，因此你可以写出这样的代码：</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">void</span> shoutMessage(<span style="color:#0a8;font-weight:bold">String</span> message) {
+    <span style="color:#0a8;font-weight:bold">System</span>.out.println(message.toUpperCase());
+}
+</pre> <p>当你的同事调用是，可能会出现空指针异常，不过这可不是你的问题。</p> <h4>有异议</h4> <p>子程序之间的边界处会出现大量的错误，不合法的数据会造成错误，因此参数在被使用前总是应该被检查。</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">void</span> shoutMessage(<span style="color:#0a8;font-weight:bold">String</span> message) {
+    <span style="color:#080;font-weight:bold">if</span> (message != <span style="color:#069">null</span>) {
+        <span style="color:#0a8;font-weight:bold">System</span>.out.println(message.toUpperCase());
+    }
+}
+</pre> <p>检查参数的几个例子：</p> <ol> <li>确保对象不为空，在调用它们的方法时</li> <li>验证数字，在做数学运算前（除数不能为0等）</li> <li>检查特殊的日期格式</li> <li>在获取文件内容前确认文件被打开并且可读</li> </ol> <h3>为返回值把关</h3> <p>一个子程序如果要返回一个空集合，那么就 return null, 如果一个子程序出现了异常，那么 return null 总之：如果有疑问，就返回 null</p> <h4>有异议</h4> <p>有比返回 null 更好的方案，比如：</p> <ol> <li>一个子程序要返回一个集合时可以返回空集合而不是 null</li> <li>一个子程序碰到问题时可以抛出异常而不是返回 null</li> <li>如果你返回一个自定义的类型，可以考虑返回一个默认值而不是 null</li> </ol> <h3>有趣的输出参数</h3> <p>看看下面这段代码，运行的结果是？</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">void</span> move(<span style="color:#339;font-weight:bold">int</span> x, <span style="color:#339;font-weight:bold">int</span> xDistance, <span style="color:#339;font-weight:bold">int</span> y, <span style="color:#339;font-weight:bold">int</span> yDistance) {
+    x = x + xDistance;
+    y = y + yDistance;
+}
+move(x, <span style="color:#00D">10</span>, y, -<span style="color:#00D">20</span>)
+</pre> <p>多么有趣的代码阿。</p> <h4>有异议</h4> <p>这里要考虑参数是传值还是传引用。简单来说，如果子程序要修改参数，最好新建一个变量用来返回，而不是直接返回参数。</p> <h2>处理错误</h2> <h3>不要使用 assert</h3> <p>只有一种使用 assert 的方式，那就是误用。如果出现一种条件说明程序异常了，那为什么不抛出异常呢？</p> <h4>有异议</h4> <p>使用断言的标准是，浓清楚假设，和抓住所有不可能出现的情况。 一般来说断言只在开发环境和测试环境中被打开。 另外不要在断言中改变状态。不要这样做：</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">void</span> haveBirthday() {
+    <span style="color:#777">// This method increases age by 1.</span>
+    <span style="color:#080;font-weight:bold">assert</span> (age++ &gt; <span style="color:#00D">0</span>) : <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Invalid age!</span><span style="color:#710">&quot;</span></span>;
+}
+</pre> <p>应该这样写：</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">void</span> haveBirthday() { age = age + <span style="color:#00D">1</span>;
+    <span style="color:#777">// Postcondition: Age must be greater than zero</span>
+    <span style="color:#777">// after having a birthday.</span>
+    <span style="color:#080;font-weight:bold">assert</span> (age &gt; <span style="color:#00D">0</span>) : <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Invalid age!</span><span style="color:#710">&quot;</span></span>;
+}
+</pre> <h3>不要 catch</h3> <p>异常最美妙的就是，捕获它们是可选的。俗话说的好，不是强制的就不要做。 所以，不需要去捕获异常</p> <h4>有异议</h4> <p>忽视异常是很危险的。一个异常就是一段代码，可以告诉你，你的程序没有像预期那样执行。 异常一般被分为checked异常和unchecked异常。对于 checked 异常，必须要用 try 语句包裹起来。</p> <h3>让异常消失</h3> <p>虽然有的编程语言迫使你使用 try catch 语句来处理异常，但你可以捕获异常但不做任何事。</p> <pre class=src lang=java>
+<span style="color:#777">// Gets the file location of the application's // configuration information</span>
+<span style="color:#0a8;font-weight:bold">File</span> configFile = <span style="color:#080;font-weight:bold">new</span> <span style="color:#0a8;font-weight:bold">File</span>(configFileLocation);
+
+<span style="color:#080;font-weight:bold">try</span> {
+    parseConfigFile(configFile);
+    <span style="color:#777">// Code for adjusting app to config settings goes // here...</span>
+}
+<span style="color:#080;font-weight:bold">catch</span> (<span style="color:#C00;font-weight:bold">FileNotFoundException</span> e) {
+    <span style="color:#777">// Leave this empty. Do nothing.</span>
+}
+</pre> <h4>有异议</h4> <p>如果读取配置文件出错而不进行任何处理，那么用户就不知道为什么自己的配置有没了。 作为开发者，你也不知道为什么为出现这样的错误情况。</p> <h3>报告问题是非常糟糕的</h3> <p>碰到问题就报告很简单，但是你愿意听到坏消息吗？ 确保你的程序出错时，不要把错误消息显示出来，用户也看不懂。</p> <h4>有异议</h4> <p>当你要报告一个问题时，位置和内容取决于听众。 异常错误的技术细节很重要，但是除非你的用户也是程序员，否则就记录到别的地方， 而在界面上显示对用户友好有用的信息。</p> <h3>使用错误码</h3> <p>之前已经提到过错误码了，使用错误代码可以灵活的传输错误情况</p> <h4>有异议</h4> <p>使用错误码主要有两个缺点：</p> <ol> <li>使用错误代码的话，就要强制调用方去处理这个错误码</li> <li>当错误代码增加时，Java 这样的编译语言就要重新编译部署</li> </ol> <p>另外，记住：当调用方忽略错误码时，错误就“消失”了，但是，抛出异常的话，异常不会消失。</p> <h3>阻挡和欺骗</h3> <p>就算你必须使用异常，那使用什么样的异常呢？比如网络问题，就算我抛出了一个 IOException, 调用方也没法知道到底网络出了什么问题，与其这样，比如抛出一个 root Exception 算了。</p> <h4>有异议</h4> <p>当一个错误发生时，程序员需要知道关键信息。</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">void</span> assignGrade(Student student, <span style="color:#339;font-weight:bold">int</span> score) <span style="color:#088;font-weight:bold">throws</span> <span style="color:#C00;font-weight:bold">IllegalArgumentException</span> {
+    <span style="color:#080;font-weight:bold">if</span> (score &lt; <span style="color:#00D">0</span> || score &gt; <span style="color:#00D">100</span>) {
+        <span style="color:#080;font-weight:bold">throw</span> <span style="color:#080;font-weight:bold">new</span> <span style="color:#C00;font-weight:bold">IllegalArgumentException</span>(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Score (</span><span style="color:#710">&quot;</span></span> + score +<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">) not in acceptable range (0 to 100).</span><span style="color:#710">&quot;</span></span>);
+    }
+}
+</pre> <p>使用具体类型的异常，也能帮助调用者对于不同异常采取不同的处理方式。</p> <pre class=src lang=java>
+ServerResponse response = getNetworkResource(url);
+<span style="color:#080;font-weight:bold">if</span> (response.getCode().equals(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">400</span><span style="color:#710">&quot;</span></span>)) {
+    <span style="color:#777">// Code 400 means URL was invalid.</span>
+    <span style="color:#777">// Caller probably needs to stop and</span>
+    <span style="color:#777">// inform the user.</span>
+    <span style="color:#080;font-weight:bold">throw</span> <span style="color:#080;font-weight:bold">new</span> <span style="color:#C00;font-weight:bold">URIException</span>(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Tried to access an</span><span style="color:#710">&quot;</span></span> + <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20"> invalid URL: </span><span style="color:#710">&quot;</span></span> + url);
+}
+<span style="color:#080;font-weight:bold">if</span> (response.getCode().equals(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">403</span><span style="color:#710">&quot;</span></span>)) {
+    <span style="color:#777">// Code 403 means access denied.</span>
+    <span style="color:#777">// Caller might want to ask the user to</span>
+    <span style="color:#777">// enter name and password and then try</span>
+    <span style="color:#777">// again to connect.</span>
+    <span style="color:#080;font-weight:bold">throw</span> <span style="color:#080;font-weight:bold">new</span> <span style="color:#C00;font-weight:bold">AuthenticationException</span>(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Access to </span><span style="color:#710">&quot;</span></span> + url + <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20"> denied.</span><span style="color:#710">&quot;</span></span>);
+}
+</pre> <h3>做一个烂摊子</h3> <p>一个连接数据库的例子：</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">try</span> {
+    DbConnection connection = database.getConnection(username, password);
+    results = connection.runQuery(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">SELECT * FROM User WHERE id = </span><span style="color:#710">&quot;</span></span> + id);
+    connection.close();
+}
+<span style="color:#080;font-weight:bold">catch</span> (ConnectionException e) {
+    <span style="color:#777">// Thrown if a connection fails</span>
+}
+<span style="color:#080;font-weight:bold">catch</span> (QueryException e) {
+    <span style="color:#777">// Thrown if a query fails</span>
+}
+<span style="color:#777">// etc...</span>
+</pre> <p>这样，当连接失败时，和 sql 查询出错会抛出不同的异常，干的漂亮。</p> <h4>有异议</h4> <p>当抛出异常时， close 方法就不会被执行，会造成数据库连接不可用。 应该记得在 final 中确保连接被 close .</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">finally</span> {
+  connection.close();
+}
+</pre> <p>或者用 Java 1.7 之后的自动释放资源写法：</p> <pre class=src lang=java>
+<span style="color:#777">// DbConnection implements the java.io.AutoCloseable</span>
+<span style="color:#777">// interface, so this connection will be automatically</span>
+<span style="color:#777">// closed after this try-block exits.</span>
+<span style="color:#080;font-weight:bold">try</span> (DbConnection connection =
+        database.getConnection(username, password)) {
+    results = connection.runQuery(
+            <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">SELECT * FROM User WHERE id = </span><span style="color:#710">&quot;</span></span> + id);
+}
+<span style="color:#080;font-weight:bold">catch</span> (QueryException e) {
+    <span style="color:#777">// Thrown if a query fails</span>
+}
+</pre> <h2>模块</h2> <h3>导入所有</h3> <p>当你需要使用一个模块时，需要先导入它，比如：</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">java.awt.Button</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">java.awt.Canvas</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">java.awt.Paint</span>;
+</pre> <p>但是，何必这么麻烦呢，直接用通配符不就行了：</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">java.awt</span>.*;
+</pre> <h4>有异议</h4> <p>通配符导入几乎是编程时的最坏实践了。导入无用的资源可能会造成性能问题（视语言而定），另外，可能会造成命名冲突。</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">java.awt</span>.*;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">java.util</span>.*;
+
+<span style="color:#088;font-weight:bold">private</span> <span style="color:#0a8;font-weight:bold">List</span> meals = <span style="color:#080;font-weight:bold">new</span> <span style="color:#0a8;font-weight:bold">List</span>();
+meals.add(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Egg and Mushrooms</span><span style="color:#710">&quot;</span></span>);
+meals.add(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Steak and Ale Pie</span><span style="color:#710">&quot;</span></span>);
+meals.add(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Omelette</span><span style="color:#710">&quot;</span></span>);
+</pre> <p>这里 List 可能来自 ast, 也可能来自 util. 所以 import 的时候还是要精准导入。</p> <h3>杂乱和混乱</h3> <p>这样的代码</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">java.util</span>.*;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">org.apache.commons.lang3.StringUtils</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.google.gson.stream.JsonReader</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.google.gson.Gson</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">java.io</span>.*;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">java.awt.Event</span>;
+</pre> <p>是你修改同事代码后的结果，没有滥用通配符，挺好。</p> <h4>有异议</h4> <p>导入要考虑可读性，一般有如下 guideline:</p> <ol> <li>按字母顺序排序</li> <li>按组导入，比如： com.* net.* org.* 这样的顺序</li> <li>组之间用空行隔开</li> <li>不要使用相对路径</li> <li>如果可以，可以给导入的名字一个简称</li> </ol> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">java.awt.Event</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">java.io.File</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">java.util.ArrayList</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">java.util.HashSet</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.google.gson.Gson</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.google.gson.stream.JsonReader</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">org.apache.commons.lang3.StringUtils</span>;
+</pre> <h3>防止重用</h3> <p>&#8220;写模块的时候要有多个目的，不要让它们关注同一个任务&#8221;.</p> <pre class=src lang=java>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> doVariousUnrelatedStuff() {
+    <span style="color:#0a8;font-weight:bold">System</span>.out.println(supplier.getName());
+    <span style="color:#339;font-weight:bold">int</span> price = product.getPrice() - product.getReduction();
+    updatePrice(product, price);
+    <span style="color:#080;font-weight:bold">if</span> (date.getMonth() == <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">December</span><span style="color:#710">&quot;</span></span>) {
+        sendChristmasLeaflet(customer);
+    }
+}
+</pre> <h4>有异议</h4> <p>如果你把这个购物程序分解成独立的可重用的模块，你的同事会很高兴的。 你可以新建一个 Product 类，它有 <code>getPirce()</code> 和 <code>getReduction()</code> 这两个方法。 然后，你可以实现一个 getDiscountedPirce 方法：</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">return</span> getPrice() - getReduction()
+</pre> <p>看，可以重用了。</p> <p>刚才说的，一个模块要专注于一个任务，这叫内聚，有以下几个 level:</p> <ol> <li>功能：这个模块执行一个简单的任务。</li> <li>次序：多个任务被放在一起，因为它们的一个输出会变成另一个的输入。</li> <li>交流：多个任务被放在一起，因为它们使用同一个数据。</li> <li>时间：多个任务被放在一起，因为它们要一起运行。</li> <li>程序，多个任务被放在一起，因为它们必须以一个特定的顺序被完成。</li> <li>逻辑，多个任务被放在一起，只是因为它们做了类似的事情。</li> <li>巧合，都是无关的任务。。。</li> </ol> <p>你应该尽可能的编写内聚的模块。</p> <h3>单焦点模块</h3> <p>为了限制重用，我们要降低模块的灵活性。比如，要计算一个数组里的数字的合：</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">int</span> sum(<span style="color:#339;font-weight:bold">int</span><span style="color:#339;font-weight:bold">[]</span> numbers) {
+    <span style="color:#777">// ...</span>
+}
+</pre> <p>这样只有 int 的数组可以使用这个方法，其他数字类型都用不了了。</p> <h4>有异议</h4> <p>要允许一个模块可以和很多类型都能工作，它就更具有重用性。</p> <pre class=src lang=java>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">double</span> sum(<span style="color:#339;font-weight:bold">double</span><span style="color:#339;font-weight:bold">[]</span> nums) { }
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">int</span> sum(<span style="color:#339;font-weight:bold">int</span><span style="color:#339;font-weight:bold">[]</span> nums) {}
+</pre> <p>这样，double 和 int 类型的数组都能使用了。</p> <h3>暴露你的内心</h3> <p>团结就是力量，模块之间要是能紧紧的联系在一起就最好不过了。 模块之间共享本地数据表示它们很团结：</p> <pre class=src lang=java>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Shop</span> {
+    <span style="color:#777">// Keeps track of next available ID</span>
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> <span style="color:#339;font-weight:bold">int</span> nextID = <span style="color:#00D">1</span>;
+}
+
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">BakeryProduct</span> {
+    <span style="color:#777">// Uniquely identifies this type of product public int id;</span>
+    <span style="color:#088;font-weight:bold">public</span> BakeryProduct() {
+        id = Shop.nextID++;
+    }
+}
+
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">DairyProduct</span> {
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">int</span> id;
+    <span style="color:#088;font-weight:bold">public</span> DairyProduct() {
+        id = Shop.nextID++;
+    }
+}
+</pre> <p>无论是什么类型的产品，它们都能重 Shop 中获取最新的 ID, 这样就不会出现重复了。</p> <h4>有异议</h4> <p>耦合不是非黑即白的。耦合分为弱耦合和强耦合，弱耦合意味着对一个模块的修改，不太会影响其他模块。 强耦合意味着，模块间很难替换，修改一个模块，会对其他模块造成很大影响。</p> <p>在弱耦合中，模块间用参数交流。 处于中间的控制耦合中，一个模块传递参数给另一个模块是为了控制它。</p> <pre class=src lang=java>
+<span style="color:#777">/**
+* Build a list of Student profiles by looking * them up in the database by ID.
+*
+* @param studentIds
+*    The list of ids
+* @param lookupGraduates
+*    Whether to lookup graduated students (who are
+*    stored in a different database) or not.
+* @return The list of students found
+*/</span>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#0a8;font-weight:bold">List</span>&lt;Students&gt; lookupStudentsByNumber(<span style="color:#0a8;font-weight:bold">List</span>&lt;StudentId&gt; studentIds, <span style="color:#339;font-weight:bold">boolean</span> lookupGraduates) {
+    <span style="color:#777">// ...</span>
+}
+</pre> <p>在强耦合中，模块间共享数据，就像上面的 Shop 例子一样，一般不建议使用强耦合。</p> <h3>模块的接口</h3> <p>根据之前的经验，我们来编写一个火箭程序：</p> <pre class=src lang=java>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">DataStore</span> {
+    <span style="color:#088;font-weight:bold">private</span> <span style="color:#088;font-weight:bold">static</span> DataStore store = <span style="color:#069">null</span>;
+    <span style="color:#777">// Current weight of the ship private double weight;</span>
+    <span style="color:#088;font-weight:bold">private</span> DataStore() { }
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> DataStore getShipData() {
+        <span style="color:#080;font-weight:bold">if</span> (store == <span style="color:#069">null</span>) {
+            store = <span style="color:#080;font-weight:bold">new</span> DataStore();
+        }
+        <span style="color:#080;font-weight:bold">return</span> store;
+    }
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">double</span> getWeight() {
+        <span style="color:#080;font-weight:bold">return</span> weight;
+    }
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> setWeight(<span style="color:#339;font-weight:bold">double</span> weight) {
+        <span style="color:#950">this</span>.weight = weight;
+    }
+}
+
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">TrajectoryMapper</span> {
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> calculateTrajectory() {
+        DataStore store = DataStore.getShipData();
+        <span style="color:#339;font-weight:bold">double</span> weight;
+        <span style="color:#080;font-weight:bold">if</span> (store.getWeight() == <span style="color:#60E">0.0</span>) {
+            weight = WeighingMachine.getWeight();
+            store.setWeight(weight);
+        }
+        <span style="color:#777">// Code for computing trajectory</span>
+        <span style="color:#777">// based on weight here...</span>
+    }
+}
+
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">FuelCalculator</span> {
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> calculateFuelConsumption() {
+        DataStore store = DataStore.getShipData();
+        <span style="color:#339;font-weight:bold">double</span> weight;
+        <span style="color:#080;font-weight:bold">if</span> (store.getWeight() == <span style="color:#60E">0.0</span>) {
+            weight = WeighingMachine.getWeight(); store.setWeight(weight);
+        }
+        <span style="color:#777">// Code for calculating rocket</span>
+        <span style="color:#777">// fuel consumptions here...</span>
+    }
+}
+</pre> <p>汽油计算和弹道瞄准都需要用到 DataStore 的接口，很符合面向接口编程。</p> <h4>有异议</h4> <p>汽油计算和弹道瞄准公用 DataStore 的数据，会导致一边的修改，间接影响另一边。 下面是接口设计的一些经验</p> <ol> <li>小的通常更好</li> <li>每个模块都应该执行一个简单的任务和尽量少的副作用</li> <li>模块内部的改变要对外隐藏</li> <li>模块间的交流要用参数（低耦合）</li> <li>接口要做好文档。</li> </ol> <h2>类和对象</h2> <h3>数据类</h3> <p>一个数据类就是用来 hold 数据的：</p> <pre class=src lang=java>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Book</span> {
+    <span style="color:#088;font-weight:bold">private</span> <span style="color:#0a8;font-weight:bold">String</span> author;
+    <span style="color:#088;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">int</span> numPages;
+    <span style="color:#088;font-weight:bold">private</span> <span style="color:#0a8;font-weight:bold">String</span> isbn;
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#0a8;font-weight:bold">String</span> getAuthor() {
+        <span style="color:#080;font-weight:bold">return</span> author;
+    }
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> setAuthor(<span style="color:#0a8;font-weight:bold">String</span> author) {
+        <span style="color:#950">this</span>.author = author;
+    }
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">int</span> getNumPages() {
+        <span style="color:#080;font-weight:bold">return</span> numPages;
+    }
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> setNumPages(<span style="color:#339;font-weight:bold">int</span> numPages) {
+        <span style="color:#950">this</span>.numPages = numPages;
+    }
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#0a8;font-weight:bold">String</span> getIsbn() {
+        <span style="color:#080;font-weight:bold">return</span> isbn;
+    }
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> setIsbn(<span style="color:#0a8;font-weight:bold">String</span> isbn) {
+        <span style="color:#950">this</span>.isbn = isbn;
+    }
+}
+</pre> <p>设计一个数据类可以减少你设计时的痛苦。</p> <h4>有异议</h4> <p>当一个数据类出现时，问题就是：负责维护这些值的代码在哪里？</p> <blockquote> <p>“Data classes are like children. They are okay as a starting point, but to participate as a grownup object, they need to take some responsibility” &#8211; Martin Fowler</p> </blockquote> <h3>上帝类</h3> <p>简单的把一大堆逻辑放在一个类里可以减少你设计的痛苦，这样的类一般被叫做上帝类。</p> <h4>有异议</h4> <p>之前提到的，这样的上帝类有着强耦合，并且不容易测试和维护。</p> <h3>工具类</h3> <p>把 OO 的代码写成老旧的过程式代码：</p> <pre class=src lang=java>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">BookUtils</span> {
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> <span style="color:#339;font-weight:bold">boolean</span> validateIsbn(<span style="color:#0a8;font-weight:bold">Book</span> b) {
+    }
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> <span style="color:#339;font-weight:bold">boolean</span> validateNumPages(<span style="color:#0a8;font-weight:bold">Book</span> b) {
+    }
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> <span style="color:#339;font-weight:bold">void</span> regsiterBookInLibraryOfCongress( <span style="color:#0a8;font-weight:bold">Book</span> b) {
+    }
+}
+</pre> <p>你的新类变成了一个工具库，不需要担心 OOP 的设计原则了。</p> <h4>有异议</h4> <p>倒不是说工具类就是错的，只不过这样设计的话，你就失去了 OO 的一些特性。 比如，工具类不能被实例化，也就不能被继承。</p> <h3>对象服从命令</h3> <p>一个火车管理的例子：</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">StationManager</span> {
+    <span style="color:#777">// StationManager is composed of lots of other classes</span>
+    <span style="color:#777">// (like HelpDesk, StationDisplay, SpeakerSystem</span>
+    <span style="color:#777">// etc.) in addition to the TicketMachine</span>
+    TicketMachine machine = <span style="color:#080;font-weight:bold">new</span> TicketMachine();
+
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> insertCoinToMachine(<span style="color:#339;font-weight:bold">int</span> coinValue) {
+        machine.setCredit(coinValue);
+    }
+
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> buyTicket() {
+        Ticket t = chooseTicket();
+        <span style="color:#080;font-weight:bold">if</span> (t.getPrice() &lt;= machine.getCredit()) {
+            machine.deduct(t.getPrice());
+            printTicket();
+        } <span style="color:#080;font-weight:bold">else</span> {
+            <span style="color:#0a8;font-weight:bold">System</span>.out.println(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Not enough credit!</span><span style="color:#710">&quot;</span></span>);
+        }
+    }
+}
+
+<span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">TicketMachine</span> {
+    <span style="color:#339;font-weight:bold">int</span> credit;
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">int</span> getCredit() {
+        <span style="color:#080;font-weight:bold">return</span> credit;
+    }
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> setCredit(<span style="color:#339;font-weight:bold">int</span> value) {
+        credit = value;
+    }
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> deduct(<span style="color:#339;font-weight:bold">int</span> value) {
+        credit -= value;
+    }
+}
+</pre> <p>TicketMachine 几乎没做任何事，它听命于 StationManager, 这样设计 TIcketMachine 会很容易。</p> <h4>有异议</h4> <p>这两个类，就是上帝类和数据类，这明显就是有问题的。 当我们考虑代码应该放在哪里时，需要问的问题是：这是哪个对象的责任？ 在这个例子里，处理票的售卖是 TicketMachine 的责任。</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">TicketMachine</span> {
+    <span style="color:#088;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">int</span> credit;
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> insertCoin(<span style="color:#339;font-weight:bold">int</span> value) {
+        credit += value;
+    }
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> buyTicket() {
+        Ticket t = chooseTicket();
+        <span style="color:#080;font-weight:bold">if</span> (t.getPrice() &lt;= credit) {
+            credit -= t.getPrice();
+            printTicket();
+        }
+        <span style="color:#080;font-weight:bold">else</span> {
+            displayMessage(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Not enough credit!</span><span style="color:#710">&quot;</span></span>);
+        }
+    }
+}
+</pre> <p>这样做的好处是：</p> <ol> <li>把相关的函数放在一起，方便寻找</li> <li>降低了 StationManager 的的责任（单一职责）</li> <li>StationManager 的代码少了 (代码越多越容易出bug)</li> <li>TicketMachine 可以更好的做自己的工作，隐藏了实现细节</li> </ol> <h3>刚性关系</h3> <p>看这个宠物喂食的例子：</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">PetFeeder</span> {
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> giveFood(Dog d) {
+        d.feed();
+    }
+}
+<span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Dog</span> {
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> feed() {
+        <span style="color:#0a8;font-weight:bold">System</span>.out.println(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Wolfing down dog food</span><span style="color:#710">&quot;</span></span>);
+    }
+}
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> <span style="color:#339;font-weight:bold">void</span> main(<span style="color:#0a8;font-weight:bold">String</span><span style="color:#339;font-weight:bold">[]</span> args) {
+    PetFeeder feeder = <span style="color:#080;font-weight:bold">new</span> PetFeeder();
+    Dog lassie = <span style="color:#080;font-weight:bold">new</span> Dog();
+    feeder.giveFood(lassie);
+}
+</pre> <p>下面，我们要新增一个 Cat 类：</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Cat</span> {
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> feed() {
+        <span style="color:#0a8;font-weight:bold">System</span>.out.println(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Turning nose up at cat food</span><span style="color:#710">&quot;</span></span>);
+    }
+}
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> <span style="color:#339;font-weight:bold">void</span> main(<span style="color:#0a8;font-weight:bold">String</span><span style="color:#339;font-weight:bold">[]</span> args) {
+    PetFeeder feeder = <span style="color:#080;font-weight:bold">new</span> PetFeeder();
+    Dog lassie = <span style="color:#080;font-weight:bold">new</span> Dog();
+    feeder.giveFood(lassie);
+    Cat felix = <span style="color:#080;font-weight:bold">new</span> Cat();
+    feeder.giveFood(felix);
+}
+
+
+<span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">PetFeeder</span> {
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> giveFood(Dog d) {
+        d.feed();
+    }
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> giveFood(Cat c) {
+        c.feed();
+    }
+}
+</pre> <p>好了，完工。</p> <h4>有异议</h4> <p>这里的问题就出在，每次新加一种宠物，都要新加一个 giveFood 方法。 我们可以创建一个 Pet 接口：</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">interface</span> <span style="color:#B06;font-weight:bold">Pet</span> {
+    <span style="color:#339;font-weight:bold">void</span> feed();
+}
+
+<span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Mouse</span> <span style="color:#088;font-weight:bold">implements</span> Pet {
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> feed() {
+        <span style="color:#0a8;font-weight:bold">System</span>.out.println(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Nibbling on cheese.</span><span style="color:#710">&quot;</span></span>);
+    }
+}
+
+<span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">PetFeeder</span> {
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> giveFood(Pet p) {
+        p.feed();
+    }
+}
+</pre> <p>这样，新增宠物种类的时候，就不用修改 giveFood 方法了。</p> <h3>避免多态</h3> <p>使用多态会增大设计的难度，因此我们使用简单的，看看这个计算价格的例子：</p> <pre class=src lang=java>
+<span style="color:#0a8;font-weight:bold">ArrayList</span>&lt;<span style="color:#0a8;font-weight:bold">Object</span>&gt; shoppingList = getShoppingList();
+<span style="color:#080;font-weight:bold">for</span> (<span style="color:#0a8;font-weight:bold">Object</span> item : shoppingList) {
+    <span style="color:#339;font-weight:bold">int</span> price = <span style="color:#00D">0</span>;
+    <span style="color:#080;font-weight:bold">if</span> (item <span style="color:#080;font-weight:bold">instanceof</span> ScanItem) {
+        <span style="color:#777">// Scan the barcode and lookup the price</span>
+        price = item.lookupPrice();
+    }
+    <span style="color:#080;font-weight:bold">else</span> <span style="color:#080;font-weight:bold">if</span> (item <span style="color:#080;font-weight:bold">instanceof</span> ProduceItem) {
+        <span style="color:#777">// Produce is sold by weight</span>
+        price = item.getPriceByWeight();
+    }
+    <span style="color:#080;font-weight:bold">else</span> <span style="color:#080;font-weight:bold">if</span> (item <span style="color:#080;font-weight:bold">instanceof</span> ReducedItem) {
+        <span style="color:#777">// Reduced items require the human operator // to key in the price on the tag</span>
+        price = item.keyInPrice();
+    }
+    <span style="color:#0a8;font-weight:bold">System</span>.out.println(price)
+ }
+</pre> <h4>有异议</h4> <p>之前的 Pet 例子就是一种多态的实现。这里我们新建一个接口：</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">interface</span> <span style="color:#B06;font-weight:bold">Grocery</span> {
+    <span style="color:#339;font-weight:bold">int</span> getPrice();
+}
+</pre> <p>这样，各种 item 都实现这个接口：</p> <pre class=src lang=java>
+<span style="color:#777">// A ProduceItem for example is a type of Grocery that // gets a price by weighing the item.</span>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">ProduceItem</span> <span style="color:#088;font-weight:bold">implements</span> Grocery
+{
+    <span style="color:#777">// Cents per kilogram private int pricePerKg;</span>
+    <span style="color:#088;font-weight:bold">public</span> ProduceItem(<span style="color:#339;font-weight:bold">int</span> pricePerKg) {
+        <span style="color:#950">this</span>.pricePerKg = pricePerKg;
+    }
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">int</span> getPrice() {
+        <span style="color:#777">// Ask the Scales class to weigh this item return Scales.getWeight(this) * pricePerKg;</span>
+    }
+}
+</pre> <p>List 中的 Object 也要改成 Grocery :</p> <pre class=src lang=java>
+<span style="color:#0a8;font-weight:bold">List</span>&lt;Grocery&gt; shoppingList = getShoppingList();
+<span style="color:#080;font-weight:bold">for</span> (Grocery item : shoppingList) {
+    <span style="color:#339;font-weight:bold">int</span> price = item.getPrice();
+    <span style="color:#0a8;font-weight:bold">System</span>.out.println(price)
+}
+</pre> <h3>过分使用继承</h3> <p>假设我们有一个 Car 类，然后我们有一个 FourWheelDriveCar 继承了 Car 类， 之后又有了 FourWheelDriveDieselCar, MilitaryFourWhellDriveDieselCar 等。 这样继承的深度用来越深，不过谁在乎呢？</p> <h4>有异议</h4> <p>深度的继承会让测试和维护变的困难，很难找到一个方法或字段是继承自哪里。 另外继承是一种强耦合，应该避免。</p> <h3>快速但肮脏的复用</h3> <p>现在有一个 Bird 类：</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Bird</span> {
+    <span style="color:#339;font-weight:bold">boolean</span> flying = <span style="color:#069">false</span>;
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> fly() {
+        flying = <span style="color:#069">true</span>;
+        <span style="color:#0a8;font-weight:bold">System</span>.out.println(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">I'm flying!</span><span style="color:#710">&quot;</span></span>);
+    }
+}
+</pre> <p>你想让 Bat 类继承 fly 的能力，所以：</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Bat</span> <span style="color:#088;font-weight:bold">extends</span> Bird {
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> squeak() {
+        <span style="color:#0a8;font-weight:bold">System</span>.out.println(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">'Squeak, squeak!'</span><span style="color:#710">&quot;</span></span>);
+    }
+}
+
+Bat batsy = <span style="color:#080;font-weight:bold">new</span> Bat();
+batsy.squeak();
+batsy.fly();
+</pre> <p>完美。</p> <h4>有异议</h4> <p>鸟类可以下蛋：</p> <pre class=src lang=java>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> layEggs(<span style="color:#339;font-weight:bold">int</span> n) {
+    eggs += n;
+    <span style="color:#0a8;font-weight:bold">System</span>.out.println(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Laid </span><span style="color:#710">&quot;</span></span> + eggs + <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20"> eggs</span><span style="color:#710">&quot;</span></span>);
+}
+</pre> <p>这样一来，蝙蝠也继承了下蛋的能力，这是不对的。 继承用于 is-a 的关系，但是蝙蝠只是会飞，不是鸟类，因此不适合使用继承。 OOP 中也不建议仅仅为了代码复用而使用继承。</p> <p>我们应该建立另一种抽象：</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">interface</span> <span style="color:#B06;font-weight:bold">Flyer</span> {
+    <span style="color:#339;font-weight:bold">void</span> fly();
+}
+<span style="color:#339;font-weight:bold">interface</span> <span style="color:#B06;font-weight:bold">EggLayer</span> {
+    <span style="color:#339;font-weight:bold">void</span> layEggs(<span style="color:#339;font-weight:bold">int</span> n);
+}
+</pre> <p>这样一来：</p> <pre class=src lang=java>
+<span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Bird</span> <span style="color:#088;font-weight:bold">implements</span> Flyer, EggLayer {
+    <span style="color:#339;font-weight:bold">boolean</span> flying = <span style="color:#069">false</span>;
+    <span style="color:#339;font-weight:bold">int</span> eggs;
+
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> fly() {
+        flying = <span style="color:#069">true</span>;
+        <span style="color:#0a8;font-weight:bold">System</span>.out.println(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">I'm flying!</span><span style="color:#710">&quot;</span></span>);
+    }
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> layEggs(<span style="color:#339;font-weight:bold">int</span> n) { eggs += n;
+        <span style="color:#0a8;font-weight:bold">System</span>.out.println(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Laid </span><span style="color:#710">&quot;</span></span> + eggs + <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20"> eggs</span><span style="color:#710">&quot;</span></span>);
+    }
+}
+
+<span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Bat</span> <span style="color:#088;font-weight:bold">implements</span> Flyer {
+    <span style="color:#339;font-weight:bold">boolean</span> flying = <span style="color:#069">false</span>;
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> fly() {
+        flying = <span style="color:#069">true</span>;
+        <span style="color:#0a8;font-weight:bold">System</span>.out.println(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">I'm flying!</span><span style="color:#710">&quot;</span></span>);
+    }
+}
+</pre> <p>不过这样一来，fly 方法就要被实现两次了，这是 Java 语言的限制。 不过好在 Java8 可以有接口的默认实现方式。</p> <h2>测试</h2> <h3>你的代码就是你自己的</h3> <p>你自己非常了解自己的代码，没有必要去给它们写测试，别人也不会去管你的代码，更不可能为你的代码写测试了。</p> <h4>有异议</h4> <p>测试代码能起到示例的作用，你的同事可以通过测试代码理解你的代码是如何工作的。</p> <h3>保持最小</h3> <p>不要试图去编写一整套测试代码，只要保证测试可以暴露出问题即可。</p> <h4>有异议</h4> <p>编写测试套件需要深谋远虑。以 fizzBuzz 为例，你需要考虑如下情况：</p> <ol> <li>普通的数字</li> <li>Fizzes 数字</li> <li>Buzzes 数字</li> <li>FizzBuzzes 数字</li> </ol> <p>另外还有，不是数字的输入，不接受的数字（比如0）</p> <p>这么简单的一个程序都有这么多种情况，可见完整测试套件的重要性。</p> <h3>阻挠努力</h3> <p>您可能会发现这些策略会阻止您测试自己的宝贵代码。</p> <ul> <li>很差的代码结构，这让测试很难因为代码会很难理解</li> <li>不要给你的代码写文档。这让单元测试的目的很难被理解</li> <li>使用全局变量，这样测试时很难只关注测试内部</li> <li>编写复杂的单元，这意味着需要更多的测试用例</li> <li>使用复杂的表达式，不但更难懂，也需要更多的测试</li> <li>编写大的子程序，不要把它们分成小的函数，大的子程序更难理解</li> <li>给子程序大量的参数，这样测试起来更难</li> <li>编写很少或很糟糕的错误信息，这样测试者就很难发现错在哪里</li> <li>确保你的模块有很多依赖，这样测试起来就需要更多准备</li> <li>紧密耦合你的模块。这妨碍了测试人员将精力集中在单个单元上的努力，因为其他单元的行为会影响被测单元的行为。</li> <li>创建很深的继承，测试一个类就需要很多准备工作，也更难理解子类的行为</li> </ul> <h4>有异议</h4> <p>这些内容之前全都提到过了，它们都会阻碍你测试代码。</p> <h3>机器特定测试</h3> <blockquote> <p>But it works on my machine</p> </blockquote> <p>只要代码能在自己的机器上运行就行了，世界上有那么多机器，怎么可能都一一测试呢？</p> <h4>有异议</h4> <p>这会让你的同事感到困惑，当涉及到文件，系统变量等问题时，需要使用通用的写法，或者事先准备好脚本。</p> <h3>膨胀的焦点</h3> <p>当测试套件中出现错误时，你的同事会去处理，他一定需要 debug, 那么，何必写那么多测试用例呢？ 反正你的同事肯定要 debug 的。</p> <h4>有异议</h4> <p>当编写一个测试时，一定要搞清楚这个测试的关注层级。 这样，当一个 bug 出现时，你可以很容易的找到这个 bug 出现的地方，而不用在多个模块之间去寻找。</p> <h3>混乱</h3> <p>来看一段商品打折的代码：</p> <pre class=src lang=java>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Product</span> {
+    <span style="color:#088;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">int</span> price;
+    <span style="color:#088;font-weight:bold">public</span> Product(<span style="color:#339;font-weight:bold">int</span> price) {
+        <span style="color:#950">this</span>.price = price;
+    }
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">int</span> getPrice() {
+        LocalDateTime now = LocalDateTime.now();
+        <span style="color:#777">// Sales between midnight and 1am are half off</span>
+        <span style="color:#080;font-weight:bold">if</span> (now.getHour() &gt;= <span style="color:#00D">0</span> &amp;&amp; now.getHour() &lt; <span style="color:#00D">1</span>) {
+        <span style="color:#080;font-weight:bold">return</span> price / <span style="color:#00D">2</span>;
+    }
+        <span style="color:#080;font-weight:bold">return</span> price;
+    }
+}
+</pre> <p>在凌晨，商品只卖半价。 然后我们的测试代码是：</p> <pre class=src lang=java>
+<span style="color:#007">@Test</span>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> testGetPrice() {
+    <span style="color:#777">// Create a product priced at $10.00</span>
+    Product p = <span style="color:#080;font-weight:bold">new</span> Product(<span style="color:#00D">1000</span>);
+    <span style="color:#339;font-weight:bold">int</span> price = p.getPrice();
+    assertTrue(<span style="color:#0a8;font-weight:bold">Integer</span>.toString(price), price == <span style="color:#00D">1000</span>);
+}
+</pre> <h4>有异议</h4> <p>只要的测试明显是不对的，可以发现，实际上无法测试时间是凌晨的情况（除非你凌晨跑测试）。 应该通过依赖注入来解决：</p> <pre class=src lang=java>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">int</span> getPrice(LocalDateTime now) {
+    <span style="color:#777">// Sales between midnight and 1am are half off</span>
+    <span style="color:#080;font-weight:bold">if</span> (now.getHour() &gt;= <span style="color:#00D">0</span> &amp;&amp; now.getHour() &lt; <span style="color:#00D">1</span>) {
+        <span style="color:#080;font-weight:bold">return</span> price / <span style="color:#00D">2</span>;
+    }
+    <span style="color:#080;font-weight:bold">return</span> price;
+}
+</pre> <p>测试是就可以这样：</p> <pre class=src lang=java>
+<span style="color:#007">@Test</span>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> testGetPriceAtMidnight() {
+    Product p = <span style="color:#080;font-weight:bold">new</span> Product(<span style="color:#00D">1000</span>);
+    <span style="color:#777">// 10 Jan 2017, 00:00</span>
+    LocalDateTime midnight = LocalDateTime.of(<span style="color:#00D">2017</span>, Month.JANUARY, <span style="color:#00D">10</span>, <span style="color:#40E">00</span>, <span style="color:#40E">00</span>);
+    <span style="color:#339;font-weight:bold">int</span> price = p.getPrice(midnight);
+    assertTrue(<span style="color:#0a8;font-weight:bold">Integer</span>.toString(price), price == <span style="color:#00D">500</span>);
+}
+</pre> <h2>调试</h2> <h3>猜测</h3> <p>程序员要处理成千上万行代码，不妨试试去随机找几个地方改改，运气好的话，也许 bug 就被修复了。</p> <h4>有异议</h4> <p>开始调查的第一步就是寻找线索。你应该先做一些假设，假设感觉和猜很像，但是，一个假设需要符合：</p> <ol> <li>可测试可证伪</li> <li>基于观察而不是凭空想象</li> <li>应该适合现有的知识</li> <li>不应该要求做出很多假设，因此往往很简单</li> </ol> <p>程序员就像侦探一样，要还原“犯罪现场&#8221;, 让 bug 可以重现，然后可以进行下一步了。</p> <h3>偏见</h3> <p>要有自信，首先用你丰富的经验，推断中 bug 产生的原因，然后寻找支持你论断的证据， 如果有和你的理论不一致的证据，忽略就行了。</p> <h4>有异议</h4> <p>当开始 debug 的时候，你只有一小部分信息，因此你一开始的推断不一定是正确的。 如果出现的证据和你的推论不一致时，你有两个选择：</p> <ol> <li>调整你的推论，让它可以解释新出现的现象（保持原有的情况也被包含）。</li> <li>彻底推翻之前的推论，重新建立一个能解释所有想象的推论。</li> </ol> <h3>混乱</h3> <p>如果我们相信，bug 是会移动的，那么我们可以从一个地方跳到另一个地方，你甚至可以修改多个地方的代码来修复bug.</p> <h4>有异议</h4> <p>你应该有方法去去寻找错误的根源，这里有一些小贴士：</p> <ol> <li>复杂的代码更容易出现 bug</li> <li>经常更变的代码更容易出 bug</li> <li>新的代码更容易出 bug</li> </ol> <p>另外，可以采取分而治之的方法，比如，当一个变量的值不正确时，在它被定义之前的代码是一个范围，定义并赋值后是另一个范围。</p> <h3>保持沉没</h3> <p>如果程序出错了，但是你没有让程序显示它的错误，那么你可能成功的让用户以为是他自己的行为造成了错误，这样就没人会责怪你了。</p> <h4>有异议</h4> <p>之前说过了，让用户接触太技术细节的错误没意义，但是还是应该让程序员可以看到：</p> <ol> <li>stack trace</li> <li>错误日志</li> <li>重要的信息比如程序版本，数据和时间，错误时的相关变量</li> </ol> <h3>保持记录</h3> <p>如果你的同事坚持要记录程序的错误信息，那就用 print 语句吧，反正用户也看不到。</p> <h4>有异议</h4> <p>在调试时，你可以在自己本地的代码中使用 print, 但是一定要在提交前删除。 一个 print 的很好的替代品是 log. Log 的优势是可以方便的修改 output, 比如从 console 改为文件。 另外，Log 还有 log levels 这个特性，可以把信息分为 Debug, Info, Warn, Error, Fatal 这几个等级。</p> <h3>Hit and Run</h3> <p>你一定碰到过这样的 bug, 有一天，它就出现了，你尝试去重现这个 bug, 但是无法重现，算了吧，你的同事如果碰到这个 bug, 他会去修的。</p> <h4>有异议</h4> <p>的确，bug 也分轻重缓急，但是你不能就当它不存在，至少应该记录下来。</p> <h3>修复它</h3> <p>现在有一个 bug</p> <pre class=src lang=java>
+<span style="color:#777">// Grade is between A and F inclusively</span>
+<span style="color:#0a8;font-weight:bold">String</span> grade = calculateGrade(student.getTestScore());
+<span style="color:#0a8;font-weight:bold">System</span>.out.println(grade);
+</pre> <p>运行结果如下：</p> <pre class=src lang=java>
+<span style="color:#00D">45</span> <span style="color:#F00;background-color:#FAA">—</span>&gt; <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">E</span><span style="color:#710">&quot;</span></span>
+<span style="color:#00D">67</span> <span style="color:#F00;background-color:#FAA">—</span>&gt; <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">C</span><span style="color:#710">&quot;</span></span>
+<span style="color:#00D">68</span> <span style="color:#F00;background-color:#FAA">—</span>&gt; <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">C</span><span style="color:#710">&quot;</span></span>
+<span style="color:#00D">81</span> <span style="color:#F00;background-color:#FAA">—</span>&gt; <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">A</span><span style="color:#710">&quot;</span></span>
+<span style="color:#00D">40</span> <span style="color:#F00;background-color:#FAA">—</span>&gt; <span style="color:#069">null</span>
+<span style="color:#00D">73</span> <span style="color:#F00;background-color:#FAA">—</span>&gt; <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">B</span><span style="color:#710">&quot;</span></span>
+</pre> <p>可见，当输入是 40 时，结果是 null, 而不是 F 让我们来修复它：</p> <pre class=src lang=java>
+<span style="color:#777">// Grade is between A and F inclusively String grade;</span>
+<span style="color:#080;font-weight:bold">if</span> (student.getTestScore() == <span style="color:#00D">40</span>) {
+    grade = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">F</span><span style="color:#710">&quot;</span></span>;
+}<span style="color:#080;font-weight:bold">else</span> {
+    grade = calculateGrade(student.getTestScore());
+}
+<span style="color:#0a8;font-weight:bold">System</span>.out.println(grade);
+</pre> <p>好了，修好了。</p> <h4>有异议</h4> <p>上面的方法根本没有深入过 calculateGrade 方法，说明你没有发现错误的根源。 除非是调用看不到源码的第三方库，否则都应该治标又治本。</p> <pre class=src lang=java>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#0a8;font-weight:bold">String</span> calculateGrade(<span style="color:#339;font-weight:bold">int</span> score) {
+    <span style="color:#0a8;font-weight:bold">String</span> grade = <span style="color:#069">null</span>;
+    <span style="color:#080;font-weight:bold">if</span> (score &gt; <span style="color:#00D">80</span>) { grade = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">A</span><span style="color:#710">&quot;</span></span>; }
+    <span style="color:#080;font-weight:bold">else</span> <span style="color:#080;font-weight:bold">if</span> (score &gt; <span style="color:#00D">70</span>) { grade = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">B</span><span style="color:#710">&quot;</span></span>; }
+    <span style="color:#080;font-weight:bold">else</span> <span style="color:#080;font-weight:bold">if</span> (score &gt; <span style="color:#00D">60</span>) { grade = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">C</span><span style="color:#710">&quot;</span></span>; }
+    <span style="color:#080;font-weight:bold">else</span> <span style="color:#080;font-weight:bold">if</span> (score &gt; <span style="color:#00D">50</span>) { grade = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">D</span><span style="color:#710">&quot;</span></span>; }
+    <span style="color:#080;font-weight:bold">else</span> <span style="color:#080;font-weight:bold">if</span> (score &gt; <span style="color:#00D">40</span>) { grade = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">E</span><span style="color:#710">&quot;</span></span>; }
+    <span style="color:#080;font-weight:bold">else</span> <span style="color:#080;font-weight:bold">if</span> (score &lt;= <span style="color:#00D">40</span>) { grade = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">E</span><span style="color:#710">&quot;</span></span>; }
+    <span style="color:#080;font-weight:bold">return</span> grade;
+}
+</pre> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/bad-programming-101"></script> </body> </html>

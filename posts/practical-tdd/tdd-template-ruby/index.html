@@ -1,0 +1,247 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_practical-tdd posts_practical-tdd_tdd-template-ruby posts_practical-tdd_tdd-template-ruby_index typo"> <article> <h1>Ruby 版本的 Template 例子</h1> <p>参加了熊老师的 TDD 课程后，我开始意识到了自己以前对 TDD 的理解还太肤浅，于是开始阅读这本有点年头的书。 本书第一章大致介绍了 TDD 的概念，第二章就开始进入实战了，我很喜欢这种风格，书中使用的是 Java 语言，我就来一个 Ruby 版的吧。</p> <h2>分解需求</h2> <p>我们要开发的是一个邮件模版系统，我在实际工作中使用过 <a href="https://sendgrid.com">sendgrid</a> 这样的系统，所以并不陌生，可以把模版子系统分解成如下测试：</p> <ol> <li>没有任何变量的模版，渲染前后内容不变</li> <li>含有一个变量的模版渲染后，变量应当替换为相应的值</li> <li>含有多个变量的模版渲染后，变量应当替换为相应值</li> </ol> <p>我想稍微了解 TDD 的同学看到这里已经心中有数了。让我们开始红绿重构吧。</p> <h2>第一个测试</h2> <p>让我们开始第一个测试吧（似乎漏了没有任何变量的情况？）</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">TemplateTest</span> &lt; <span style="color:#036;font-weight:bold">Minitest</span>::<span style="color:#036;font-weight:bold">Test</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_one_variable</span>
+    template = <span style="color:#036;font-weight:bold">Template</span>.new(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Hello, ${name}</span><span style="color:#710">&quot;</span></span>)
+    template.set(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">name</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Reader</span><span style="color:#710">&quot;</span></span>)
+    assert_equal <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Hello, Reader</span><span style="color:#710">&quot;</span></span>, template.evaluate()
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>从这个测试中可以驱动出 <code>Template</code> 类， <code>set</code> 以及 <code>evaulate</code> 方法。</p> <p>而我们的实现是一个硬编码的实现：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Template</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">initialize</span>(template_text)
+
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">set</span>(variable, value)
+
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">evaluate</span>()
+    <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Hello, Reader</span><span style="color:#710">&quot;</span></span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <h2>再加一个测试</h2> <p>为了去掉硬编码，让我们再写一个测试：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_different_value</span>
+  template = <span style="color:#036;font-weight:bold">Template</span>.new(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Hello, ${name}</span><span style="color:#710">&quot;</span></span>)
+  template.set(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">name</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Someone else</span><span style="color:#710">&quot;</span></span>)
+  assert_equal <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Hello, Someone else</span><span style="color:#710">&quot;</span></span>, template.evaluate()
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>为了通过这个测试，我们不得不开始实现 <code>set</code> 方法。</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Template</span>
+  attr_accessor <span style="color:#A60">:variable_value</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">initialize</span>(template_text)
+
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">set</span>(variable, value)
+    <span style="color:#33B">@variable_value</span> = value
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">evaluate</span>()
+    <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Hello, </span><span style="background-color:hsla(0,0%,0%,0.07);color:black"><span style="font-weight:bold;color:#666">#{</span>variable_value<span style="font-weight:bold;color:#666">}</span></span><span style="color:#710">&quot;</span></span>
+  <span style="color:#080;font-weight:bold">end</span>
+
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>虽然驱动出了 <code>set</code> 方法的实现，不过 <code>evaluate</code> 方法依然有硬编码的部分。</p> <p>看来还需要另一个测试，书中并没有选择新加一个测试，而是修改了原有的测试为：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_different_value</span>
+  template = <span style="color:#036;font-weight:bold">Template</span>.new(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Hi, ${name}</span><span style="color:#710">&quot;</span></span>)
+  template.set(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">name</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Someone else</span><span style="color:#710">&quot;</span></span>)
+  assert_equal <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Hi, Someone else</span><span style="color:#710">&quot;</span></span>, template.evaluate()
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>通过把 Hello 改为 Hi, 我们不得不在实现代码中考虑模版的问题了。</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Template</span>
+  attr_accessor <span style="color:#A60">:template_text</span>, <span style="color:#A60">:variable_value</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">initialize</span>(template_text)
+    <span style="color:#33B">@template_text</span> = template_text
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">set</span>(variable, value)
+    <span style="color:#33B">@variable_value</span> = value
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">evaluate</span>()
+    template_text.gsub(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${name}</span><span style="color:#710">&quot;</span></span>, variable_value)
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>好了，这下 <code>template_text</code> 不是硬编码了，可见我们又前进了一步。</p> <p>不过目前 <code>${name}</code> 这个变量还是硬编码的，而去除硬编码的方式之前已经用过了，就是增加测试：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_multiple_variables</span>
+  template = <span style="color:#036;font-weight:bold">Template</span>.new(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${one}, ${two}, ${three}</span><span style="color:#710">&quot;</span></span>)
+  template.set(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">one</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">1</span><span style="color:#710">&quot;</span></span>);
+  template.set(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">two</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">2</span><span style="color:#710">&quot;</span></span>);
+  template.set(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">three</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">3</span><span style="color:#710">&quot;</span></span>);
+  assert_equal <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">1, 2, 3</span><span style="color:#710">&quot;</span></span>, template.evaluate()
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>有了这个多个变量的测试，我们就要开始实现具体的替换变量的代码了：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Template</span>
+  attr_accessor <span style="color:#A60">:template_text</span>, <span style="color:#A60">:variable_pair</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">initialize</span>(template_text)
+    <span style="color:#33B">@variable_pair</span> = {}
+    <span style="color:#33B">@template_text</span> = template_text
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">set</span>(variable, value)
+    variable_pair[variable] = value
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">evaluate</span>()
+    variable_pair.each <span style="color:#080;font-weight:bold">do</span> |k, v|
+      template_text.gsub!(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${</span><span style="background-color:hsla(0,0%,0%,0.07);color:black"><span style="font-weight:bold;color:#666">#{</span>k<span style="font-weight:bold;color:#666">}</span></span><span style="color:#D20">}</span><span style="color:#710">&quot;</span></span>, v)
+    <span style="color:#080;font-weight:bold">end</span>
+    template_text
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>测试通过了，再来试试为不存在的变量赋值会被忽略这个情况。</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_unknow_variable_should_be_ignored</span>
+  template = <span style="color:#036;font-weight:bold">Template</span>.new(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Hello, ${name}</span><span style="color:#710">&quot;</span></span>)
+  template.set(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">name</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Reader</span><span style="color:#710">&quot;</span></span>)
+  template.set(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">doesnotexist</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Hi</span><span style="color:#710">&quot;</span></span>)
+  assert_equal <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Hello, Reader</span><span style="color:#710">&quot;</span></span>, template.evaluate()
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>这个测试直接通过了。下面我们可以考虑重构的问题了。</p> <h2>重构测试代码</h2> <p>目前实现代码还很简单，我们要重构的是测试代码。先来看看目前全部的测试代码：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">TemplateTest</span> &lt; <span style="color:#036;font-weight:bold">Minitest</span>::<span style="color:#036;font-weight:bold">Test</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_one_variable</span>
+    template = <span style="color:#036;font-weight:bold">Template</span>.new(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Hello, ${name}</span><span style="color:#710">&quot;</span></span>)
+    template.set(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">name</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Reader</span><span style="color:#710">&quot;</span></span>)
+    assert_equal <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Hello, Reader</span><span style="color:#710">&quot;</span></span>, template.evaluate()
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_different_value</span>
+    template = <span style="color:#036;font-weight:bold">Template</span>.new(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Hi, ${name}</span><span style="color:#710">&quot;</span></span>)
+    template.set(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">name</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Someone else</span><span style="color:#710">&quot;</span></span>)
+    assert_equal <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Hi, Someone else</span><span style="color:#710">&quot;</span></span>, template.evaluate()
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_multiple_variables</span>
+    template = <span style="color:#036;font-weight:bold">Template</span>.new(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${one}, ${two}, ${three}</span><span style="color:#710">&quot;</span></span>)
+    template.set(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">one</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">1</span><span style="color:#710">&quot;</span></span>);
+    template.set(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">two</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">2</span><span style="color:#710">&quot;</span></span>);
+    template.set(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">three</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">3</span><span style="color:#710">&quot;</span></span>);
+    assert_equal <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">1, 2, 3</span><span style="color:#710">&quot;</span></span>, template.evaluate()
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_unknow_variable_should_be_ignored</span>
+    template = <span style="color:#036;font-weight:bold">Template</span>.new(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Hello, ${name}</span><span style="color:#710">&quot;</span></span>)
+    template.set(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">name</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Reader</span><span style="color:#710">&quot;</span></span>)
+    template.set(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">doesnotexist</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Hi</span><span style="color:#710">&quot;</span></span>)
+    assert_equal <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Hello, Reader</span><span style="color:#710">&quot;</span></span>, template.evaluate()
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>一共4个测试，不难发现，第4个测试包含了第1,2个测试的内容，第2个测试的不同模版文字也没有意义了。 另外 <code>template</code> 对象也可以抽取出来，以及每个测试都有的 <code>assert_equal xxx, template.evaluate()</code> 也可以抽取。</p> <p>重构后的测试代码如下：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">TemplateTest</span> &lt; <span style="color:#036;font-weight:bold">Minitest</span>::<span style="color:#036;font-weight:bold">Test</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">setup</span>
+    <span style="color:#33B">@template</span> = <span style="color:#036;font-weight:bold">Template</span>.new(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${one}, ${two}, ${three}</span><span style="color:#710">&quot;</span></span>)
+    <span style="color:#33B">@template</span>.set(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">one</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">1</span><span style="color:#710">&quot;</span></span>);
+    <span style="color:#33B">@template</span>.set(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">two</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">2</span><span style="color:#710">&quot;</span></span>);
+    <span style="color:#33B">@template</span>.set(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">three</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">3</span><span style="color:#710">&quot;</span></span>);
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_multiple_variables</span>
+    assert_template_evaluates_to(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">1, 2, 3</span><span style="color:#710">&quot;</span></span>)
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_unknow_variable_should_be_ignored</span>
+    <span style="color:#33B">@template</span>.set(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">doesnotexist</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Hi</span><span style="color:#710">&quot;</span></span>)
+    assert_template_evaluates_to(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">1, 2, 3</span><span style="color:#710">&quot;</span></span>)
+  <span style="color:#080;font-weight:bold">end</span>
+
+  private
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">assert_template_evaluates_to</span>(expected)
+    assert_equal expected, <span style="color:#33B">@template</span>.evaluate()
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>这下测试代码简洁了很多，下面要测试的是模版中出现未赋值变量时应该抛出异常。</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_missing_value_exception</span>
+  assert_raises <span style="color:#036;font-weight:bold">MissingValueException</span> <span style="color:#080;font-weight:bold">do</span>
+    <span style="color:#036;font-weight:bold">Template</span>.new(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${foo}</span><span style="color:#710">&quot;</span></span>).evaluate
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>这个测试驱动出了一个自定义的异常：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">MissingValueException</span> &lt; <span style="color:#036;font-weight:bold">StandardError</span>
+
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>另外，需要验证 <code>template</code> 最后的结果是否还包含未赋值的变量，这里的实现如下：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">evaluate</span>()
+  variable_pair.each <span style="color:#080;font-weight:bold">do</span> |k, v|
+    template_text.gsub!(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${</span><span style="background-color:hsla(0,0%,0%,0.07);color:black"><span style="font-weight:bold;color:#666">#{</span>k<span style="font-weight:bold;color:#666">}</span></span><span style="color:#D20">}</span><span style="color:#710">&quot;</span></span>, v)
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">if</span> <span style="background-color:hsla(300,100%,50%,0.06)"><span style="color:#404">/</span><span style="color:#808">.*</span><span style="color:#D20">\$</span><span style="color:#D20">\{</span><span style="color:#808">.*</span><span style="color:#D20">\}</span><span style="color:#404">/</span></span>.match(template_text)
+    raise <span style="color:#036;font-weight:bold">MissingValueException</span>
+  <span style="color:#080;font-weight:bold">end</span>
+
+  template_text
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>好了，测试通过了，不过这次 <code>evaluate</code> 方法有点长了，可以考虑重构了。</p> <p>如果把检查异常的代码抽出来的话：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">evaluate</span>()
+  variable_pair.each <span style="color:#080;font-weight:bold">do</span> |k, v|
+    template_text.gsub!(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${</span><span style="background-color:hsla(0,0%,0%,0.07);color:black"><span style="font-weight:bold;color:#666">#{</span>k<span style="font-weight:bold;color:#666">}</span></span><span style="color:#D20">}</span><span style="color:#710">&quot;</span></span>, v)
+  <span style="color:#080;font-weight:bold">end</span>
+
+  check_for_missing_values()
+
+  template_text
+<span style="color:#080;font-weight:bold">end</span>
+
+private
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">check_for_missing_values</span>
+  <span style="color:#080;font-weight:bold">if</span> <span style="background-color:hsla(300,100%,50%,0.06)"><span style="color:#404">/</span><span style="color:#808">.*</span><span style="color:#D20">\$</span><span style="color:#D20">\{</span><span style="color:#808">.*</span><span style="color:#D20">\}</span><span style="color:#404">/</span></span>.match(template_text)
+    raise <span style="color:#036;font-weight:bold">MissingValueException</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>运行测试，保证重构没有破坏功能，再看看 <code>evaluate</code> 方法，它做了两件事</p> <ol> <li>用变量值替换变量</li> <li>检查缺失的变量值</li> </ol> <p>目前的 <code>evaluate</code> 方法中，这两件事不是平等的，它的抽象一致性有问题，需要再抽取一个 <code>replace_variables</code> 方法，来对应 <code>check_for_missing_values</code> 方法：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">evaluate</span>()
+  replace_variables()
+  check_for_missing_values()
+  template_text
+<span style="color:#080;font-weight:bold">end</span>
+
+private
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">replace_variables</span>()
+  variable_pair.each <span style="color:#080;font-weight:bold">do</span> |k, v|
+    template_text.gsub!(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${</span><span style="background-color:hsla(0,0%,0%,0.07);color:black"><span style="font-weight:bold;color:#666">#{</span>k<span style="font-weight:bold;color:#666">}</span></span><span style="color:#D20">}</span><span style="color:#710">&quot;</span></span>, v)
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">check_for_missing_values</span>
+  <span style="color:#080;font-weight:bold">if</span> <span style="background-color:hsla(300,100%,50%,0.06)"><span style="color:#404">/</span><span style="color:#808">.*</span><span style="color:#D20">\$</span><span style="color:#D20">\{</span><span style="color:#808">.*</span><span style="color:#D20">\}</span><span style="color:#404">/</span></span>.match(template_text)
+    raise <span style="color:#036;font-weight:bold">MissingValueException</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>有了测试作保障，重构轻松多了。下面需要增强一下报错的信息，让它可以说明是哪个变量没有被赋值。</p> <p>还是先写测试（书中是修改了之前的测试）：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_missing_value_exception</span>
+  exception = assert_raises <span style="color:#036;font-weight:bold">MissingValueException</span> <span style="color:#080;font-weight:bold">do</span>
+    <span style="color:#036;font-weight:bold">Template</span>.new(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${foo}</span><span style="color:#710">&quot;</span></span>).evaluate
+  <span style="color:#080;font-weight:bold">end</span>
+
+  assert_equal <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">No value for ${foo}</span><span style="color:#710">&quot;</span></span>, exception.message
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>然后修改实现代码让测试通过：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">check_for_missing_values</span>
+  <span style="color:#080;font-weight:bold">if</span> missing_value_variable = <span style="background-color:hsla(300,100%,50%,0.06)"><span style="color:#404">/</span><span style="color:#808">.*</span><span style="color:#D20">\$</span><span style="color:#D20">\{</span><span style="color:#808">.*</span><span style="color:#D20">\}</span><span style="color:#404">/</span></span>.match(template_text)
+    raise <span style="color:#036;font-weight:bold">MissingValueException</span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">No value for </span><span style="background-color:hsla(0,0%,0%,0.07);color:black"><span style="font-weight:bold;color:#666">#{</span>missing_value_variable<span style="font-weight:bold;color:#666">}</span></span><span style="color:#710">&quot;</span></span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>整个例子看起来很顺利，并且很。。。 hello world, 肯定有人觉得太简单了，别急，接下来我们会碰到一个比较棘手的问题。</p> <p>试想一下，如果变量的 <span style="text-decoration:underline;">值</span> 包含了 <code>$</code> <code>{</code> <code>}</code> 等字符，那怎么办？？？</p> <p>按目前的实现方式，肯定是会报错的。下一章我们会来解决这个问题。</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/practical-tdd/tdd-template-ruby"></script> </body> </html>

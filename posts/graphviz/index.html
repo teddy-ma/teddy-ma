@@ -1,0 +1,163 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_graphviz posts_graphviz_index typo"> <article> <h1>程序员的绘图利器 graphviz</h1> <p>马云曾经说过：『一图胜千言』</p> <p><img src="assets/images/graphviz-banner-1ebf03e8.png" alt="assets/images/graphviz-banner-1ebf03e8.png"/></p> <p>对于大多数程序员来说，都不想在样式方面花太多的时间（至少不是在书写内容的同时去关心样式），这大概就是 markdown 流行的原因之一吧。 同样的，在作图时，如果可以不去关心样式而把精力集中在图的内容上，那想必是极好的。</p> <p>而绘图工具 graphviz 和其使用的 dot 语言就是这样一套『所想即所得』的绘图工具。</p> <p>dot 语言就是一套 DSL，也就是说，可以把图片用代码的形式表现出来，这样易于修改，也可以做版本控制。</p> <p>废话不多说，下面进入实战，首先是安装，Mac 下：</p> <pre class=src lang=sh>
+brew install graphviz
+</pre> <p>首先看一个例子，这是一副 <code>tmux</code> 的架构图（出自<a href="./tmux">『tmux 快速入门』</a>）</p> <p><img src="assets/images/tmux-arch-f7c5393d.png" alt="assets/images/tmux-arch-f7c5393d.png"/></p> <p>其对应的 dot 文件如下：</p> <pre class=src lang=dot>
+digraph tmux{
+    node[shape=record]
+    subgraph cluster_terminal{
+      label =&quot;terminal&quot;;
+      subgraph cluster_session2{
+        label = &quot;session2&quot;;
+        subgraph cluster_window3 {
+          label=&quot;window3&quot;;
+          pane6 [label=&quot;ls /tmp&quot;];
+        }
+        subgraph cluster_window4 {
+          label=&quot;window4&quot;;
+          pane7 [label=&quot;pane1&quot;]
+          pane8 [label=&quot;pane2&quot;]
+        }
+      }
+      subgraph cluster_session1{
+        label = &quot;session1&quot;;
+
+        subgraph cluster_window1 {
+          label=&quot;window1&quot;;
+          pane2 [label=&quot;ls /tmp&quot;];
+        }
+        subgraph cluster_window2 {
+          label=&quot;window2&quot;;
+          pane3 [label=&quot;pane1&quot;]
+          pane4 [label=&quot;pane2&quot;]
+        }
+      }
+    }
+}
+</pre> <p>这张图的特点就是其中的内容都是简单的包含关系，所以代码中使用了大量的 =subgraph=。</p> <p>再来看一个例子：</p> <p><img src="assets/images/graphviz-run-f6ec7ffc.png" alt="assets/images/graphviz-run-f6ec7ffc.png"/></p> <p>这是一个典型的流程图，观察它的结构，可以发现：</p> <ol> <li>有两个子图（客户端和服务端）</li> <li>有一处分叉点</li> <li>都是单向关联</li> </ol> <p>根据『所想即所得』的原则，我们只要先把要表达的东西写下来：</p> <p>第一步，创建好 nodes：</p> <pre class=src lang=dot>
+digraph run{
+
+  edge [style=&quot;dashed&quot;];
+
+  a [label=&quot;开启App&quot;];
+  b [label=&quot;是否登录&quot;];
+  c [label=&quot;去登录&quot;];
+  d [label=&quot;开始跑步&quot;];
+  e [label=&quot;相关跑步数据计算&quot;];
+  f [label=&quot;跑步完成&quot;];
+  g [label=&quot;数据储存&quot;];
+  h [label=&quot;分配卡牌&quot;];
+  i [label=&quot;抽取卡牌&quot;];
+  j [label=&quot;完成抽取&quot;];
+  k [label=&quot;储存抽取卡牌信息&quot;];
+}
+</pre> <p>第二步，绘制子图（客户端和服务端）</p> <pre class=src lang=dot>
+subgraph cluster_client{
+      label=&quot;客户端&quot;;
+      bgcolor=&quot;mintcream&quot;;
+      a;
+      b;
+      c;
+      d;
+      e;
+      f;
+      i;
+      j;
+    }
+    subgraph cluster_server{
+      label=&quot;服务端&quot;;
+      bgcolor=&quot;mintcream&quot;;
+      g;
+      h;
+      k;
+    }
+</pre> <p>第三步，关联关系</p> <pre class=src lang=dot>
+a -&gt; b;
+b -&gt; c;
+b -&gt; d;
+c -&gt; d;
+d -&gt; e;
+e -&gt; f;
+f -&gt; g;
+g -&gt; h;
+h -&gt; i;
+i -&gt; j;
+j -&gt; k;
+</pre> <p>第四步，添加关系描述</p> <pre class=src lang=dot>
+a -&gt; b;
+b -&gt; c [label=&quot;否&quot;];
+b -&gt; d [label=&quot;是&quot;];
+c -&gt; d;
+d -&gt; e;
+e -&gt; f;
+f -&gt; g [label=&quot;发送数据&quot;];
+g -&gt; h;
+h -&gt; i [label=&quot;发送数据&quot;];
+i -&gt; j;
+j -&gt; k [label=&quot;发送数据&quot;];
+</pre> <p>最终代码如下：</p> <pre class=src lang=dot>
+digraph run{
+
+  edge [style=&quot;dashed&quot;];
+
+  a [label=&quot;开启App&quot;];
+  b [label=&quot;是否登录&quot;];
+  c [label=&quot;去登录&quot;];
+  d [label=&quot;开始跑步&quot;];
+  e [label=&quot;相关跑步数据计算&quot;];
+  f [label=&quot;跑步完成&quot;];
+  g [label=&quot;数据储存&quot;];
+  h [label=&quot;分配卡牌&quot;];
+  i [label=&quot;抽取卡牌&quot;];
+  j [label=&quot;完成抽取&quot;];
+  k [label=&quot;储存抽取卡牌信息&quot;];
+
+  subgraph cluster_client{
+      label=&quot;客户端&quot;;
+      bgcolor=&quot;mintcream&quot;;
+      a;
+      b;
+      c;
+      d;
+      e;
+      f;
+      i;
+      j;
+    }
+    subgraph cluster_server{
+      label=&quot;服务端&quot;;
+      bgcolor=&quot;mintcream&quot;;
+      g;
+      h;
+      k;
+    }
+    a -&gt; b;
+    b -&gt; c [label=&quot;否&quot;];
+    b -&gt; d [label=&quot;是&quot;];
+    c -&gt; d;
+    d -&gt; e;
+    e -&gt; f;
+    f -&gt; g [label=&quot;发送数据&quot;];
+    g -&gt; h;
+    h -&gt; i [label=&quot;发送数据&quot;];
+    i -&gt; j;
+    j -&gt; k [label=&quot;发送数据&quot;];
+}
+</pre> <p>最后使用 dot 命令生成需要的格式即可：</p> <pre class=src lang=sh>
+dot -T png source.dot -o dist.png
+</pre> <p><img src="assets/images/graphviz-run-dist-f12ebc89.png" alt="assets/images/graphviz-run-dist-f12ebc89.png"/></p> <p>可以看到布局并不如原图那样完美，因为 graphviz 本来就是为了让用户可以把关注点放在 node 之间的关系上而并非布局上，因此做了自动布局，这在关系比较复杂的情况下会非常好用。 使用 dot 语言绘图可以有效提升生产力并且降低维度成本，并且主流编辑器都有相应插件，非常推荐程序员和产品经理使用。</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/graphviz"></script> </body> </html>

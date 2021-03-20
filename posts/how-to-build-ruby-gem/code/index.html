@@ -1,0 +1,225 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_how-to-build-ruby-gem posts_how-to-build-ruby-gem_code posts_how-to-build-ruby-gem_code_index typo"> <article> <h1>构建一个 Ruby Gem 第四章 代码</h1> <p>我们将会在本章实现我们的 mega_lotto 的核心代码. 然而, 在我们开始之前, 我想要花些时间来讨论一下 Ruby 的命名空间和从其他目录加载 class 时可能发生的情况.</p> <p>让我们再次看看我们的 gem 的 API 风格:</p> <pre class=src lang=ruby>
+<span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">Drawing</span>.new.draw <span style="color:#777"># =&gt; [23, 22, 3, 7, 16]</span>
+</pre> <h2>命名空间</h2> <p>我不得不承认, 我建议从一个 Ruby gem 中学习命名空间是如何工作的. 因为我们给我们的gem命名为 mega_lotto, 相应的 Ruby 命名空间是 MegaLotto. 这是最佳实战, 来避免和其它类库的命名冲突. 假设名字 MegaLotto 是唯一的, 我们可以确定我们的代码不会和其它gem的代码冲突.</p> <p>一般来说, 一个 Ruby 库的文件名对应一个相同根命名空间的模块/类的名字. 下面是几个例子:</p> <pre class=example>
+lib/mega_lotto/store.rb =&gt; MegaLotto::Store
+lib/mega_lotto/lucky_ticket.rb =&gt; MegaLotto::LuckyTicket
+</pre> <p>注意: 命名代码和模块是困难的. 我最好的建议是跟随单一职责原则并且创建只做一件事的文件/模块, 并且把一件事做好.</p> <h2>包含代码</h2> <p>记住, 默认情况下, bundler 为我们创建了 <code>lib/mega_lotto.rb</code> 文件.</p> <pre class=src lang=ruby>
+require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">mega_lotto/version</span><span style="color:#710">&quot;</span></span>
+
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+  <span style="color:#777"># Your code goes here...</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>其中, bundler 给我们创建了 <code>MegaLotto</code> 的命名空间并且建议我们的 gem 的代码应该写在这里面. 通常来说, 我们只会把配置和初始化代码放在这个文件里, 把具体实现放在 <code>/lib/mega_lotto</code> 目录中的其他类库中.</p> <p>注意这行:</p> <pre class=src lang=ruby>
+require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">mega_lotto/version</span><span style="color:#710">&quot;</span></span>
+</pre> <p>当我们使用 bundler 初始化我们的 Ruby gem 时, bundler 创建了文件 <code>lib/mega_lotto/version.rb</code>:</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+  <span style="color:#036;font-weight:bold">VERSION</span> = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">0.0.1</span><span style="color:#710">&quot;</span></span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>文件 <code>lib/mega_lotto/version.rb</code> 文件定义了一个常量 (<code>VERSION</code>) 来标志我们的 gem 的版本. 当我们发布新版时, 我们会增加 prior 的值来推送我们的新代码到 Rubygems. 另外, 注意我们如何在文件 <code>lib/mega_lotto/</code> 目录中使用相对路径来包含加载文件的.</p> <h2>实现</h2> <p>作为 Rubyists, 测试我们工作流程中必备的一部分. 测试不仅能保证我们的系统是可用的, 也保证了我们能写出可维护的代码. 我们知道我们的API的输入和输出, 所以我们可以从一个 spec 开始( <code>spec/mega_lotto/drawing_spec.rb</code> ) 来驱动我们的 Drawing 类的实现:</p> <pre class=src lang=ruby>
+require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">spec_helper</span><span style="color:#710">&quot;</span></span>
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+describe <span style="color:#036;font-weight:bold">Drawing</span> <span style="color:#080;font-weight:bold">do</span>
+    describe <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">#draw</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+        let(<span style="color:#A60">:draw</span>) { <span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">Drawing</span>.new.draw }
+        it <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">returns an array</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+            expect(draw).to be_a(<span style="color:#036;font-weight:bold">Array</span>)
+        <span style="color:#080;font-weight:bold">end</span>
+        it <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">returns an array with 6 elements</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+            expect(draw.size).to eq(<span style="color:#00D">6</span>)
+        <span style="color:#080;font-weight:bold">end</span>
+        it <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">each element is an integer</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+            draw.each <span style="color:#080;font-weight:bold">do</span> |drawing|
+                expect(drawing).to be_a(<span style="color:#036;font-weight:bold">Integer</span>)
+            <span style="color:#080;font-weight:bold">end</span>
+        <span style="color:#080;font-weight:bold">end</span>
+        it <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">each element is less than 60</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+            draw.each <span style="color:#080;font-weight:bold">do</span> |drawing|
+                expect(drawing).to be &lt; <span style="color:#00D">60</span>
+            <span style="color:#080;font-weight:bold">end</span>
+        <span style="color:#080;font-weight:bold">end</span>
+    <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>简单来说: 这个 spec 断言 #draw 方法返回了一个 5 个整数组成的数组, 每一个整数都小于 60.</p> <p>如果我们运行这个 spec, 我们会得到预期的错误:</p> <pre class=example>
+/Users/bhilkert/Dropbox/code/mega_lotto/spec/mega_lotto/drawing_spec.rb:4:
+in `&lt;module:MegaLotto&gt;`: uninitialized constant MegaLotto::Drawing (NameError)
+</pre> <p>迈着最小的步子来修复我们的失败 spec, 让我们在 lib/mega_lotto/drawing.rb 中创建 MegaLotto::Drawing 类 :</p> <pre class=example>
+module MegaLotto
+  class Drawing
+  end
+end
+</pre> <p>注意: 注意到 Drawing 类是如何在 MegaLotto 命名空间内部的? 文件 lib/mega_lotto.rb 定义了 MegaLotto 的根命名空间, 所以其它在 lib/mega_lotto/ 目录下的类库就会在MegaLotto命名空间下.</p> <p>即使我们创建一个新的类 MegaLotto::Drawing, 我们的 gem 也还不知道它. gem里的文件不会被自动加载. 为了加载我们的 Drawing 类, 我们需要从 lib/mega_lotto.rb 这个入口文件中 require 它:</p> <pre class=src lang=ruby>
+require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">mega_lotto/version</span><span style="color:#710">&quot;</span></span>
+require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">mega_lotto/drawing</span><span style="color:#710">&quot;</span></span>
+
+<span style="color:#080;font-weight:bold">begin</span>
+    require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">pry</span><span style="color:#710">&quot;</span></span>
+<span style="color:#080;font-weight:bold">rescue</span> <span style="color:#036;font-weight:bold">LoadError</span>
+<span style="color:#080;font-weight:bold">end</span>
+
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>现在, 通过在宿主程序中包含 <code>lib/mega_lotto.rb</code> 入口文件, 我们可以得到在 <code>lib/mega_lotto/drawing.rb</code> 里的功能了!</p> <p>If we re-run the spec for our Drawing class, we get the following:</p> <p>如果我们重新运行 Drawing 类的 spec, 我们会得到下面的内容:</p> <pre class=example>
+MegaLotto::Drawing
+#draw
+returns an array (FAILED - 1)
+each element is less than 60 (FAILED - 2)
+returns an array with 5 elements (FAILED - 3)
+each element is an integer (FAILED - 4)
+Failures:
+1) MegaLotto::Drawing#draw returns an array
+Failure/Error: let(:draw) { MegaLotto::Drawing.new.draw }
+NoMethodError:
+undefined method `draw` for #&lt;MegaLotto::Drawing:0x007fef4b0bf198&gt;
+# ./spec/mega_lotto/drawing_spec.rb:6
+# ./spec/mega_lotto/drawing_spec.rb:9
+2) MegaLotto::Drawing#draw each element is less than 60
+Failure/Error: let(:draw) { MegaLotto::Drawing.new.draw }
+NoMethodError:
+undefined method `draw` for #&lt;MegaLotto::Drawing:0x007fef4b0bc510&gt;
+# ./spec/mega_lotto/drawing_spec.rb:6
+# ./spec/mega_lotto/drawing_spec.rb:23
+3) MegaLotto::Drawing#draw returns an array with 5 elements
+Failure/Error: let(:draw) { MegaLotto::Drawing.new.draw }
+NoMethodError:
+undefined method `draw` for #&lt;MegaLotto::Drawing:0x007fef4b0b5fd0&gt;
+# ./spec/mega_lotto/drawing_spec.rb:6
+# ./spec/mega_lotto/drawing_spec.rb:13
+4) MegaLotto::Drawing#draw each element is an integer
+Failure/Error: let(:draw) { MegaLotto::Drawing.new.draw }
+NoMethodError:
+undefined method `draw` for #&lt;MegaLotto::Drawing:0x007fef4b0b4270&gt;
+# ./spec/mega_lotto/drawing_spec.rb:6
+# ./spec/mega_lotto/drawing_spec.rb:17
+Finished in 0.00218 seconds
+4 examples, 4 failures
+</pre> <p>每个失败都是由于缺少一个 #drawing 方法, 所以让我们加上它:</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+    <span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Drawing</span>
+        <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">draw</span>
+        <span style="color:#080;font-weight:bold">end</span>
+    <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>我们的 specs 显示的信息不同了, 现在的失败原因是缺少返回的数组:</p> <pre class=example>
+MegaLotto::Drawing
+#draw
+returns an array (FAILED - 1)
+each element is an integer (FAILED - 2)
+returns an array with 5 elements (FAILED - 3)
+each element is less than 60 (FAILED - 4)
+Failures:
+1) MegaLotto::Drawing#draw returns an array
+Failure/Error: expect(draw).to be_a(Array)
+expected nil to be a kind of Array
+# ./spec/mega_lotto/drawing_spec.rb:9
+2) MegaLotto::Drawing#draw each element is an integer
+Failure/Error: draw.each do |drawing|
+NoMethodError:
+undefined method `each` for nil:NilClass
+# ./spec/mega_lotto/drawing_spec.rb:17
+3) MegaLotto::Drawing#draw returns an array with 5 elements
+Failure/Error: expect(draw.size).to eq(5)
+NoMethodError:
+undefined method `size` for nil:NilClass
+# ./spec/mega_lotto/drawing_spec.rb:13
+4) MegaLotto::Drawing#draw each element is less than 60
+Failure/Error: draw.each do |drawing|
+NoMethodError:
+undefined method `each` for nil:NilClass
+# ./spec/mega_lotto/drawing_spec.rb:23
+Finished in 0.00181 seconds
+4 examples, 4 failures
+</pre> <p>从第一个失败开始, 我们来给#draw方法返回一个空的数组, 再看看这会带来什么结果:</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+    <span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Drawing</span>
+        <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">draw</span>
+            []
+        <span style="color:#080;font-weight:bold">end</span>
+    <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>我们的 specs 的结果:</p> <pre class=example>
+MegaLotto::Drawing
+#draw
+returns an array
+returns an array with 5 elements (FAILED - 1)
+each element is less than 60
+each element is an integer
+Failures:
+1) MegaLotto::Drawing#draw returns an array with 5 elements
+Failure/Error: expect(draw.size).to eq(5)
+expected: 5
+got: 0
+(compared using ==)
+# ./spec/mega_lotto/drawing_spec.rb:13:
+in `block (3 levels) in &lt;module:MegaLotto&gt;`
+Finished in 0.00773 seconds
+4 examples, 1 failure
+</pre> <p>已知我们通过返回一个空的数组加入了一个无条理的实现, 让我们通过返回一个5个元素的数组满足最后一个失败:</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+    <span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Drawing</span>
+        <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">draw</span>
+            <span style="color:#036;font-weight:bold">Array</span>.new(<span style="color:#00D">5</span>)
+        <span style="color:#080;font-weight:bold">end</span>
+    <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>我们的 spec 失败现在产生了特定的关于数组的元素:</p> <pre class=src lang=ruby>
+<span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">Drawing</span>
+<span style="color:#777">#draw</span>
+each element is less than <span style="color:#00D">60</span> (<span style="color:#036;font-weight:bold">FAILED</span> - <span style="color:#00D">1</span>)
+each element is an integer (<span style="color:#036;font-weight:bold">FAILED</span> - <span style="color:#00D">2</span>)
+returns an array
+returns an array with <span style="color:#00D">5</span> elements
+<span style="color:#606">Failures</span>:
+<span style="color:#00D">1</span>) <span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">Drawing</span><span style="color:#777">#draw each element is less than 60</span>
+<span style="color:#036;font-weight:bold">Failure</span>/<span style="color:#606">Error</span>: expect(drawing).to be &lt; <span style="color:#00D">60</span>
+<span style="color:#606">NoMethodError</span>:
+undefined method <span style="background-color:hsla(120,100%,50%,0.06)"><span style="color:#161">`</span><span style="color:#2B2">&lt;</span><span style="color:#161">`</span></span> <span style="color:#080;font-weight:bold">for</span> <span style="color:#606">nil</span>:<span style="color:#036;font-weight:bold">NilClass</span>
+<span style="color:#777"># ./spec/mega_lotto/drawing_spec.rb:24</span>
+<span style="color:#777"># ./spec/mega_lotto/drawing_spec.rb:23:in `each`</span>
+<span style="color:#777"># ./spec/mega_lotto/drawing_spec.rb:23</span>
+<span style="color:#00D">2</span>) <span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">Drawing</span><span style="color:#777">#draw each element is an integer</span>
+<span style="color:#036;font-weight:bold">Failure</span>/<span style="color:#606">Error</span>: expect(drawing).to be_a(<span style="color:#036;font-weight:bold">Integer</span>)
+expected <span style="color:#069">nil</span> to be a kind of <span style="color:#036;font-weight:bold">Integer</span>
+<span style="color:#777"># ./spec/mega_lotto/drawing_spec.rb:18</span>
+<span style="color:#777"># ./spec/mega_lotto/drawing_spec.rb:17:in `each`</span>
+<span style="color:#777"># ./spec/mega_lotto/drawing_spec.rb:17</span>
+<span style="color:#036;font-weight:bold">Finished</span> <span style="color:#080;font-weight:bold">in</span> <span style="color:#60E">0.00417</span> seconds
+<span style="color:#00D">4</span> examples, <span style="color:#00D">2</span> failures
+</pre> <p>现在让我们返回0到60之间的数组而不是nil:</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+    <span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Drawing</span>
+        <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">draw</span>
+            <span style="color:#00D">5</span>.times.map { single_draw }
+        <span style="color:#080;font-weight:bold">end</span>
+        private
+        <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">single_draw</span>
+            rand(<span style="color:#00D">0</span>...<span style="color:#00D">60</span>)
+        <span style="color:#080;font-weight:bold">end</span>
+    <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>现在看看我们的 specs, 可以看到我们满足了要求:</p> <pre class=src lang=ruby>
+<span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">Drawing</span>
+<span style="color:#777">#draw</span>
+each element is less than <span style="color:#00D">60</span>
+returns an array
+returns an array with <span style="color:#00D">5</span> elements
+each element is an integer
+<span style="color:#036;font-weight:bold">Finished</span> <span style="color:#080;font-weight:bold">in</span> <span style="color:#60E">0.00551</span> seconds
+<span style="color:#00D">4</span> examples, <span style="color:#00D">0</span> failures
+</pre> <p>万岁! 让我们提交我们的变更并且庆祝我们的新 gem。 我们离发布更近了一步。</p> <h2>总结</h2> <p>驱动测试开发是一个很多 Rubyist 遵照的实践。如果没有测试的设置，先写下你的测试通常会产出高质量可维护的代码。我给了你我上面的工作流的感觉，但是不是所有的开发者都是一样的。实验你的工作流并且确定什么样的适合你。虽然测试在开始花费额外的时间，但这样的投资节省了让我的头疼的麻烦。我鼓励你尝试它如果你没实践过TDD。</p> <p>在下一章, 我们将会看看 bundler 提供的 <code>rake</code> 任务是如何来帮助发布的。</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/how-to-build-ruby-gem/code"></script> </body> </html>

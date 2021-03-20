@@ -1,0 +1,44 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_refactoring2 posts_refactoring2_index typo"> <article> <h1>实战重构第二版之第一个示例</h1> <p>重构这本书不需要我多介绍了，读是一定要读的，但是光读不练也不行啊，正巧第一章就给了一个比较完整的例子，正好可以用来练手，让我们开始吧。</p> <p>虽然本书对于重构的步骤讲解的非常详细，但是正如书中所说，重构的前提是要有可靠的测试，但是测试本身又值得花一本书的体量来讲解，所以书中对于测试可以说就是蜻蜓点水一般的一点而过。</p> <p>不过真的要实践书中的代码的话，还是需要一个简单的测试环境的，毕竟没有测试就不能放心的重构。</p> <p>我的文件结构如下：</p> <pre class=src lang=sh>
+├── invoice.json
+├── main.js
+├── plays.json
+└── statement.js
+</pre> <p>由于我对 JavaScript 的生态圈也不是特别的熟悉，于是首先我构建了一个非常“硬核”的“测试脚本”。</p> <pre class=src lang=javascript>
+<span style="color:#777">// statement.js</span>
+<span style="color:#080;font-weight:bold">var</span> invoice = require(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">./invoice.json</span><span style="color:#710">&quot;</span></span>);
+<span style="color:#080;font-weight:bold">var</span> plays = require(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">./plays.json</span><span style="color:#710">&quot;</span></span>);
+<span style="color:#080;font-weight:bold">var</span> statement = require(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">./statement.js</span><span style="color:#710">&quot;</span></span>);
+
+<span style="color:#080;font-weight:bold">var</span> result = statement(invoice, plays);
+
+<span style="color:#080;font-weight:bold">var</span> excepted_result = <span style="color:#F00;background-color:#FAA">`</span>Statement <span style="color:#080;font-weight:bold">for</span> BigCo
+  Hamlet: <span style="color:#369;font-weight:bold">$650</span><span style="color:#60E">.00</span> (<span style="color:#00D">55</span> seats)
+  As You Like It: <span style="color:#369;font-weight:bold">$580</span><span style="color:#60E">.00</span> (<span style="color:#00D">35</span> seats)
+  Othello: <span style="color:#369;font-weight:bold">$500</span><span style="color:#60E">.00</span> (<span style="color:#00D">40</span> seats)
+Amount owed is <span style="color:#369;font-weight:bold">$1</span>,<span style="color:#60E">730.00</span>
+You earned <span style="color:#00D">47</span> credits
+<span style="color:#F00;background-color:#FAA">`</span>;
+
+<span style="color:#080;font-weight:bold">if</span>(excepted_result == result) {
+    console.log(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#b0b">\x1b</span><span style="color:#D20">[42m%s</span><span style="color:#b0b">\x1b</span><span style="color:#D20">[0m</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">pass</span><span style="color:#710">&quot;</span></span>);
+} <span style="color:#080;font-weight:bold">else</span> {
+    console.log(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#b0b">\x1b</span><span style="color:#D20">[31m%s</span><span style="color:#b0b">\x1b</span><span style="color:#D20">[0m</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">fail</span><span style="color:#710">&quot;</span></span>);
+}
+</pre> <p>不管怎么说，it works。接下去我就可以放心的重构 statement.js 这个函数主体内的代码了。</p> <p>下面我会按照书中的步骤来对代码进行重构，并以视频的形式记录下来,</p> <h1>每个步骤一个2级标题</h1> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/refactoring2"></script> </body> </html>

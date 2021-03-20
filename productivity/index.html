@@ -1,0 +1,24 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="productivity productivity_index typo"> <article> <h1 id=section>如何提升效率</h1> <p><a href="/remote">Remote 之后</a>，我发现，提升效率真的是一件非常需要好好重视的事情。</p> <p>如果是坐班的话，对于效率的提升或许不是那么敏感，因为只要坐在办公室里就感觉自己是在干活。就算提前做完了，也还是要待到下班时间。</p> <p>而 Remote 的话，通过提升工作效率，会产生非常大的益处。早完工一个小时，就多出来一个小时的自由时间。</p> <p>那么我是如何提升自己的工作效率的呢？</p> <h2 id=section-1>快速启动</h2> <p>用过 SSD 硬盘的人就没法再忍受机械硬盘的启动速度了，因为无论是开机还是启动软件，等待对于热情的消耗是非常大的，试想如果你想写下一些文字，而打开 word 花了两分钟，那恐怕你的思路都已经断了。</p> <p>那么对于快速启动，我的优化方案是这样的：</p> <p>因为我是 Remote 工作，所以想敲代码就敲，不需要先大老远的赶到办公室，也不需要一大早就开个会，等到你真正坐在工位上时，可能早就忘了今天原本要做的事情了。</p> <p>对于现在的主流 PC 配置来说，开机速度都能做到10秒以内，软件的启动也都很快，不过因为我开发时用的是虚拟机里的 Mac 系统，所以为了避免『二次开机』，我一般都不关虚拟机，而使用『暂停』功能，这样下次启动就能直接进入工作状态了。</p> <p>另外，我的周围一定放着纸和笔（好几支），还有便签。方便我随时记录任何想写下的东西（这方面比起打开 trello 等应用还是要快上一些的）。</p> <p>还有书本和 iPad 也都放在手边，想要看书或者视频，都是伸手即来。</p> <p>要在电脑上写东西的话，因为设备较多，与其每次都要同步，我会选择在线平台比如 <a href="https://www.zybuluo.com/">作业部落</a>，确保文档一定是最新的版本。</p> <h2 id=section-2>进入状态</h2> <p>这方面 Remote 并没有优势，在家办公要进入工作状态比较难，我一般采用一些心理暗示，比如灯光和声音。 我喜欢把灯光调成暖色，这样心情比较平静，然后听听白噪音，这样有助于进入工作状态。 Remote 虽然一开始进入状态比较慢，不过好处是一旦进入状态了就很少会被打断。没有突如其来的会议和需求的突然更变，总体来说工作效率不比坐班低。</p> <h2 id=section-3>快速切换</h2> <p>一直做同一件事情时间久了难免觉得厌烦。这里我推荐莫法特休息法。</p> <pre><code>莫法特休息法，据说来自《新约圣经》的翻译者詹姆斯·莫法特，他的书房里有 3 张桌子：
+    第一张摆着《圣经》译稿；
+    第二张摆着一篇论文的原稿；
+    第三张摆着正在写的侦探小说。
+莫法特休息法就是：从一张书桌搬到另一张书桌，把继续工作，指避免长时间做同一种工作，
+而应经常变换工作内容，进行主动的调剂和放松，以保持精神上的兴奋点。
+</code></pre> <p>这类似于计算机运行时的『上下文切换』（当然计算机是不会疲劳的）。</p> <p>在我的心里也有『三张桌子』，分别『工作』，『学习』和『创作』。</p> <p>我有一台台式机，一台 MacBook Pro，两个 iPad，一台安卓手机。</p> <p>输入设备是一块苹果原装蓝牙键盘，一块罗技 k480 蓝牙键盘，输出设备是一块 29 寸 LG 的带鱼屏（主屏），和一块 AOC 的 23 寸竖置的显示器（副屏）。</p> <p>利用这些设备，要组成这三张『书桌』本来是不太够用的。不过由于 k480 的多设备支持和 LG 显示器的双 HDMI 接口（这点其实可以淘宝 HDMI 分线器来实现），让我可以在有限的设备中实现 『上下文切换』。</p> <p>在工作时，我使用台式机和一横一竖两块屏幕。我在台式机中安装的的 MacOS 虚拟机中工作（这个系统只安装工作需要的软件）。</p> <p>因为工作不需要使用QQ，就没有在台式机和笔记本上安装。聊天只在移动设备上（平时就用手机打字，可以防止废话太多，实在想多讲点东西就接上蓝牙键盘），这样能明确和工作的界限。</p> <p>在工作闲暇时如果我要自己写点东西或者 side project，我会使用笔记本（视情况切换 LG 的 HDMI 接口来实现外接双屏），键盘依然使用 k480 的一键切换（鼠标是独立的）。</p> <p>至于玩游戏的话，因为需要比较独立的时间段，就直接关了台式机上的 MacOS 虚拟机，然后用 windows 系统专心玩。</p> <p>另外副屏在看电子书的时候也很好用，或者看纸质书的时候用来做笔记。</p> <p>总之这样的形式让我可以高效的切换任务，尽量减少上下文切换时的损耗，保持大脑的活跃状态。</p> <h2 id=section-4>保证休息</h2> <p>电脑用久了觉得反应有点慢，重启一下就好了，大脑也是一样。 如果我感到上面的 『三张桌子』都开始力不从心了，我就会直接躺平（有把可以直接放平靠背的椅子那再好不过了），当然在家办公的话也可以直接躺卧室床上。 稍微打个盹，醒来又是一条好汉。</p> <h2 id=section-5>总结</h2> <p>关于提升效率方面的资料网上非常多，关键还是要自己去实践，切切实实的感觉到了提升效率带来的好处，才会继续保持下去形成良性循环。</p> <p>以上就是我对于提升效率的总结，有新的想法会随时更新本文。</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id=productivity></script> </body> </html>

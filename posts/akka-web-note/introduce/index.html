@@ -1,0 +1,38 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_akka-web-note posts_akka-web-note_introduce posts_akka-web-note_introduce_index typo"> <article> <h1>项目的初始化与介绍</h1> <p>因为学习 Akka 的原因，发现了 <a href="https://www.packtpub.com/application-development/mastering-akka">mastering akka</a> 这本书。</p> <p>我觉得这本书给我打开了一个新的 WEB 开发的世界。以前看过的那些新潮而遥远的名词，在本书中都可以近距离触摸到。</p> <p>贯穿全书的是一个在线的书店项目，我觉得本书的入门门槛有些高，加上书出版也有两年了，于是我魔改了一下例子项目，保留中心思想的同时简化了理解的难度。</p> <p>我在多年以前是一个 Java 程序员，因为受不了 Java Web 开发的繁琐，后来自学 Ruby 走进了 Ruby on Rails 的世界。</p> <p>所以如果你和我一样，看到 Controller, Service, Dao, Model 这些名词就感到头大的话，相信我，本书不会让你失望的。</p> <p>好了，回到在线书店的例子，以我停留在多年以前的 Java Web 开发的记忆，这个项目结构一定是类似这样的：</p> <pre class=src lang=sh>
+
+├── Main.scala
+├── dao
+│   ├── BaseDao.scala
+│   └── UserDao.scala
+├── domain
+│   └── User.scala
+├── routing
+│   ├── ApiError.scala
+│   ├── CustomDirectives.scala
+│   ├── Router.scala
+│   └── UserRoutes.scala
+├── serializer
+│   └── JsonSupport.scala
+├── service
+│   └── UserService.scala
+└── validator
+    ├── UserValidator.scala
+    └── ValidatorDirectives.scala
+</pre> <p>让我们从创建用户开始，在 UserRoutes 中调用 userService 的 createUser 方法，service 调用 userDao 来把用户数据保存到数据库。</p> <p>点击这里下载本文的代码，熟悉一下 scala 和 akka (本文只使用了 AKKA HTTP, 别着急，后面会用到更多特性的).</p> <p>这个示例项目仅仅实现了用户的创建和显示，我们很快就会（在之后的文章中）改写这些代码并添加新的特性。</p> <p>下面我会按照书中的章节来分别介绍各个主题。（这不是 Scala 和 AKKA 的入门教学文，每章的预备知识我都会在开头做简单介绍）。</p> <ol> <li>最简单的 user 的 post 和 get index 两个接口，包含数据库的实现</li> <li>增加一个 order 功能，并重构为 FSM 模式</li> <li>对 order 接口改为 DDD</li> <li>添加 Event Souring 支持</li> <li>CQRS 实现</li> </ol> <p>那么下面就正式开始我们的 AKKA 之旅吧。</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/akka-web-note/introduce"></script> </body> </html>

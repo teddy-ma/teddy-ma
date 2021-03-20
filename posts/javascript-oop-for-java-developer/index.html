@@ -1,0 +1,93 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_javascript-oop-for-java-developer posts_javascript-oop-for-java-developer_index typo"> <article> <h1>一个 Java 程序员对 JavaScript 的理解</h1> <p><span style="text-decoration:underline;">TLDR 本文是一个 Java 程序员初学 JavaScript 的记录</span></p> <p><b>知道吗？《重构》要出第二版了</b></p> <p>是吗，和第一版有啥区别？</p> <p><b>语言从 Java 改成 JavaScript 了</b></p> <p>哦</p> <p><b>我对 Java 挺熟的，但是 JavaScript 只写过一些前端脚本，用过 nodejs 但也就是复制黏贴做点 CRUD, 这个水平去看书恐怕不行。</b></p> <p>那就去学呗， JavaScript 那么流行，学了不亏。</p> <p><b>可我总觉得 JavaScript 很复杂，应该说很乱，各种各样的坑，Java 就很工整.</b></p> <p>你说的工整是什么意思?</p> <p><b>JavaScript 是脚本语言啊，各种变量，函数散落在各处，看的头晕。</b></p> <p>这方面语言本身是这样设计的，函数是一等公民，不像 Java，函数必须被定义在类中，这大概就是你觉得 Java “工整“ 的原因吧。</p> <p><b>函数是一等公民我还能理解，可是 JavaScript 为啥没有类啊，不对，好像 es6 有 class，但是还要转换，好麻烦。</b></p> <p>慢慢来，先别考虑 es6，你要类来干嘛？</p> <p><b>当然是创建对象啊。</b></p> <p>在 JavaScript 中，创建对象很容易啊</p> <pre class=src lang=js>
+const person = {
+  <span style="color:#606">firstName</span>: <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">foo</span><span style="color:#710">'</span></span>
+}
+console.log(person.firstName);
+</pre> <p><b>额，你这只是属性没有方法啊, 这样的对象是没有灵魂的</b></p> <p>要方法也行，function 也是一个对象，我们可以把函数直接赋值给 person 对象的一个属性</p> <pre class=src lang=js>
+const person = {
+  <span style="color:#606">firstName</span>: <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">foo</span><span style="color:#710">'</span></span>,
+  <span style="color:#06B;font-weight:bold">hello</span>: <span style="color:#080;font-weight:bold">function</span>() { console.log(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">hello world</span><span style="color:#710">&quot;</span></span>) }
+}
+person.hello();
+</pre> <p><b>额，看起来和 Java 的对象很相似了，但是，下次我需要另一个 person，总不能每次都复制一大段代码吧。</b></p> <p>办法当然有，不过还是慢慢来，目前我们知道 JavaScript 可以很方便的创建对象，但是没有类，那么我们可以手动创建一个功能和类类似的东西。</p> <p><b>等等，让我想想，如果是 Java 的话，除了 new 一个对象外，得到对象的方式还可以是工厂类，工厂类一般都使用静态方法，所以使用对象替换也完全可行。</b></p> <p>没错，我们可以创建一个 PersonFactory 来创建各种 person 对象，顺便说一句，Java 的静态方法实在是太不 OO 了，直接使用对象更合理。</p> <pre class=src lang=js>
+<span style="color:#080;font-weight:bold">function</span> <span style="color:#06B;font-weight:bold">PersonFactory</span>(last_name) {
+  let person = {}
+  person.last_name = last_name
+  person.<span style="color:#06B;font-weight:bold">hello</span> = <span style="color:#080;font-weight:bold">function</span> (last_name) {
+    console.log(<span style="color:#F00;background-color:#FAA">`</span>hello, I am <span style="color:#369;font-weight:bold">$</span>{<span style="color:#950">this</span>.last_name}.<span style="color:#F00;background-color:#FAA">`</span>)
+  }
+  <span style="color:#080;font-weight:bold">return</span> person
+}
+
+person = PersonFactory(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">foo</span><span style="color:#710">'</span></span>)
+person.hello();
+</pre> <p><b>看着还行，但是比起 Java 的原生 Class 还是太麻烦了。</b></p> <p>淡定，这只是一个演示，JavaScript 有原型继承，可以使用 prototype 来实现，这才是最常用的方式（上面的写法也很浪费内存，因为方法不能共享）。</p> <pre class=src lang=js>
+Person.prototype.<span style="color:#06B;font-weight:bold">hello</span> = <span style="color:#080;font-weight:bold">function</span>(last_name) {
+  console.log(<span style="color:#F00;background-color:#FAA">`</span>hello, I am <span style="color:#369;font-weight:bold">$</span>{<span style="color:#950">this</span>.last_name}.<span style="color:#F00;background-color:#FAA">`</span>)
+}
+<span style="color:#080;font-weight:bold">function</span> <span style="color:#06B;font-weight:bold">Person</span>(last_name) {
+  let person = Object.create(Person.prototype)
+  person.last_name = last_name
+  <span style="color:#080;font-weight:bold">return</span> person;
+}
+person = Person(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">foo</span><span style="color:#710">&quot;</span></span>)
+person.hello()
+</pre> <p><b>原来是这样，我明白了，其实这样已经实现了 Java 的 class 功能了，难怪一开始你说 es6 的 class 只是语法糖而已，那 class 的写法是？</b></p> <p>使用 es6 的 class 的话就是这样：</p> <pre class=src lang=js>
+<span style="color:#080;font-weight:bold">class</span> Person {
+  constructor(last_name) {
+    <span style="color:#950">this</span>.last_name = last_name
+  }
+  hello(){
+    console.log(<span style="color:#F00;background-color:#FAA">`</span>hello, I am <span style="color:#369;font-weight:bold">$</span>{<span style="color:#950">this</span>.last_name}.<span style="color:#F00;background-color:#FAA">`</span>)
+  }
+}
+const person = <span style="color:#080;font-weight:bold">new</span> Person(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">foo</span><span style="color:#710">'</span></span>)
+person.hello()
+</pre> <p><b>这样就和 Java 基本一样了。等等，这个 constructor 是啥啊？</b></p> <p>就是构造器，看来我们步子迈的有点大了，我们先看看上面的例子中， person 的构造器是什么：</p> <pre class=src lang=js>
+<span style="color:#080;font-weight:bold">function</span> <span style="color:#06B;font-weight:bold">Person</span>(last_name) {
+  <span style="color:#950">this</span>.last_name = last_name
+}
+<span style="color:#080;font-weight:bold">var</span> person = <span style="color:#080;font-weight:bold">new</span> Person(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">foo</span><span style="color:#710">&quot;</span></span>)
+console.log(person.constructor)
+</pre> <p>看到没，就是 Person 函数，可见，构造器就是构造函数的引用，它告诉我们 person 对象是哪儿来的。我们可以通过 <code>instanceof</code> 操作符来判断对象和构造器函数的关系：</p> <pre class=src lang=js>
+console.log(person <span style="color:#080;font-weight:bold">instanceof</span> Person)
+</pre> <p><b>明白了，对了，上面的代码里还有一个 this, 听说 javascript 里的 this 非常难以理解，到底是怎么回事呢？</b></p> <p>嗯, 其实一点也不难，我们先看看 Java 中的 this 吧。</p> <pre class=src lang=java>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Person</span>{
+  <span style="color:#088;font-weight:bold">private</span> <span style="color:#0a8;font-weight:bold">String</span> lastName;
+  <span style="color:#088;font-weight:bold">public</span> Person(<span style="color:#0a8;font-weight:bold">String</span> lastName) {
+    <span style="color:#950">this</span>.lastName = lastName;
+  }
+  <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> hello() {
+    <span style="color:#0a8;font-weight:bold">System</span>.out.println(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">hello, I am </span><span style="color:#710">&quot;</span></span> + lastName);
+  }
+}
+Person person = <span style="color:#080;font-weight:bold">new</span> Person(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">foo</span><span style="color:#710">&quot;</span></span>)
+person.hello();
+</pre> <p>这个例子很简单，带 this 的 lastName 是私有属性， 不带 this 的 lastName 是传入的参数，这看似是一个可以死记硬背的知识点。</p> <p>但是我们可以换个角度看看，在 Java 中，可以调用方法的实例必然是 person 对象，所以 this 肯定是指向 person 对象的。 而在 JavaScript 中，函数是独立存在的，因此调用方和函数可以没有任何关系。</p> <p>不过原理是类似的，那就是 this 指向的就是方法（函数）的调用方。</p> <p>我们可以看看下面这个例子：（first name 的 例子）</p> <pre class=src lang=js>
+<span style="color:#080;font-weight:bold">function</span> <span style="color:#06B;font-weight:bold">Person</span>(last_name) {
+  console.log(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">My name is: </span><span style="color:#710">&quot;</span></span> + <span style="color:#950">this</span>.first_name + <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20"> </span><span style="color:#710">&quot;</span></span> + <span style="color:#950">this</span>.last_name);
+}
+Person.prototype.hello = functon() {
+  console.log(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">hello, my name is</span><span style="color:#710">&quot;</span></span> + <span style="color:#950">this</span>.first_name + <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20"> </span><span style="color:#710">&quot;</span></span> + <span style="color:#950">this</span>.last_name);
+}
+<span style="color:#080;font-weight:bold">var</span> person = <span style="color:#080;font-weight:bold">new</span> Person(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">foo</span><span style="color:#710">&quot;</span></span>)
+person.first_name = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">bar</span><span style="color:#710">&quot;</span></span>
+person.hello();
+</pre> <p>这个例子可以说明，this 和它“所在”的函数是没有任何关系的，在 function Person 中，根本没有定义 first_name 这个属性，这个属性是我们定义在 person 对象中的。 当 hello 函数被执行时， this 就是 person 对象，所以 <code>this.first_name</code> 就是 person 对象 first_name 属性。 当然 JavaScript 这样的动态语言，肯定不止看上去那么简单，不过这个解释对于理解大部份情况的代码已经足够了。</p> <p><b>现在看来 JavaScript 也不是那么 &#8220;神奇&#8221; 和难以理解了，看来我以前对于面向对象的理解太片面了。</b></p> <p>其实刚才我教你的都是很基础的部分，不过既然你已经把思路从 Java 中的 Class 转到 javaScript 的 object 了，那就是一个很好的开始了。</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/javascript-oop-for-java-developer"></script> </body> </html>

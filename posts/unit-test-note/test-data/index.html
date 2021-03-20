@@ -1,0 +1,76 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_unit-test-note posts_unit-test-note_test-data posts_unit-test-note_test-data_index typo"> <article> <h1>单元测试之数据准备</h1> <p>很多同学在学习单元测试的过程中，会碰到一种情况，就是照着教程做一遍感觉我会了，但是到真实项目中，想要运用时就懵了，觉得有力气没地方使，然后就放弃了单元测试，这实在是很可惜的。我觉得大多数情况下，问题都是出在数据库（数据准备）上。因为真实的项目几乎不可能没有数据库。</p> <p>在练习时，比如 fizzbazz 这样题目，我们只要给出输入和输出，输入 1 2 3 这样数字，然后测试输出，很方便, 反馈也很快。 可是在真实项目中，特别是遗留项目（即没有测试的项目）中，想要开始单元测试，就要做很多准备工作，配置测试工具倒还好，只要是主流的框架或工具都有大量的参考资料。难就难在测试数据的初始化上。</p> <p>处理遗留系统肯定不是一件容易的事情，只要记住，饭要一口一口吃，缺什么我们就补什么，不要觉得麻烦，这样的工作一开始的确会很烦，但是相信我，只要处理得当，以后会越来越轻松的。</p> <p>下面以 Rails 为例，但不用局限于语言或框架，Rails 社区是非常注重测试的，其中的思想也适用于其他语言与框架。</p> <p>在 Rails 社区，主流的测试数据（一般称为夹具，即 fixture）工具有 Rails 自带的 yml 格式的 fixture, 和数据生成工具 <a href="https://github.com/thoughtbot/factory_bot">FactoryBot</a> 这两种。</p> <p>两种方式各有优劣，下面简单介绍一下它们：</p> <p>Rails 自带的 fixture 其实可以看做是一种文件数据库，yml 就是一种数据的格式，可读性很强，比如下面这个例子：</p> <pre class=src lang=ruby>
+<span style="color:#777"># In fixtures/categories.yml</span>
+<span style="color:#606">about</span>:
+  <span style="color:#606">name</span>: <span style="color:#036;font-weight:bold">About</span>
+
+<span style="color:#777"># In fixtures/articles.yml</span>
+<span style="color:#606">first</span>:
+  <span style="color:#606">title</span>: <span style="color:#036;font-weight:bold">Welcome</span> to Rails!
+  <span style="color:#606">body</span>: <span style="color:#036;font-weight:bold">Hello</span> world!
+  <span style="color:#606">category</span>: about
+</pre> <p>然后在测试中，你就可以通过 <code>articles(:first)</code> 来获取一个 <code>Article</code> 的实例，它的属性就如上面所编写的一样，所有的数据都是你手动录入的。</p> <p>而 FactoryBot 是一个带有数据生成的多功能 fixture 的替代，官方的定义如下：</p> <blockquote> <p>factory_bot is a fixtures replacement with a straightforward definition syntax, support for multiple build strategies (saved instances, unsaved instances, attribute hashes, and stubbed objects), and support for multiple factories for the same class (user, admin_user, and so on), including factory inheritance.</p> </blockquote> <p>用法如下：</p> <pre class=src lang=ruby>
+<span style="color:#777"># This will guess the User class</span>
+<span style="color:#036;font-weight:bold">FactoryBot</span>.define <span style="color:#080;font-weight:bold">do</span>
+  factory <span style="color:#A60">:user</span> <span style="color:#080;font-weight:bold">do</span>
+    first_name { <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">John</span><span style="color:#710">&quot;</span></span> }
+    last_name  { <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Doe</span><span style="color:#710">&quot;</span></span> }
+    admin { <span style="color:#069">false</span> }
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+
+user = create(<span style="color:#A60">:user</span>, <span style="color:#606">first_name</span>: <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Joe</span><span style="color:#710">&quot;</span></span>)
+user.first_name <span style="color:#777">#=&gt; &quot;Joe&quot;</span>
+</pre> <p>FactoryBot 还带有数据生成的功能，比如：</p> <pre class=src lang=ruby>
+<span style="color:#777"># Defines a new sequence</span>
+<span style="color:#036;font-weight:bold">FactoryBot</span>.define <span style="color:#080;font-weight:bold">do</span>
+  sequence <span style="color:#A60">:email</span> <span style="color:#080;font-weight:bold">do</span> |n|
+    <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">person</span><span style="background-color:hsla(0,0%,0%,0.07);color:black"><span style="font-weight:bold;color:#666">#{</span>n<span style="font-weight:bold;color:#666">}</span></span><span style="color:#D20">@example.com</span><span style="color:#710">&quot;</span></span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+
+generate <span style="color:#A60">:email</span> <span style="color:#777"># =&gt; &quot;person1@example.com&quot;</span>
+generate <span style="color:#A60">:email</span> <span style="color:#777"># =&gt; &quot;person2@example.com&quot;</span>
+</pre> <p>其他还有很多功能就不一一介绍了。</p> <p>如果只是简单的基础数据的填充，那无论用什么工具都可以很容易的实现。麻烦的地方在于为了测试系统在不同状态下的行为，需要准备的大量前置条件。</p> <p>假设你需要一个年龄不到 18 的用户和一个年龄超过 18 的用户。</p> <p>使用 fixture 的话，需要指定两个数据：</p> <pre class=src lang=ruby>
+<span style="color:#606">juvenile</span>:
+  <span style="color:#606">name</span>: <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">John</span><span style="color:#710">&quot;</span></span>
+  <span style="color:#606">age</span>: <span style="color:#00D">10</span>
+
+<span style="color:#606">adult</span>:
+  <span style="color:#606">name</span>: <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Jack</span><span style="color:#710">&quot;</span></span>
+  <span style="color:#606">age</span>: <span style="color:#00D">20</span>
+</pre> <p>你可以这样写，但是当情况变得复杂时，比如用户还要区分是否已经验证，假设对于未成年用户的验证需要涉及监护人，而成年人可以自己提供验证材料。 因此你需要至少4条数据，这样的组合条件很快会让你的 fixture 变得无比巨大，而且大量的 fixture 中必然有大量的重复或无用的数据，比如用户的 name, 大多数情况我们并不关心这个属性，但是它又是必填的，这样一来 fixture 中就会充满了类似的噪音，让人无法关注到测试数据的重点。</p> <p>实际上，就连 Rails 官方的文档中都不建议对 fixture 过度使用：</p> <blockquote> <p>Fixtures are not designed to create every object that your tests need, and are best managed when only used for default data that can be applied to the common case.</p> </blockquote> <p>下面来看看使用 FactoryBot 的方式，很容易，只需要这样写：</p> <pre class=src lang=ruby>
+juvenile = create(<span style="color:#A60">:user</span>, <span style="color:#606">age</span>: <span style="color:#00D">10</span>)
+adult = create(<span style="color:#A60">:user</span>, <span style="color:#606">age</span>: <span style="color:#00D">20</span>)
+</pre> <p>这样写的好处：</p> <ol> <li>基于一个通用的 user 对象，只修改部分属性（对于测试有意义的属性），不用定义大量可能只使用一次的测试数据</li> <li>隐藏无意义的属性，如之前提到的 name, 减少噪音，让测试阅读起来可以更清晰的展示重点</li> <li>隐藏基础 user 的创建细节，如果之后改为 user 需要 email, 并且 email 不能重复，这些与测试重点无关的数据构建都不会影响上面两行代码</li> </ol> <p>这里并非是要对比某种工具更强大，而是要学习更好的思路。 比如使用 fixture 一样可以做到类似 FactoryBot 的写法，只需要：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">test_foo</span>
+  juvenile = setup_juvenile_user
+  adult = setup_adult_user
+  <span style="color:#777"># ....</span>
+<span style="color:#080;font-weight:bold">end</span>
+
+private
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">setup_juvenile_user</span>
+  users(<span style="color:#A60">:one</span>).update_column(<span style="color:#A60">:age</span>, <span style="color:#00D">10</span>)
+<span style="color:#080;font-weight:bold">end</span>
+
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">setup_adult_user</span>
+  users(<span style="color:#A60">:two</span>).update_column(<span style="color:#A60">:age</span>, <span style="color:#00D">20</span>)
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>当然这样写依然不能和 FactoryBot 相比，但是最起码，就测试方法 <code>test_foo</code> 本身 而言，这样已经和上面 FactoryBot 的写法一致了。</p> <p>另外 Fixture 有一个特性是，它是被直接写入数据库的，不会经过 model 的 validate，所以一些和遗留数据有关的测试，使用 Fixture 也是不错的选择。</p> <p>比如系统一开始并不强制用户填写 email, 但是后来由于政策原因必须填写，那么 email 会变为必填 <code>presence: true</code> .</p> <p>这对于新用户当然没问题，修改注册用户的测试代码后 CI 也显示 PASS, 但是这样就真的代表系统没问题了吗？想象一下，之前的没填写过 email 的用户怎么办？</p> <p>他们登录以后，可能想修改自己的名字，（假设 email 不可修改，所以 profile 页面也不会有 email 的 input 框），那么他们将进入一个死循环，因为 user model 永远不会通过验证，他们将永远修改不了自己的任何信息。</p> <p>而这一切，就算有 100% 的测试覆盖，也无法被暴露出来，这个时候就可以使用 fixture 来构建一个没有 email 的 user 记录，并针对这种情况编写测试。</p> <p>总之，无论使用什么工具，那都是具体实现，我们需要清楚的是测试的套路，数据的前置准备是必须的，要明确这点，万事开头难，跨不过这一步，测试代码永远无法被编写出来。</p> <p>下面讲点理论的东西。一个单元测试一般分为 AAA 三个部分（Arrange, Act, Assert），也称 <code>Given Then When</code> 。 这有点像写作文时的总分总三段结构，只不过作文中，开头和结尾都是很短的，大头是在中间部分，而单元测试刚好相反，中间部分是最短的，因为中间部分的逻辑都应该在生产代码中，这个以后再讲。</p> <p>本文讲的都是 Arrange (Given) 的部分（具体来说是数据的部分），之后我会继续介绍其他的部分。</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/unit-test-note/test-data"></script> </body> </html>

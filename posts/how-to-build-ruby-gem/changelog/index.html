@@ -1,0 +1,28 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_how-to-build-ruby-gem posts_how-to-build-ruby-gem_changelog posts_how-to-build-ruby-gem_changelog_index typo"> <article> <h1>构建一个 Ruby Gem 第七章 更变日志</h1> <p>如果你的 gem 被用的足够多, 用户将会依赖它们的特性。作为一个维护者，我们已经能控制如何管理发布和贡献者。在这一章中，我们会探讨典型的更新日志的内容和为什么要使用更新日志。</p> <h2>为什么要包含一个更新日志?</h2> <p>Github 用它的特性把我们宠坏了，它让我们依赖于它的 UI 比如近期提交和 bug 历史。 然而，当功能或者外部 API 被改变时，记录并且把它们和一个版本联系起来是有价值的，贡献者（如果不是你的话），或者一个 pull request 或者 issue number 都是适用的方式。 虽然 <code>README</code> 文件是当前版本功能的最好文档，它不能说明一路过来的变化。</p> <p>查看一个项目的提交列表不一定总是能展示所有的历史。由于这个原因，很多项目都维护一个文件 <code>CHANGELOG.md</code> 或者 <code>CHANGES.md</code> 在根目录下。 这个更新日志记录了一个用户应该关心的不同版本的 API 和特性。就像 <code>README.md</code> 文件一样，这个文件通常使用 markdown 来书写内容，使得它易于在 Github 上被查看。</p> <p>下面是我的 gem <a href="https://github.com/brandonhilkert/sucker_punch">Sucker Punch</a> 的 <code>CHANGES.MD</code> 文件的摘录。</p> <pre class=example>
+  0.3.1
+  -----------
+
+  - Fix location of inline testing library
+
+  0.3
+  -----------
+
+  - Now includes a testing library that will run all jobs synchronously.
+</pre> <p>通常来说，把版本号作为标题，所有的关于这个版本的更新都使用要点和示例代码（如果必要）来记录。</p> <p>如果一个 gem 足够庞大，那需要定期关联一个特定的 pull request （或者 issue）和贡献者来体现它的价值。这不仅能分辨贡献者和他的工作，也能说明对应代码负责人是谁。</p> <h2>现实世界中的例子</h2> <p><a href="http://sidekiq.org/">Sidekiq</a>有<a href="https://github.com/mperham/sidekiq/blob/master/Changes.md">一个很好的例子</a>，一个更新日志文件包含了 pull request 编号和贡献者的名字在 Github 上。</p> <p><a href="https://github.com/rails/rails/tree/master/activerecord">ActiveRecord</a> 也有一个<a href="https://github.com/rails/rails/blob/master/activerecord/CHANGELOG.md">详细的更新日志</a>包含相关的 issue 编号和贡献者。</p> <h2>总结</h2> <p>虽然一个更新日志不是我每天都想着要做的事情，如果我们频繁地从其他开发者中获取贡献并且定期发布我们的 gem 的新版本，为更变写文档是值得的。</p> <p>更新日志不仅仅适用于 Ruby gems 也可以被其他软件系统用于增量发布。我已经把它们用在多种需要跟踪意料外的功能变的情况下了。 这也能用 git 提交日志来实现。然而，如果你不熟悉项目的代码，单个的 git 提交用处就很小了。 在下一章，我们会讨论一个开源项目的贡献者的责任和我们如何提供价值反馈给 Ruby 社区。</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/how-to-build-ruby-gem/changelog"></script> </body> </html>

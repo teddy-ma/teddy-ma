@@ -1,0 +1,18 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_how-to-build-ruby-gem posts_how-to-build-ruby-gem_responsibility posts_how-to-build-ruby-gem_responsibility_index typo"> <article> <h1>构建一个 Ruby Gem 第八章 责任</h1> <p>发布一个 Ruby gem 的感觉是很棒的! 这种把你的工作成果公布并且让他人收益的行为是非常让人兴奋的. 然后, 伴随着这股力量的, 是责任.</p> <p>不再被维护的 gem 不是很难找. 无论是因为作者自己没兴趣了或者干脆放弃了, 这样的事情就是发生了.</p> <p>这种公布你自己的成果的兴奋感很快就会过去, 然后你将会对这个开源项目负起责任. 如果一个潜在的用户在 github 或者 Rubygems page 上看到这个项目, 他们会天真的以为这个项目是活跃的并且可信任的除非你特意告诉他们不是这样的.</p> <h2>移除它</h2> <p>如果你不再维护一个 gem, 帮社区一个忙, 做下面的事情:</p> <ol> <li>从 Rubygems 移除它</li> <li>从 Github 上移除它, 或者, 至少在 README 的最上方注明</li> </ol> <p>很多次,我们基于我们当前的需求构建 gems. 当这些需求改变了, 我们可能不再需要这个 gem 了, 那么这个项目就会慢慢死去.</p> <p>仅仅是因为我们, 作为最初的开发者, 不再觉得这个 gem 是有用的, 不意味着其他人也这样觉得. 如果我们觉得我们的 gem 仍然对社区有价值, 另一个选项是尝试去发现另一个维护者.</p> <h2>寻找另一个维护者</h2> <p>如果我们相信我们的 gem 的价值超越了我们自己使用的范围(看看 Github 的 start 数量和 Rubygems 的下载量), 我们可以在 README 上加上一个提示, 说明我们正在寻找一个或多个新的维护者. 如果有其他人觉得我们的工作有足够的价值, 他们通常会过来拯救的. 如果没有人这样觉得, 那项目就会慢慢死去. 至少当我们把项目从前面提到的资源中删除, 它也不会在社区中引起反响.</p> <h2>总结</h2> <p>当我第一次宣布我正在写这本书时, 有一些人表示担忧, 觉得这会导致很多试验型的 gem 被创建, 它们对社区没有价值. 我的目标是同时降低构建你自己的 gems 和为他人做贡献的门槛, 不是想通过任何形式去分裂社区. 我们可以确保的一种方法是, 社区, 作为一个完整无缺的整体, 努力去发现并给已经存在的项目做贡献当需要某个功能时. 已有的项目并不总是适合你的需求. 如果它们不是, 考虑给它们加功能而不是从头开始. 重新创造轮子是没用的. 快速的搜索一下 Google, Github 和 Ruby Toolbox 会给你一个良好的意识是否有一个带有特定功能的 gem 已经存在了.</p> <p>无论何时开源软件被创建和维护, 一份责任就出现了. 没有正式的规则. 我能给的最好的建议就是做正确的事. 这不一定就是最流行的选择, 但是大多数人有正确的是非观. 软件项目, 特别是开源的, 会因有品质的领导和决策中受益.</p> <p>在下一章, 我们会看看如果包含 Web 引擎, 测试帮助和核心扩展在一个 gem 中.</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/how-to-build-ruby-gem/responsibility"></script> </body> </html>

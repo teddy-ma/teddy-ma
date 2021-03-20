@@ -1,0 +1,197 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_difference-between-phoenix-and-rails posts_difference-between-phoenix-and-rails_index typo"> <article> <h1>Phoenix 与 Rails 有何不同</h1> <p><b>本文关于 OO 和 FP 观点有根本性错误，OO 和 FP 并不是互斥的关系， 应该说与函数式编程对应的是指令式编程</b></p> <p>对于不了解 Elixir 语言的同学，说到 Elixir，脑中的印象估计就是 “那个语法和 Ruby 很像的函数式编程语言“。 同样的，说起 Phoenix 框架，无非就是另一个 Rails-like 的 Web 框架。</p> <p>不过我最近正好有机会同时使用这两种框架，感觉两者的差异还是非常大的，趁此机会总结一下。</p> <p>两者同为 MVC 框架，但是 Ruby 是一门很彻底的面向对象的语言（当然它也有函数式的特性），而 Elixir 是纯函数式语言。 那么我们就来看看这两种编程范式在构建 MVC 应用时有哪些不同（所有对比都使用框架的默认配置）。</p> <h2>先看入口 Controller 吧</h2> <p>Controller 用于接收外部请求，并调用其他模块来完成业务逻辑，然后返回结果。 一般来说 Controller 中不要包含业务逻辑，要尽量简洁。 单个的 Controller 并没有什么好谈的，不过当它们组合起来时呢？</p> <p>拿最常见的用户验证功能来说，Rails 是这样做的</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">ProjectsController</span> &amp;amp;amp;lt; <span style="color:#036;font-weight:bold">ApplicationController</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">index</span>
+    <span style="color:#777"># ...</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">ApplicationController</span> &amp;amp;amp;lt; <span style="color:#036;font-weight:bold">ActionController</span>::<span style="color:#036;font-weight:bold">Base</span>
+  before_action <span style="color:#A60">:authenticate</span>
+
+  private
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">authenticate</span>
+    <span style="color:#777"># use devise or implement it by yourself</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <pre class=src lang=elixir>
+defmodule AuctionWeb.Admin.ProjectController do
+  use AuctionWeb, :controller
+  plug Guardian.Plug.EnsureResource, handler: AuctionWeb.Admin.AuthErrorHandler
+
+  def index(conn, _params) do
+    # ...
+  end
+end
+
+pipeline :unauthorized do
+  plug :fetch_session
+end
+
+pipeline :authorized do
+  plug :fetch_session
+  # use guarian or implement auth plug by yourself
+  plug Guardian.Plug.Pipeline, module: Auction.Guardian,
+    error_handler: Auction.AuthErrorHandler
+  plug Guardian.Plug.VerifySession
+  plug Guardian.Plug.LoadResource
+end
+
+scope &quot;/&quot;, AuctionWeb do
+  pipe_throught :unauthorized
+  post &quot;/sign-in&quot;, UserController, :sign_in
+  # other pages that no login needed
+end
+
+scope &quot;/&quot;, AuctionWeb do
+  pipe_throught :authorized
+  get &quot;/projects&quot;, ProjectController, :index
+  # other pages must login first
+end
+</pre> <p>不难发现两者在对 Controller 附加功能时策略的不同。 Rails 使用的是继承，通过在父类 Controller 中定义 <code>before_action</code> 方法来增加功能。</p> <p>而 Phoenix 则是使用管道（pipeline）来组合功能的，route 的配置不仅仅是 http url 的映射， 也是功能的组合配置，有点像 Java 的 Spring 框架，通过配置文件来实现解藕。</p> <p>那么如果有多个功能呢，假设有 a b c d 四个功能，而 project controller 只需要 a 和 c 两个功能。 那该如何实现呢？</p> <p>Rails 可以这么写：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">ProjectsController</span> &lt; <span style="color:#036;font-weight:bold">ApplicationController</span>
+  skip_before_action <span style="color:#A60">:function_b</span>, <span style="color:#A60">:function_d</span>
+
+   <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">index</span>
+     <span style="color:#777"># ...</span>
+   <span style="color:#080;font-weight:bold">end</span>
+ <span style="color:#080;font-weight:bold">end</span>
+
+ <span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">ApplicationController</span> &lt; <span style="color:#036;font-weight:bold">ActionController</span>::<span style="color:#036;font-weight:bold">Base</span>
+   before_action <span style="color:#A60">:function_a</span>, <span style="color:#A60">:function_b</span>, <span style="color:#A60">:function_c</span>, <span style="color:#A60">:function_d</span>
+
+   private
+   <span style="color:#777"># define function a b c d</span>
+ <span style="color:#080;font-weight:bold">end</span>
+</pre> <p>或者</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">ProjectsController</span> &lt; <span style="color:#036;font-weight:bold">ACController</span>
+   <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">index</span>
+     <span style="color:#777"># ...</span>
+   <span style="color:#080;font-weight:bold">end</span>
+ <span style="color:#080;font-weight:bold">end</span>
+
+ <span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">ACController</span> &lt; <span style="color:#036;font-weight:bold">ActionController</span>::<span style="color:#036;font-weight:bold">Base</span>
+   before_action <span style="color:#A60">:function_a</span>, <span style="color:#A60">:function_c</span>
+
+   private
+   <span style="color:#777"># define function a c</span>
+ <span style="color:#080;font-weight:bold">end</span>
+</pre> <p>那么如果 <code>order_controller</code> 需要方法 <code>a</code> <code>b</code> 和 <code>c</code> 呢？</p> <p>可以定义一个 <code>BCController</code> ， 然后让 <code>order_controller</code> 继承 <code>BCController</code></p> <p>或者继承 <code>ABCDController</code> ，然后在 <code>order_controller</code> 中 skip 掉 d</p> <p>继承需要子类了解自己父类的细节，视情况 skip 掉自己不需要的。 这在父类职责很多的情况下，会加重子类的负担。</p> <p>这就是单继承的缺点。 Rails 使用这种方法自然也就继承了这个缺点。</p> <p>至于 Phoenix 的写法就灵活多了。可以这么写：</p> <pre class=src lang=elixir>
+pipeline :ac do
+  # plug a
+  # plug c
+end
+
+pipeline :abc do
+  # plug a
+  # plug b
+  # plug c
+end
+
+scope &quot;/&quot;, AuctionWeb do
+  pipe_throught :ac
+  # project
+end
+scope &quot;/&quot;, AuctionWeb do
+  pipe_throught :abc
+  # order
+end
+</pre> <p>或者</p> <pre class=src lang=elixir>
+defmodule AuctionWeb.Admin.ProjectController do
+  use AuctionWeb, :controller
+  plug Plug.A
+  plug Plug.C
+
+  def index(conn, _params) do
+    # ...
+  end
+end
+
+defmodule AuctionWeb.Admin.OrderController do
+  use AuctionWeb, :controller
+  plug Plug.A
+  plug Plug.B
+  plug Plug.C
+
+  def index(conn, _params) do
+    # ...
+  end
+end
+</pre> <p>非常灵活，通用的情况可以在 routes 中统一配置，对于特殊情况也可以在具体 controller 中定义专门的 Plug</p> <p>这是单继承无法实现的。</p> <p>总结：Phoenix 的配置方法能让 controller 更符合单一职责原则，不需要关心权限验证，请求格式之类的功能， 只需要专心处理业务逻辑的指派和结果的返回。</p> <h2>再来看看应用的核心 model 吧</h2> <p>Model 是一个应用的核心，理所当然的，这一层的职责也是最多的。</p> <p>那么，Rails 中的 Model，它的职责有哪些呢？</p> <ol> <li>持久化数据 (<code>model.save</code> <code>model.update</code> 等)</li> <li>展示数据 (<code>model.full_name</code> <code>model.to_json</code> 等)</li> <li>创建和查找数据 （ <code>Model.find(id)</code> <code>Model.create(attrs)</code> 等）</li> </ol> <p>这些职责明显太多了，不符合单一职责原则。</p> <p>这里就讲一个例子，Rails 中常见的 N + 1 query 问题。 表面上，出现 N + 1 问题会频繁访问数据库影响性能，但究其根本，就是职责的划分不明确，（访问数据库的功能和页面展示的功能混在一起）。</p> <p>而 Phoenix 使用 Repo （仓储模式）分离了与数据库交互的相关职责，在 Phoenix 中，一个 model 就是内存中的一个数据结构， 无论怎么折腾，都不会和数据库产生关系，其实这也是纯函数式编程范式的一个“副作用”，model 无法“自己”进行数据库操作。</p> <p>说到数据库，顺便提一下，分离职责后，测试也会变得更容易，想象一下， 如果 Rails 要测试一个 Model 的序列化结果，就必须先在测试数据库中新建一条测试记录, 然后才能对这个 model 进行测试， 无论要测试的功能是不是和数据库有关，这也是一种浪费。</p> <p>另外 Rails 中的 Model 还肩负着 validation 的职责，它具有一定的 context 能力， 比如 <code>on: :create</code> <code>on: :update</code> ，新版的 Rails 还增加了 context 的声明。 不过这样的设计在我看来只会让 model 变得更大更乱，远不如 Phoenix 的组装式的 valiate 来的方便。</p> <pre class=src lang=elixir>
+# user can only change name
+def user_changeset(%Category{} = category, params \\ %{}) do
+  category
+  |&gt; cast(params, [:name])
+  |&gt; validate_required([:name])
+end
+
+# admin can change name and priority
+def admin_changeset(%Category{} = category, params \\ %{}) do
+  category
+  |&gt; cast(params, [:name, :priority])
+  |&gt; validate_required([:name])
+end
+</pre> <p>针对上面提到的三点，我们来试着用 phoenix “矫枉过正”一下, 因为 Elixir 是一门纯函数式的语言, 只有属性，没有方法。</p> <h3>持久化数据</h3> <p>前面提到了 Phoenix 中，Model 无法自己对自己进行持久化。 它的解决方法是引入 Repo 和 ChangeSet 所有持久化的操作，用 ChangeSet 进行验证和过滤， 再经由 Repo 保存到数据库，这个过程中可以用 ChangeSet 来对验证和过滤进行更细粒度的划分， Repo 在有多种数据源的情况下也更灵活。</p> <pre class=src lang=elixir>
+bid
+|&gt; cast(attrs, @permit_keys)
+|&gt; validate_required(@required_keys)
+|&gt; price_validation
+|&gt; product_expire_validation
+|&gt; apply_invoice_number
+|&gt; Repo.insert()
+</pre> <p>其中 <code>permit_keys</code> 和 <code>required_keys</code> 都可以很容易的进行修改。</p> <h3>展示数据</h3> <p>这块内容会在下面的 View 层中细说。</p> <h3>创建和查找数据</h3> <p>Rails 中查找和创建数据都是调用的 Model 的类方法。虽然类和实例是不同的，但是代码都是写在类中的。。。 这也会导致 Model 的膨胀，虽然 ActiveRecord 的链式调用和 scope 等做法可以大幅减少编写的代码量， 但是从设计上说问题依旧，而且对链式调用的滥用也是对代码质量的巨大危害（很容易就会在 view 中调用很多数据库相关操作）。</p> <p>而 Phoenix 中，还是通过 Repo 来创建和查找数据的。这样一来，所有的查找都可以放到一个统一的地方，不用都挤在 Model 中了。 相比 Rails 的链式调用，Phoenix 中可以通过组合 query 来达到类似的效果，并且最终还是需要通过 Repo 来访问数据库， 在分离职责的同时又保留了灵活性。</p> <pre class=src lang=elixir>
+def products_by(user) do
+  from p in Product,
+    where: p.user_id == ^user.id,
+    order_by: [desc: :expire_at]
+end
+
+def pending_products_by(user) do
+  products_by(user) |&gt; where([p], p.expire_at &gt;= ^DateTime.utc_now)
+end
+
+def successful_products_by(user) do
+  from p in products_by(user),
+    where: p.expire_at &lt;= ^DateTime.utc_now
+end
+
+Repo.query(xxx)
+</pre> <p>总体来说，Phoenix 的结构更为松散，对需求变化的应对能力也更强。</p> <h2>再看看 View 层</h2> <p>View 层当然也是有逻辑的，比如现在有一个需求，已知用户在注册后（需要填写 email），可以选择进一步输入完整个人信息。 如果没有输入过个人信息，则在个人面板只能看到自己的 email 地址，有完整信息则显示全名。</p> <p>Phoenix 有一个 View 层，其实 Rails 有一个对应的层叫 helper。 因为 Rails 的 helper 一般都是纯函数的实现，所以两者并没什么区别， 唯一的小问题就是 Rails 的 helper 方法在默认设置下会被全部引入，容易产生函数名重复的问题。</p> <pre class=src lang=elixir>
+def display_name(user) do
+  case user.profile do
+    nil -&gt; user.email
+    -   -&gt; user.profile.full_name
+  end
+end
+</pre> <p>View 方面两者相差不大，不过 Phoenix 的纯函数特性让强迫我们去使用 View 层， 而 Rails 虽然有同样功能的 helper，但是因为在 model 中写逻辑太方便了，反而容易造成职责的划分不清。</p> <h2>最后说说 Phoenix 1.3 引入的 Context 概念</h2> <p>在一个 Rails 应用中，在编写跨表（模型）的业务逻辑时，总会觉得没地方下手， 如果放在 model 中，那么本来就已经很臃肿的 model 就会更加膨胀， 如果放在 controller 或 view 中，这两个地方又明显不是存放大量业务逻辑代码的地方。 而 Phoenix 从 1.3 开始引入了 Context 这个概念来解决这个问题。</p> <p>Context 是 Domain Drive Design 中的一个概念。简单来举个例子。 一个用户，可以登陆系统，可以对产品下单，这两个是相对独立的功能。 在登陆上下文中，不需要关注和订单相关的用户信息。 在下单时，虽然有要求用户必须先登陆，但那也是 controller 的职责， 对于订单模块而言，只需要知道是哪个用户要下单即可，并不需要知道 auth 的细节。</p> <p>在 Rails 中，通常需要这样的代码来实现。</p> <p>登陆：</p> <pre class=src lang=ruby>
+user = <span style="color:#036;font-weight:bold">User</span>.find(<span style="color:#606">email</span>: xxx)
+<span style="color:#080;font-weight:bold">if</span> user
+  <span style="color:#080;font-weight:bold">if</span> user.authentication
+    <span style="color:#777"># login</span>
+  <span style="color:#080;font-weight:bold">else</span>
+    <span style="color:#777"># error</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">else</span>
+  <span style="color:#777"># error</span>
+<span style="color:#080;font-weight:bold">end</span>
+
+</pre> <p>下单：</p> <pre class=src lang=ruby>
+current_user.orders.create(params)
+</pre> <p>这样的问题是，controller 需要知道太多的 model 的细节， 登陆例子中处理了太多逻辑细节，用户不存在和用户存在但密码不对。 下单例子中涉及到了 user 和 order 的数据结构的关系细节。 不符合最少知识原则。</p> <p>而 Phoenix 中，使用 Context，就可以减少 controller 与 model 之间的耦合。</p> <p>Controller 只和 Context 有交集，不需要知道 model 的内部构造（user.orders）和接口（user.authication）。</p> <h2>总结</h2> <p>看到这里，一定有同学会说，Rails 中可以使用 Service 层，或者通过 concerns 等方法把逻辑抽取到其他地方。 我想说，首先，本文开头就说了我对两者的比较是基于默认配置下的，而且，如果你这么想了， 那正是我所希望的，框架除了能方便开发者之外，更应该是一种最佳实战的学习，Rails 普及了 RESTFul 和约定大于配置的思想。 那么 Phoenix 值得我们学习的就是对于逻辑的分离（职责的划分），不论你是否真的要用 Phoenix 来开发应用， 都应该学学不同的框架（思想）。</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/difference-between-phoenix-and-rails"></script> </body> </html>

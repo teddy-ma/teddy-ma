@@ -1,0 +1,458 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_how-to-build-ruby-gem posts_how-to-build-ruby-gem_configuration-patterns posts_how-to-build-ruby-gem_configuration-patterns_index typo"> <article> <h1>构建一个 Ruby Gem 第十一章 配置模式</h1> <p>世界并非非黑即白（无论我们多么希望它是那样的）。因为我们的 gem 的功能可能能为我们工作，并不意味着它能为所有人工作。 幸运的是，我们可以给用户加入自定义配置数据的能力，允许他们适配我们的代码为他们所用。 在本章中，我们将会适配 <code>mega_lotto</code> gem 来获取一个配置块来修改 #draw 方法返回的数字的数量。</p> <h2>用例</h2> <p>我们的 mega_lotto gem 提供了功能来随机画出6个数字。然而，让我们假设某人对我们的 gem 的代码感兴趣，但是需要代码去产生 10 个随机数字在相同的范围内。</p> <p>他们的一个选择是 fork 代码并且修改 gem 来适应他们的需求。 然而，现在有一个随机 fork 的 gem 有着同样的名字并且它是不清晰的为什么一个应该被使用而不是另一个，特别是如果没有 <code>README</code> 说明了这些变更。</p> <p>不必像上面说的那样做，我们可以使得我们的 mega_lotto gem 更加灵活通过默认返回6个数字，但是可以提供一个接口来自定义这个返回数量的值。</p> <p>我们的目标是适配我们的 gem 来获取配置块就像这样：</p> <pre class=src lang=ruby>
+<span style="color:#036;font-weight:bold">MegaLotto</span>.configure <span style="color:#080;font-weight:bold">do</span> |config|
+  config.drawing_count = <span style="color:#00D">10</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <h2>实现</h2> <p>让我们首先写一些功能需求的规范。因为 <code>.configure</code> 方法上面的是在 MegaLotto 的主命名空间中的，我们将会创建 spec 文件 <code>spec/mega_lotto_spec.rb</code> 。 要使用这个 spec, 我们将会断言在运行配置块后, <code>#drawing</code> 方法返回一个数组(和以前一样)，但是这次里面会有10个数字。</p> <pre class=src lang=ruby>
+require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">spec_helper</span><span style="color:#710">&quot;</span></span>
+
+describe <span style="color:#036;font-weight:bold">MegaLotto</span> <span style="color:#080;font-weight:bold">do</span>
+  describe <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">#configure</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+    before <span style="color:#080;font-weight:bold">do</span>
+      <span style="color:#036;font-weight:bold">MegaLotto</span>.configure <span style="color:#080;font-weight:bold">do</span> |config|
+        config.drawing_count = <span style="color:#00D">10</span>
+      <span style="color:#080;font-weight:bold">end</span>
+    <span style="color:#080;font-weight:bold">end</span>
+
+    it <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">returns an array with 10 elements</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+      draw = <span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">Drawing</span>.new.draw
+      expect(draw).to be_a(<span style="color:#036;font-weight:bold">Array</span>)
+      expect(draw.size).to eq(<span style="color:#00D">10</span>)
+    <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>这个 spec 提供了一个高层的集成规范因为它是我们的 gem 的一个可得到的公用 API。正因如此，我们可以确保一旦这个 spec 通过了，我们的实现就完成了。 和意料中的一样，当我们运行这个 spec，它失败了：</p> <p>现在我们有一个 spec 来工作了。让我们继续我们的实现。</p> <p>上面的失败解释说没有 <code>MegaLotto.configure</code> 方法, 所以让我们加上它：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#069">self</span>.<span style="color:#06B;font-weight:bold">configure</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>重新运行我们的 spec 这次给了我们一个不同的失败消息：</p> <p>输出表明代码还是返回6个数字，我们预期不同因为我们的 .configure 方法还没被实现呢。</p> <p>因为我们在使用一门面向对象的语言比如 Ruby，我们可以创建一个 Configuration 类，它的职责是&#8230;(咚咚咚)&#8230; 配置！</p> <p>让我们用一些规范来开始吧。</p> <pre class=src lang=ruby>
+<span style="color:#777"># spec/mega_lotto/configuration_spec.rb</span>
+
+require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">spec_helper</span><span style="color:#710">&quot;</span></span>
+
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+  describe <span style="color:#036;font-weight:bold">Configuration</span> <span style="color:#080;font-weight:bold">do</span>
+    describe <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">#drawing_count</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+      it <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">default value is 6</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+        <span style="color:#036;font-weight:bold">Configuration</span>.new.drawing_count = <span style="color:#00D">6</span>
+      <span style="color:#080;font-weight:bold">end</span>
+    <span style="color:#080;font-weight:bold">end</span>
+
+    describe <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">#drawing_count=</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+      it <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">can set value</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+        config = <span style="color:#036;font-weight:bold">Configuration</span>.new config.drawing_count = <span style="color:#00D">7</span>
+        expect(config.drawing_count).to eq(<span style="color:#00D">7</span>)
+      <span style="color:#080;font-weight:bold">end</span>
+    <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>运行这个配置的 specs 产生了如下结果：</p> <pre class=src lang=ruby>
+<span style="background-color:hsla(300,100%,50%,0.06)"><span style="color:#404">/</span><span style="color:#808">Users</span><span style="color:#404">/</span></span>bhilkert/<span style="color:#036;font-weight:bold">Dropbox</span>/code/mega_lotto/spec/ mega_lotto/configuration_spec.rb:<span style="color:#00D">4</span><span style="color:#A60">:in</span> <span style="background-color:hsla(120,100%,50%,0.06)"><span style="color:#161">`</span><span style="color:#2B2">&lt;module:MegaLotto&gt;</span><span style="color:#161">`</span></span>: uninitialized constant <span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">Configuration</span> (<span style="color:#036;font-weight:bold">NameError</span>)
+</pre> <p>让我们添加 <code>Configuration</code> 类</p> <pre class=src lang=ruby>
+<span style="color:#777"># lib/mega_lotto/configuration.rb</span>
+
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+  <span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Configuration</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>让我们再试试：</p> <pre class=example>
+/Users/bhilkert/Dropbox/code/mega_lotto/spec/ mega_lotto/configuration_spec.rb:4:in `&lt;module:MegaLotto&gt;`: uninitialized constant MegaLotto::Configuration (NameError)
+</pre> <p>什么？？？ 一样的消息...... 即使我们加入了 Configuration 类，我们的 gem 也不会自动加载它。所以我们可以深入入口文件 <code>lib/mega_lotto.rb</code> 并且加入 require 声明：</p> <pre class=src lang=ruby>
+require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">mega_lotto/version</span><span style="color:#710">&quot;</span></span>
+require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">mega_lotto/configuration</span><span style="color:#710">&quot;</span></span>
+require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">mega_lotto/drawing</span><span style="color:#710">&quot;</span></span>
+
+<span style="color:#080;font-weight:bold">begin</span>
+  require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">pry</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">rescue</span> <span style="color:#036;font-weight:bold">LoadError</span>
+<span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#069">self</span>.<span style="color:#06B;font-weight:bold">configure</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>现在有了 Configuration 类正确的加载，让我们再一次运行我们的 specs</p> <pre class=example>
+MegaLotto::Configuration
+
+  #drawing_count
+
+default value is 6 (FAILED - 1)
+
+  #drawing_count=
+
+can set value (FAILED - 2) Failures:
+
+- 1) &amp;amp;nbsp;&amp;amp;nbsp;MegaLotto::Configuration#drawing_count default value is 6 Failure/Error: expect(config.drawing_count).to eq(6) NoMethodError:
+undefined method `drawing_count` for #&amp;lt;MegaLotto::Configuration&amp;gt; # ./spec/mega_lotto/configuration_spec.rb:8
+
+- 2) &amp;amp;nbsp;&amp;amp;nbsp;MegaLotto::Configuration#drawing_count= can set value Failure/Error: config.drawing_count = 7 NoMethodError:
+
+- undefined method `drawing_count=` for #&amp;lt;MegaLotto::Configuration&amp;gt; # ./spec/mega_lotto/configuration_spec.rb:15
+
+Finished in 0.00175 seconds
+2 examples, 2 failures
+</pre> <p>即使我们依然失败了，但是我们有进步了。上面的失败是关于的是缺少一个 <code>#draing_count</code> 方法，所以让我们为了它加入一个 accessor：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+  <span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Configuration</span>
+    attr_accessor <span style="color:#A60">:drawing_count</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>注意：我们可以仅仅加入一个 attr_writer 来满足这个需求。然而，我知道我将来还是需要一个 getter 的，所以我选择一次性一起加上。</p> <p>我们的 accessor 到位了，让我们再检查一下 specs：</p> <pre class=example>
+MegaLotto::Configuration
+  #drawing_count=
+    can set value
+  #drawing_count
+
+default value is 6 (FAILED - 1) Failures:
+
+1) MegaLotto::Configuration#drawing_count default value is 6 Failure/Error: expect(config.drawing_count).to eq(6)
+
+      expected: 6
+            got: nil
+
+(compared using ==)
+# ./spec/mega_lotto/configuration_spec.rb:8
+
+Finished in 0.00239 seconds
+2 examples, 1 failure
+</pre> <p>仍然是一个失败，但是我们已经在缓慢的进步了。默认值没有被设置，所以我们要改变实现：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+  <span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Configuration</span>
+    attr_accessor <span style="color:#A60">:drawing_count</span>
+
+    <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">initialize</span>
+      <span style="color:#33B">@drawing_count</span> = <span style="color:#00D">6</span>
+    <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>再次运行 specs 来看看 Configuration 类是否正常：</p> <pre class=example>
+MegaLotto::Configuration
+
+  #drawing_count
+
+    default value is 6
+
+  #drawing_count=
+
+can set value
+
+Finished in 0.00172 seconds
+2 examples, 0 failures
+</pre> <p>再次运行 spec/mega_lotto.rb 主类：</p> <pre class=example>
+MegaLotto
+#configure
+returns an array with 10 elements (FAILED - 1) Failures:
+1) MegaLotto#configure returns an array with 10 elements Failure/Error: expect(draw.size).to eq(10)
+
+      expected: 10
+            got: 6
+
+(compared using ==)
+# ./spec/mega_lotto_spec.rb:15:in `block (3 levels) in &lt;top (required)&gt;&#39;
+
+Finished in 0.00168 seconds
+1 example, 1 failure
+</pre> <p>我们仍然有同样的失败，但这是因为我们没有改变 MegaLotto::Drawing 来确保使用新的配置类。因为我们有这个碉堡的新类，让我们使用 MegaLotto::Drawing：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+  <span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Drawing</span>
+    <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">draw</span>
+      <span style="color:#036;font-weight:bold">MegaLotto</span>.configuration.drawing_count.times.map { single_draw }
+    <span style="color:#080;font-weight:bold">end</span>
+
+    private
+
+    <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">single_draw</span> rand(<span style="color:#00D">0</span>...<span style="color:#00D">60</span>)
+
+    <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>运行 draing 类的 specs 给了我们如下的输出：</p> <pre class=example>
+MegaLotto::Drawing
+#draw
+
+each element is less than 60 (FAILED - 1) each element is an integer (FAILED - 2) returns an array (FAILED - 3)
+using the default drawing count
+
+returns an array with 6 elements (FAILED - 4) Failures:
+
+- 1) &amp;nbsp;&amp;nbsp;MegaLotto::Drawing#draw each element is less than 60 Failure/Error: let(:draw) { MegaLotto::Drawing.new.draw } NoMethodError:
+
+- undefined method `configuration` for MegaLotto:Module # ./lib/mega_lotto/drawing.rb:4:in `draw&#39;
+- # ./spec/mega_lotto/drawing_spec.rb:6
+# ./spec/mega_lotto/drawing_spec.rb:19
+
+- 2) &amp;nbsp;&amp;nbsp;MegaLotto::Drawing#draw each element is an integer Failure/Error: let(:draw) { MegaLotto::Drawing.new.draw } NoMethodError:
+
+- undefined method `configuration` for MegaLotto:Module # ./lib/mega_lotto/drawing.rb:4:in `draw&#39;
+- # ./spec/mega_lotto/drawing_spec.rb:6
+# ./spec/mega_lotto/drawing_spec.rb:13
+
+- 3) &amp;nbsp;&amp;nbsp;MegaLotto::Drawing#draw returns an array
+Failure/Error: let(:draw) { MegaLotto::Drawing.new.draw } NoMethodError:
+
+- undefined method `configuration` for MegaLotto:Module # ./lib/mega_lotto/drawing.rb:4:in `draw&#39;
+- # ./spec/mega_lotto/drawing_spec.rb:6
+# ./spec/mega_lotto/drawing_spec.rb:9
+
+- 4) &amp;nbsp;&amp;nbsp;MegaLotto::Drawing#draw using the default drawing count returns an array with 6 elements
+Failure/Error: let(:draw) { MegaLotto::Drawing.new.draw } NoMethodError:
+
+- undefined method `configuration` for MegaLotto:Module # ./lib/mega_lotto/drawing.rb:4:in `draw&#39;
+- # ./spec/mega_lotto/drawing_spec.rb:6
+# ./spec/mega_lotto/drawing_spec.rb:26
+</pre> <p>好吧...... 我猜想这很清楚了，是没有一个配置的 accessor, 对吧？让我们把它加入到 lib/mega_lotto.rb 中：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+  <span style="color:#080;font-weight:bold">class</span> &lt;&lt; <span style="color:#B06;font-weight:bold">self</span>
+    attr_accessor <span style="color:#A60">:configuration</span>
+  <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#069">self</span>.<span style="color:#06B;font-weight:bold">configure</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>以及我的 specs：</p> <pre class=example>
+
+MegaLotto::Drawing
+
+#draw
+
+each element is less than 60 (FAILED - 1) each element is an integer (FAILED - 2) returns an array (FAILED - 3)
+using the default drawing count
+
+returns an array with 6 elements (FAILED - 4) Failures:
+
+- 1) &amp;nbsp;&amp;nbsp;MegaLotto::Drawing#draw each element is less than 60 Failure/Error: let(:draw) { MegaLotto::Drawing.new.draw } NoMethodError:
+
+- undefined method `drawing_count` for nil:NilClass # ./lib/mega_lotto/drawing.rb:4:in `draw&#39;
+- # ./spec/mega_lotto/drawing_spec.rb:6
+# ./spec/mega_lotto/drawing_spec.rb:19
+
+- 2) &amp;nbsp;&amp;nbsp;MegaLotto::Drawing#draw each element is an integer Failure/Error: let(:draw) { MegaLotto::Drawing.new.draw } NoMethodError:
+
+- undefined method `drawing_count` for nil:NilClass # ./lib/mega_lotto/drawing.rb:4:in `draw&#39;
+- # ./spec/mega_lotto/drawing_spec.rb:6
+# ./spec/mega_lotto/drawing_spec.rb:13
+
+- 3) &amp;nbsp;&amp;nbsp;MegaLotto::Drawing#draw returns an array
+Failure/Error: let(:draw) { MegaLotto::Drawing.new.draw } NoMethodError:
+
+- undefined method `drawing_count` for nil:NilClass # ./lib/mega_lotto/drawing.rb:4:in `draw&#39;
+- # ./spec/mega_lotto/drawing_spec.rb:6
+# ./spec/mega_lotto/drawing_spec.rb:9
+
+- 4) &amp;nbsp;&amp;nbsp;MegaLotto::Drawing#draw using the default drawing count returns an array with 6 elements
+Failure/Error: let(:draw) { MegaLotto::Drawing.new.draw } NoMethodError:
+
+- undefined method `drawing_count` for nil:NilClass # ./lib/mega_lotto/drawing.rb:4:in `draw&#39;
+- # ./spec/mega_lotto/drawing_spec.rb:6
+# ./spec/mega_lotto/drawing_spec.rb:26
+
+
+
+Finished in 0.00146 seconds
+4 examples, 4 failures
+</pre> <p>这次是一个不同的消息, 关于 configuration 的 accessor 没有 #drawing_count 方法。 这很重要因为我们事实上没有从 #configuration 中返回任何东西。 让我们实例一个新的 Configuration 对象并且看看它给了我们什么：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+  <span style="color:#080;font-weight:bold">class</span> &lt;&lt; <span style="color:#B06;font-weight:bold">self</span>
+    attr_writer <span style="color:#A60">:configuration</span>
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#069">self</span>.<span style="color:#06B;font-weight:bold">configuration</span>
+    <span style="color:#036;font-weight:bold">Configuration</span>.new
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#069">self</span>.<span style="color:#06B;font-weight:bold">configure</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>现在，Drawing 类的 specs 通过了：</p> <pre class=example>
+MegaLotto::Drawing
+
+#draw
+
+    each element is an integer
+    each element is less than 60
+    returns an array
+    using the default drawing count
+
+
+
+
+
+      returns an array with 6 elements
+
+
+
+
+
+Finished in 0.01007 seconds
+4 examples, 0 failures
+</pre> <p>让我们翻回去看看 spec/mega_lotto_spec.rb 来确定我们的位置：</p> <pre class=example>
+MegaLotto
+
+#configure
+
+returns an array with 10 elements (FAILED - 1) Failures:
+
+1) MegaLotto#configure returns an array with 10 elements Failure/Error: expect(draw.size).to eq(10)
+
+      expected: 10
+            got: 6
+
+
+
+
+
+(compared using ==)
+# ./spec/mega_lotto_spec.rb:15
+
+Finished in 0.00167 seconds
+1 example, 1 failure
+</pre> <p>还是失败，但是至少我们已经看到了设置一个全局的配置文件大概是什么样子了。.configure 方法需要 yield 配置的代码块对于一个 Configuration 类的新的实例。 然而，我们将会需要记住配置的实例，所以当 Drawing 类调用 #draing_count 时，它返回了初始化的配置值。</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+  <span style="color:#080;font-weight:bold">class</span> &lt;&lt; <span style="color:#B06;font-weight:bold">self</span>
+    attr_writer <span style="color:#A60">:configuration</span>
+  <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#069">self</span>.<span style="color:#06B;font-weight:bold">configuration</span>
+    <span style="color:#33B">@configuration</span> ||= <span style="color:#036;font-weight:bold">Configuration</span>.new
+  <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#069">self</span>.<span style="color:#06B;font-weight:bold">configure</span>
+    <span style="color:#080;font-weight:bold">yield</span>(configuration)
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>再次运行我们的 specs， 我们看到这次我们的测试通过了：</p> <pre class=example>
+MegaLotto
+
+#configure
+
+    returns an array with 10 elements
+
+
+
+
+
+Finished in 0.00168 seconds
+1 example, 0 failures
+</pre> <p>为了清醒的缘故，让我们运行整个测试套件来确定每种情况都被覆盖到了：</p> <pre class=example>
+$ rake
+.......
+
+Finished in 0.00688 seconds
+7 examples, 0 failures
+</pre> <p>......我们棒极了！除了，如果我们运行我们的整个测试套件在同一行几次，我们最终会看到一个失败：</p> <pre class=example>
+Failures:
+
+1) MegaLotto::Drawing#draw returns an Array with 6 elements Failure/Error: expect(drawing.size).to eq(6)
+
+      expected: 6
+            got: 10
+
+
+
+
+
+(compared using ==)
+# ./spec/mega_lotto/drawing_spec.rb:13
+
+Finished in 0.00893 seconds
+7 examples, 1 failure
+</pre> <p>怎么回事？？？在我们的 MegaLotto.configure 设置中，我们添加了下面这个代码块：</p> <pre class=src lang=ruby>
+before <span style="color:#A60">:each</span> <span style="color:#080;font-weight:bold">do</span>
+  <span style="color:#036;font-weight:bold">MegaLotto</span>.configure <span style="color:#080;font-weight:bold">do</span> |config|
+    config.drawing_count = <span style="color:#00D">10</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>因为配置是全局的，如果这个 spec 在我们的测试套件的别的测试之前，剩下的 specs 会使用它。 所以当 MegaLotto::Drawing 的 specs 运行时，就会返回 10 个元素而不是 6 个（默认的数量），然后我们就会看到失败了。</p> <p>对于想这样的全局状态，最好是在每个 spec 运行之后清理一下来确保系统已经返回到了默认的状态。 对于我们目前的情况，我们可以实现一个 .reset 方法在 MegaLotto 并且设置配置返回一个新的 Configuration 类实例。让我们从 spec/mega_lotto_spec.rb 开始把：</p> <pre class=src lang=ruby>
+describe <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">.reset</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+  before <span style="color:#A60">:each</span> <span style="color:#080;font-weight:bold">do</span>
+    <span style="color:#036;font-weight:bold">MegaLotto</span>.configure <span style="color:#080;font-weight:bold">do</span> |config|
+      config.drawing_count = <span style="color:#00D">10</span>
+    <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">end</span>
+
+  it <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">resets the configuration</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+    <span style="color:#036;font-weight:bold">MegaLotto</span>.reset
+    config = <span style="color:#036;font-weight:bold">MegaLotto</span>.configuration
+    expect(config.drawing_count).to eq(<span style="color:#00D">6</span>)
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>正如期待的那样，我们看到了失败因为我们还没有实现 .reset 方法：</p> <pre class=example>
+Failures:
+
+1) MegaLotto.reset resets the configuration Failure/Error: MegaLotto.reset NoMethodError:
+
+undefined method `reset` for MegaLotto:Module # ./spec/mega_lotto_spec.rb:28
+
+Finished in 0.00762 seconds
+8 examples, 1 failure
+</pre> <p>让我们来实现它：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+  <span style="color:#080;font-weight:bold">class</span> &lt;&lt; <span style="color:#B06;font-weight:bold">self</span>
+    attr_writer <span style="color:#A60">:configuration</span>
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#069">self</span>.<span style="color:#06B;font-weight:bold">configuration</span>
+    <span style="color:#33B">@configuration</span> ||= <span style="color:#036;font-weight:bold">Configuration</span>.new
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#069">self</span>.<span style="color:#06B;font-weight:bold">reset</span>
+    <span style="color:#33B">@configuration</span> = <span style="color:#036;font-weight:bold">Configuration</span>.new
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#069">self</span>.<span style="color:#06B;font-weight:bold">configure</span>
+    <span style="color:#080;font-weight:bold">yield</span>(configuration)
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>我们的 .reset 方法的 specs 通过了，所以现在我们需要确保它是否在我们的 .configure spec 中起到了清理的作用：</p> <pre class=src lang=ruby>
+describe <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">#configure</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+
+  before <span style="color:#A60">:each</span> <span style="color:#080;font-weight:bold">do</span>
+    <span style="color:#036;font-weight:bold">MegaLotto</span>.configure <span style="color:#080;font-weight:bold">do</span> |config|
+      config.drawing_count = <span style="color:#00D">10</span>
+    <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">end</span>
+  it <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">returns an array with 10 elements</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+    draw = <span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">Drawing</span>.new.draw
+    expect(draw).to be_a(<span style="color:#036;font-weight:bold">Array</span>)
+    expect(draw.size).to eq(<span style="color:#00D">10</span>)
+  <span style="color:#080;font-weight:bold">end</span>
+  after <span style="color:#A60">:each</span> <span style="color:#080;font-weight:bold">do</span>
+    <span style="color:#036;font-weight:bold">MegaLotto</span>.reset
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>现在我们可以确保我们的 specs 通过了，无论执行的顺序如何。</p> <h2>本地配置</h2> <p>上面的配置方式是一个全局的配置对象。这种做法的坏处是我们不能有多个实例在我们的代码运行时有不通的配置。为了避免这种情况，我们可以独立配置类并且仅仅传给需要的对象。 这样做，我们可以避免全局使用 MegaLotto.configure。</p> <p>按照这个思路，我们的 MegaLotto::Drawing 类看起来就像这样：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+  <span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Drawing</span>
+    attr_accessor <span style="color:#A60">:config</span>
+
+    <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">initialize</span>(config = <span style="color:#036;font-weight:bold">Configuration</span>.new)
+      <span style="color:#33B">@config</span> = config
+    <span style="color:#080;font-weight:bold">end</span>
+
+    <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">draw</span>
+      config.drawing_count.times.map { single_draw }
+    <span style="color:#080;font-weight:bold">end</span>
+
+    private
+    <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">single_draw</span> rand(<span style="color:#00D">0</span>...<span style="color:#00D">60</span>)
+    <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>我们可以提供我们自己的配置对象在实例化期间如果默认的不合适的话。这样，只要对象可以响应 drawing_count, 就没问题了。</p> <pre class=src lang=ruby>
+require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">ostruct</span><span style="color:#710">'</span></span>
+config = <span style="color:#036;font-weight:bold">OpenStruct</span>.new(<span style="color:#606">drawing_count</span>: <span style="color:#00D">10</span>)
+
+<span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">Drawing</span>.new(config).draw <span style="color:#777">#=&gt; [23, 4, 21, 33, 48, 12, 43, 13, 2, 5]</span>
+</pre> <p>两种方式都是有效的，所以我们让你自己来决定在你的 gem 中使用哪一种。</p> <h2>真实世界的例子</h2> <p>这个 CarrierWave gem 是一个很热门的支持上传头像的可选项。作者(们)认识到不是每个人都想要上传图片到本地系统，所以他们提供了功能来支持 Amazon S3 和其他类似的储存服务。 为了设置这个值，你要使用一个几乎和我们上面写的一模一样的配置代码块。</p> <p>Thoughtbot 写了一篇很好的文章关于他们的 Clearance gem 的配置实现。即使你不打算使用 Clearance，这篇文章也值得一读。</p> <h2>总结</h2> <p>保持 gem 的可配置是一个平衡你的用例和其他人的用例的一个结果。有一点需要注意的是如果提供了太多的配置可能会让你的 gem 的内部不必要的复杂化。 正如你大概知道的，Ruby 是一个充满了配置的语言，并且它也提供合理的默认配置，只接收配置如果需求出现的话。</p> <p>一种平衡复杂性的方法是创建一个系统，用户可以编写他们自己的中间件来修改默认系统的行为。 Mike Perham 为 Sidekq 创建了一个中间件系统，让用户可以如他们所愿的添加自己的功能。这样做就不用在出现唯一的用例时改变 gem。 要实现这样的系统超出了本书的范围。然而，如果你想要学习更多，Sidekiq 的实现是一个很好的开始的地方。</p> <p>下一章将会是第一个关于 Rails 的整合的章节。我们将会看到几个方法来整合我们的代码到 Rails 并且探索使用 Railties 的好处。</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/how-to-build-ruby-gem/configuration-patterns"></script> </body> </html>

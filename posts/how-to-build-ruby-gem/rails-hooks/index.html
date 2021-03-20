@@ -1,0 +1,96 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_how-to-build-ruby-gem posts_how-to-build-ruby-gem_rails-hooks posts_how-to-build-ruby-gem_rails-hooks_index typo"> <article> <h1>构建一个 Ruby Gem 第十二章 Rails 钩子</h1> <p>如果你熟悉 Rails 的话，你知道最主要的三个组件是 models，controllers 和 views。 没什么好吃惊的，有对应的 Ruby 模块，它们是： ActiveRecord , ActionController 和 ActionView。</p> <p>Rails 提供了钩子来访问这些类库在初始化的时候。通过添加或修改这些类库的代码，Rails 栈做任何事。 在本章中，我们会看看最常见的方式去添加 gem的代码到一个 Rails 应用和 ActiveSupport 是如何帮助的。</p> <h2>Railties</h2> <p>Railties 是对于配置和加载 Rails 框架的类库的钩子。它们允许我们很方便的添加或修改在 Rails 中已经存在的功能。 使用一个 Railtie 让我们有能力去添加 view 帮助方法，controller 方法，模型方法，生成器和一些列其他有用的特性。 Railtie 的文档提供了这些任务的示例代码。文档很少考虑到 Rails 在表面之下做的事情。 然后，事实上我们可以钩子初始化进程，这意味着如果我们知道方法处于哪个类中，我们可以改变或者扩展这个目标类。</p> <p>看看第一个例子</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">MyRailtie</span> &lt; <span style="color:#036;font-weight:bold">Rails</span>::<span style="color:#036;font-weight:bold">Railtie</span>
+  initializer <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">my_railtie.configure_rails_initialization</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+    <span style="color:#777"># some initialization behavior</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>在 Railtie 中，Initializers 并不是在 config/initializers 目录下的那类东西。 它们是特殊的代码块来钩子 Rails 初始化进程的。 为了实现这个功能，一个 initializer 需要一个专门的名字（就像上面那个）并且相关的代码被放在接踵而至的块中。 在我们深入创建一个 Railtie 之前，让我们探索一些扩展已有 Ruyb 类的方法。</p> <h2>Ruby Extensions</h2> <p>假设我们有如下的类：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+  <span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">HolidayDrawing</span>
+    <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">draw</span>
+      puts <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">This drawing is holiday-worthy!</span><span style="color:#710">&quot;</span></span>
+    <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>再想象一下我们想要添加 #jackpot 方法，但是类已经被定义了。Ruby 给了我们打猴子补丁的能力，正如我们在核心扩展中看到的那样。 最简单的实现方法就是在一个新的单独的文件中重新打开 <code>MegaLotto::HolidayDrawing</code> 类并且添加新方法：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+  <span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">HolidayDrawing</span>
+    <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">jackpot</span>
+      puts <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">You've won the big one!</span><span style="color:#710">&quot;</span></span>
+    <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>现在我们既可以访问原先已经定义的 <code>#draw</code> 方法，也可以访问新的 <code>#jackpot</code> 方法。</p> <pre class=src lang=ruby>
+<span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">HolidayDrawing</span>.new.draw <span style="color:#777"># =&gt; This drawing is holiday-worthy!</span>
+<span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">HolidayDrawing</span>.new.jackpot <span style="color:#777"># =&gt; You've won the big one!</span>
+</pre> <p>另一个给 Ruby 类添加方法的选项是使用 extend 或者 include 方法。虽然这篇博文有点老了，但是这模式在今天依然和适合 Ruby。 通常当使用 extend 或者 include 时，对于要包含目标方法（在我们的例子用是 #jackpot）放在一个单独的 Ruby 模块中：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+  <span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">Jackpot</span>
+    <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">jackpot</span>
+      puts <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">You've won the big one!</span><span style="color:#710">&quot;</span></span>
+    <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>为了添加 #jackpo 方法到 MegaLotto::HolidayDrawing，我们再一次重构耐心打开 MegaLotto::HolidayDrawing 类并且包含那个模块：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+  <span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">HolidayDrawing</span>
+    include <span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">Jackpot</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>这产生了和之前一样的结果，但是具体实现被抽象到了一个模块：</p> <pre class=src lang=ruby>
+<span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">HolidayDrawing</span>.new.jackpot <span style="color:#777"># =&gt; You've won the big one!</span>
+</pre> <p>再进一步，包含一个类方法到一个标准的 Ruby 类中，我们可以把5行代码缩减为：</p> <pre class=src lang=ruby>
+<span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">HolidayDrawing</span>.include(<span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">Jackpot</span>)
+</pre> <p>不过，当我们尝试时，我们得到了下面的错误：</p> <pre class=src lang=ruby>
+<span style="color:#606">NoMethodError</span>: private method <span style="background-color:hsla(120,100%,50%,0.06)"><span style="color:#161">`</span><span style="color:#2B2">include</span><span style="color:#161">`</span></span> called <span style="color:#080;font-weight:bold">for</span>
+<span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">HolidayDrawing</span><span style="color:#A60">:Class</span> from (irb):<span style="color:#00D">36</span>
+from <span style="background-color:hsla(300,100%,50%,0.06)"><span style="color:#404">/</span><span style="color:#808">Users</span><span style="color:#404">/</span></span>bhilkert/.rbenv/versions/<span style="color:#60E">2.0</span>.<span style="color:#F00;background-color:#FAA">0</span>-p247/bin/<span style="color:#606">irb</span>:<span style="color:#00D">12</span><span style="color:#A60">:in</span> <span style="background-color:hsla(120,100%,50%,0.06)"><span style="color:#161">`</span><span style="color:#2B2">&lt;main&gt;</span><span style="color:#161">`</span></span>
+</pre> <p>这说明包含了一个私有方法，所以用 Ruby 的 send 方法避开 Ruby 的可见性限制，这样就能访问到私有方法了。 send 方法接收一个方法名（符号或字符串）以及可选的参数。 看上去就像这样：</p> <pre class=src lang=ruby>
+<span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">HolidayDrawing</span>.send(<span style="color:#A60">:include</span>, <span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">Jackpot</span>)
+</pre> <p>调用 #jackpot 的结果和预期一样：</p> <pre class=src lang=ruby>
+<span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">HolidayDrawing</span>.new.jackpot <span style="color:#777"># =&gt; You've won the big one!</span>
+</pre> <p>注意：extend 的用法类似，除了我们不需要使用 send 因为方法是 public 的。使用 extend 对源对象添加了类方法。所以它不适合我们这个例子。 这些加载的方式是需要一个 Rails 初始化钩子的。如果我们使用上面的例子，一个例子 Railtie 可以像这样：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">MyRailtie</span> &lt; <span style="color:#036;font-weight:bold">Rails</span>::<span style="color:#036;font-weight:bold">Railtie</span>
+  initializer <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">my_railtie.configure_rails_initialization</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+    <span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">HolidayDrawing</span>.send(<span style="color:#A60">:include</span>, <span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">Jackpot</span>)
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>现在，MegaLotto::HolidayDrawing 命名空间不被 Rails 启动时包含，所以这个例子没有帮助。 然而，如果我们把它应用到 ActionView::Base 中，你可以看到它是如何立刻变的有用的：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">MyRailtie</span> &lt; <span style="color:#036;font-weight:bold">Rails</span>::<span style="color:#036;font-weight:bold">Railtie</span>
+  initializer <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">my_railtie.configure_rails_initialization</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+    <span style="color:#036;font-weight:bold">ActionView</span>::<span style="color:#036;font-weight:bold">Base</span>.send(<span style="color:#A60">:include</span>, <span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">Jackpot</span>)
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>这是一个常见模式对于 gems 包含 view helpers。然后，我们可以通过改变 ActiveSupport 的 on_load 方法来做的更好。</p> <h2>Active Support Load Hooks</h2> <p>一个扩展原生 Rails 的方法是通过 Active Support gem。正如前面所提到的，Active Support 包含了一些列帮助和扩展方法。 Active Support 有一个 <code>.on_load</code> 方法来保持加载钩子的跟踪。 当一个特定的 Rails 类被加载时，它的相关的加载钩子会被执行。 <code>.on_load</code> 的源码只是一个标准的 Ruby Hash，包含一个 key 对于目标 Rails 类。 让我们看看和 Railtie 等价的 Active Support <code>.on_load</code> 方法。 对于我们的 <code>initializer</code> 它看起来像这样：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">MyRailtie</span> &lt; <span style="color:#036;font-weight:bold">Rails</span>::<span style="color:#036;font-weight:bold">Railtie</span>
+  initializer <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">my_railtie.configure_rails_initialization</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+    <span style="color:#777"># some initialization behavior</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>使用 initializer，不需要使用 include 或者 extend 来添加方法到一个已经存在的类（就像我们上面看到的）， 我们会触发包含的方法当一个特定的 Rails 类库加载时（这里的例子是 action_view）：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">MyRailtie</span> &lt; <span style="color:#036;font-weight:bold">Rails</span>::<span style="color:#036;font-weight:bold">Railtie</span>
+  initializer <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">my_railtie.configure_rails_initialization</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+    <span style="color:#036;font-weight:bold">ActiveSupport</span>.on_load(<span style="color:#A60">:action_view</span>) <span style="color:#080;font-weight:bold">do</span>
+      <span style="color:#777"># some initialization behavior, but in the</span>
+      <span style="color:#777"># context of the base `ActionView` class</span>
+    <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>这种方法的好处是它看上去更像原生的 Ruby 并且避开了不得不使用 send 来让类包含额外的模块。 我们将会对将要到来的 Rails 集成使用这种方式。</p> <h2>真实世界的例子</h2> <p>WillPaginate gem 提供了一个很好的例子关于 ActiveSupport.on_load 钩子的价值。 这是我见过的很复杂的 Railtie 之一。它让分页影响了 views，controllers 和 models 当查询和展示数据给用户看时。 注意 .on_load 钩子对于 ActionView，ActionController 和 ActiveModel 。 它说明了 ActionController 它自己使用 .on_load 方法来加载它的内部。 即使 Rails 内部使用 Railtie 钩子提供给了 gem 的作者！</p> <h2>总结</h2> <p>在 Rails 初始化时访问 Rails 类库给了我们很大的灵活性，让 gem 的创造者可以集成 Rails 栈的任何组件。 很明显 Rails 核心团队让 gem 集成和访问 Rails 内部有一个优先权。 这允许我们，作为 gem 开发者，通过分离开发类库来构建有价值的功能。 希望这个章节让我们知道了集成和 Rails 初始化进程加钩子是多么简单。 接着 Rails 集成的话题，下面我们会看看我们如何给我们的 gem 加上 Rails 的 view 帮助方法。</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/how-to-build-ruby-gem/rails-hooks"></script> </body> </html>

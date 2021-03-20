@@ -1,0 +1,50 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_akka-web-note posts_akka-web-note_init-project posts_akka-web-note_init-project_index typo"> <article> <h1>进入 AKKA 的世界</h1> <p>如果你对 Scala 还不太熟悉，那么可以到 <a href="http://allaboutscala.com/">这里</a> 先学习一下基础。</p> <p>首先，我们把 UserService 改名为 UserManager 并让它继承 Actor.</p> <p>这意味着 UserManager 是一个 actor 了，那么它就需要实现 receive 方法：</p> <pre class=src lang=scala>
+val dao = new UserManagerDao
+def receive = {
+  // ...
+  case CreateUser(UserInput(first, last, email)) =&gt;
+    val result =
+      for{
+        _ &lt;- emailUnique(email)
+        daoRes &lt;- dao.createUser(BookstoreUser(0, first, last, email, new Date, new Date))
+      } yield daoRes
+    // ...
+}
+</pre> <p>这里和传统的 Java 中的 Service 不同的地方就是，它的返回值都是 Future, 因此需要用一个 for 给包起来。 其中其中 <code>emailUnique</code> 方法会检查 email 的唯一性，如果唯一一了，就会返回一个 <code>Future.failed(new EmailNotUniqueException)</code></p> <p>可以看到，把 Service 换成了 Manager (Actor) 后，整个请求的都变成异步的了（数据库层使用了 Slick 也是异步的）</p> <p>回顾一下整个过程，在 Route 层 (充当了 controller 的作用), 我们在 users 的 post 请求中，对 <code>userManager</code> 发送了 <code>createUser</code> 的 ask 请求。</p> <p><code>userManager</code> 调用 <code>userDao</code> 持久化了 user 的数据 (都是异步请求), 最后返回结果。</p> <p>感觉和之前的写法差不多，那是因为这个例子太简单了，再来看看创建 order 的逻辑吧：</p> <pre class=src lang=scala>
+def createOrder(request:CreateOrder):Future[SalesOrder] = {
+
+  //Resolve dependencies in parallel
+  val bookMgrFut = lookup(BookMgrName)
+  val userMgrFut = lookup(UserManagerName)
+  val creditMgrFut = lookup(CreditHandlerName)
+
+  for{
+    bookMgr &lt;- bookMgrFut
+    userMgr &lt;- userMgrFut
+    creditMgr &lt;- creditMgrFut
+    (user, lineItems) &lt;- loadUser(request, userMgr).zip(buildLineItems(request, bookMgr))
+    total = lineItems.map(_.cost).sum
+    creditTxn &lt;- chargeCreditCard(request, total, creditMgr)
+    order = SalesOrder(0, user.id, creditTxn.id, SalesOrderStatus.InProgress, total, lineItems, new Date, new Date)
+    daoResult &lt;- dao.createSalesOrder(order)
+  } yield daoResult
+
+}
+</pre> <p>可以看到，要完成创建 order 的逻辑，需要查找 bookManager 和 userManager, 还要计算总价，最后才是创建订单，这里涉及到了很复杂的事务，需要考虑库存是否足够等问题。</p> <p>可能你觉得这里的代码有点乱，你大概会觉得这是异步编程的错，不要急，我们之后会处理这个问题的。</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/akka-web-note/init-project"></script> </body> </html>

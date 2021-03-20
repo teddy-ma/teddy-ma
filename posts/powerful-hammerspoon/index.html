@@ -1,0 +1,161 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_powerful-hammerspoon posts_powerful-hammerspoon_index typo"> <article> <h1>Powerful Hammerspoon</h1> <p>I have used hammerspoon for a long time, recently I found that the new version of hammerspoon supported Lua plugins called “Spoons”.</p> <p>So I deceided to rewrite my hammerspoon config file with spoons.</p> <p>I hope this post can help beginners to get started with hammerspoon (and spoons).</p> <h2>Let&#8217;s getting started.</h2> <p>First, install hammerspoon, you can easily install it using homebrew:</p> <pre class=src lang=sh>
+brew cask install hammerspoon
+</pre> <p>And make sure these files and folders exists:</p> <pre class=src lang=sh>
+~/.hammerspoon
+├── Spoons
+├── modules
+├── init.lua
+</pre> <p>Let&#8217;s download our first spoon http://www.hammerspoon.org/Spoons/ReloadConfiguration.html.</p> <p>Download it and double click to unzip and install it, it will be installed in the <code>Spoons</code> folder.</p> <p>Then launch the hammerspoon console and input</p> <pre class=src lang=lua>
+hs.loadSpoon(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">AClock</span><span style="color:#710">&quot;</span></span>)
+spoon.AClock:toggleShow()
+</pre> <p>Bingo! We just finish the hammerspoon version of &#8220;hello world&#8221; :)</p> <p>You can see the clock display on the screen.</p> <p>Now let&#8217;s start your first config script, edit the <code>init.lua</code> file:</p> <pre class=src lang=lua>
+hs.loadSpoon(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">AClock</span><span style="color:#710">&quot;</span></span>)
+hyper = <span style="background-color:hsla(200,100%,50%,0.06)"><span style="color:#40A">{</span><span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">cmd</span><span style="color:#710">'</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">alt</span><span style="color:#710">'</span></span><span style="color:#40A">}</span></span>
+
+hs.hotkey.bind(hyper, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">t</span><span style="color:#710">'</span></span>, <span style="color:#080;font-weight:bold">function</span>() spoon.AClock:toggleShow() <span style="color:#080;font-weight:bold">end</span>)
+</pre> <p>save it and reload config. Then try to press <code>cmd+option+t</code>, the clock should appear again.</p> <h2>Windows manager</h2> <p>Now we can dive into a more complex task: windows manager.</p> <p>Let&#8217;s first define our hyper keys.</p> <p>In <code>modules/config.lua</code> :</p> <pre class=src lang=lua>
+hyper = <span style="background-color:hsla(200,100%,50%,0.06)"><span style="color:#40A">{</span><span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">cmd</span><span style="color:#710">'</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">alt</span><span style="color:#710">'</span></span><span style="color:#40A">}</span></span>
+hyperShift = <span style="background-color:hsla(200,100%,50%,0.06)"><span style="color:#40A">{</span><span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">alt</span><span style="color:#710">'</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">cmd</span><span style="color:#710">'</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">shift</span><span style="color:#710">'</span></span><span style="color:#40A">}</span></span>
+</pre> <p>Don&#8217;t forget to download and install the <code>winwin</code> plugin: http://www.hammerspoon.org/Spoons/WinWin.html.</p> <p>In <code>init.lua</code> we should load spoons and require other config files:</p> <pre class=src lang=lua>
+hs.loadSpoon(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">AClock</span><span style="color:#710">&quot;</span></span>)
+hs.loadSpoon(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">WinWin</span><span style="color:#710">&quot;</span></span>)
+
+require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">modules/config</span><span style="color:#710">&quot;</span></span>
+require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">modules/window</span><span style="color:#710">&quot;</span></span>
+</pre> <p>and let&#8217;s create a file named <code>winodw.lua</code> in <code>modules</code> folder to save the config about windows management.</p> <p>In <code>modules/window.lua</code></p> <pre class=src lang=lua>
+spoon.WindowScreenLeftAndRight:bindHotkeys(<span style="background-color:hsla(200,100%,50%,0.06)"><span style="color:#40A">{</span>
+  <span style="color:#606">screen_left</span> = <span style="background-color:hsla(200,100%,50%,0.06)"><span style="font-weight:bold;color:#666">{</span> hyperShift, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Left</span><span style="color:#710">&quot;</span></span> <span style="font-weight:bold;color:#666">}</span></span>,
+  <span style="color:#606">screen_right</span>= <span style="background-color:hsla(200,100%,50%,0.06)"><span style="font-weight:bold;color:#666">{</span> hyperShift, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Right</span><span style="color:#710">&quot;</span></span> <span style="font-weight:bold;color:#666">}</span></span>,
+<span style="color:#40A">}</span></span>)
+
+spoon.WindowHalfsAndThirds:bindHotkeys(<span style="background-color:hsla(200,100%,50%,0.06)"><span style="color:#40A">{</span>
+  <span style="color:#606">left_half</span>   = <span style="background-color:hsla(200,100%,50%,0.06)"><span style="font-weight:bold;color:#666">{</span> hyper, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Left</span><span style="color:#710">&quot;</span></span> <span style="font-weight:bold;color:#666">}</span></span>,
+  <span style="color:#606">right_half</span>  = <span style="background-color:hsla(200,100%,50%,0.06)"><span style="font-weight:bold;color:#666">{</span> hyper, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Right</span><span style="color:#710">&quot;</span></span> <span style="font-weight:bold;color:#666">}</span></span>,
+  <span style="color:#606">top_half</span>    = <span style="background-color:hsla(200,100%,50%,0.06)"><span style="font-weight:bold;color:#666">{</span> hyper, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Up</span><span style="color:#710">&quot;</span></span> <span style="font-weight:bold;color:#666">}</span></span>,
+  <span style="color:#606">bottom_half</span> = <span style="background-color:hsla(200,100%,50%,0.06)"><span style="font-weight:bold;color:#666">{</span> hyper, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Down</span><span style="color:#710">&quot;</span></span> <span style="font-weight:bold;color:#666">}</span></span>,
+<span style="color:#40A">}</span></span>)
+</pre> <p>Thanks to these two awesome spoons, it&#8217;s really easy to conifg our window movement.</p> <p>Press <code>cmd+opiton+[arrowkey]</code> or <code>cmd+option+shift+[arrowkey]</code> to move windows in one minitor or around monitors.</p> <p>I think these exmples are enough for beginners to use hammerspoon, but till now it seems that hammerspoon is just a windows management tool.</p> <p>So next I will talk about layout, which makes hammerspoon more powerful than other window management tools.</p> <h2>Layouts</h2> <p>Chances are that you are using a MacBookPro with at least one external monitor.</p> <p>I have two, so let&#8217;s first find out their names.</p> <p>In hammerspoon, insert these script:</p> <pre class=src lang=sh>
+&gt; hs.screen.allScreens()[1]:name()
+Color LCD
+&gt; hs.screen.allScreens()[2].name()
+2340
+&gt; hs.screen.allScreens()[3].name()
+LG ULTRAWIDE
+</pre> <p>Now we get monitors&#8217; names. We can modify <code>modules/config.lua</code> file to save them.</p> <pre class=src lang=lua>
+<span style="color:#777">-- other config</span>
+macbook_monitor = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Color LCD</span><span style="color:#710">&quot;</span></span>
+main_monitor = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">LG ULTRAWIDE</span><span style="color:#710">&quot;</span></span>
+second_monitor = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">2340</span><span style="color:#710">&quot;</span></span>
+</pre> <p>Let&#8217;s come back to layout, so what is layout?</p> <blockquote> <p>When you want to keep serveral apps open all the time, and have their windows arranged in a particular way, you can use the hs.layout extension</p> </blockquote> <p>With multi-window layouts, you can easily setup your environments.</p> <p>Let&#8217;s say I place my three monitors(including the macbook screen) horizontally: Color LCD on the left, 2340 on the right, and LG ULTRAWIDE in the middle.</p> <p>And I need three layouts for difference tasks.</p> <h3>Reading layout</h3> <p>There are so many ways to access to information, I want to open them at one time.</p> <p>left: Emacs middle: Chrome and iBooks right: Email and Telegram</p> <p>In <code>modules/layout.lua</code> file:</p> <pre class=src lang=lua>
+<span style="color:#080;font-weight:bold">local</span> <span style="color:#950">reading_layout</span>= <span style="background-color:hsla(200,100%,50%,0.06)"><span style="color:#40A">{</span>
+  <span style="background-color:hsla(200,100%,50%,0.06)"><span style="font-weight:bold;color:#666">{</span><span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Emacs</span><span style="color:#710">&quot;</span></span>,         <span style="color:#069">nil</span>, macbook_monitor, hs.layout.maximized, <span style="color:#069">nil</span>, <span style="color:#069">nil</span><span style="font-weight:bold;color:#666">}</span></span>,
+  <span style="background-color:hsla(200,100%,50%,0.06)"><span style="font-weight:bold;color:#666">{</span><span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Google Chrome</span><span style="color:#710">&quot;</span></span>, <span style="color:#069">nil</span>, main_monitor,    hs.layout.right50,   <span style="color:#069">nil</span>, <span style="color:#069">nil</span><span style="font-weight:bold;color:#666">}</span></span>,
+  <span style="background-color:hsla(200,100%,50%,0.06)"><span style="font-weight:bold;color:#666">{</span><span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">iBooks</span><span style="color:#710">&quot;</span></span>,        <span style="color:#069">nil</span>, main_monitor,    hs.layout.left50,    <span style="color:#069">nil</span>, <span style="color:#069">nil</span><span style="font-weight:bold;color:#666">}</span></span>,
+  <span style="background-color:hsla(200,100%,50%,0.06)"><span style="font-weight:bold;color:#666">{</span><span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Telegram</span><span style="color:#710">&quot;</span></span>,      <span style="color:#069">nil</span>, second_monitor,  hs.layout.left50,    <span style="color:#069">nil</span>, <span style="color:#069">nil</span><span style="font-weight:bold;color:#666">}</span></span>,
+  <span style="background-color:hsla(200,100%,50%,0.06)"><span style="font-weight:bold;color:#666">{</span><span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Mail</span><span style="color:#710">&quot;</span></span>,          <span style="color:#069">nil</span>, second_monitor,  hs.layout.right50,   <span style="color:#069">nil</span>, <span style="color:#069">nil</span><span style="font-weight:bold;color:#666">}</span></span>,
+<span style="color:#40A">}</span></span>
+
+hs.hotkey.bind(hyper, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">1</span><span style="color:#710">'</span></span>, <span style="color:#080;font-weight:bold">function</span>()
+  hs.application.launchOrFocus(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">Emacs</span><span style="color:#710">'</span></span>)
+  hs.application.launchOrFocus(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">Google Chrome</span><span style="color:#710">'</span></span>)
+  hs.application.launchOrFocus(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">iBooks</span><span style="color:#710">'</span></span>)
+  hs.application.launchOrFocus(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">Telegram</span><span style="color:#710">'</span></span>)
+  hs.application.launchOrFocus(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">Mail</span><span style="color:#710">'</span></span>)
+
+  hs.layout.apply(reading_layout)
+<span style="color:#080;font-weight:bold">end</span>)
+</pre> <p>Reload config and press <code>cmd+option+1</code>, Woo, every window is on it&#8217;s place.</p> <h3>Coding layout</h3> <p>When I am working, I need terminal, browser, editor, and database GUI client. Of course I need to communicate with my colleagues (I work remotely).</p> <p>left: Terminal middle: Emacs and Chrome right: Station(IM) and TablePlus(Database GUI client)</p> <pre class=src lang=lua>
+<span style="color:#080;font-weight:bold">local</span> <span style="color:#950">coding_layout</span>= <span style="background-color:hsla(200,100%,50%,0.06)"><span style="color:#40A">{</span>
+  <span style="background-color:hsla(200,100%,50%,0.06)"><span style="font-weight:bold;color:#666">{</span><span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Terminal</span><span style="color:#710">&quot;</span></span>,      <span style="color:#069">nil</span>, macbook_monitor, hs.layout.maximized, <span style="color:#069">nil</span>, <span style="color:#069">nil</span><span style="font-weight:bold;color:#666">}</span></span>,
+  <span style="background-color:hsla(200,100%,50%,0.06)"><span style="font-weight:bold;color:#666">{</span><span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Google Chrome</span><span style="color:#710">&quot;</span></span>, <span style="color:#069">nil</span>, main_monitor,    hs.layout.left50,    <span style="color:#069">nil</span>, <span style="color:#069">nil</span><span style="font-weight:bold;color:#666">}</span></span>,
+  <span style="background-color:hsla(200,100%,50%,0.06)"><span style="font-weight:bold;color:#666">{</span><span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Emacs</span><span style="color:#710">&quot;</span></span>,         <span style="color:#069">nil</span>, main_monitor,    hs.layout.right50,   <span style="color:#069">nil</span>, <span style="color:#069">nil</span><span style="font-weight:bold;color:#666">}</span></span>,
+  <span style="background-color:hsla(200,100%,50%,0.06)"><span style="font-weight:bold;color:#666">{</span><span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Station</span><span style="color:#710">&quot;</span></span>,       <span style="color:#069">nil</span>, second_monitor,  hs.layout.left50,    <span style="color:#069">nil</span>, <span style="color:#069">nil</span><span style="font-weight:bold;color:#666">}</span></span>,
+  <span style="background-color:hsla(200,100%,50%,0.06)"><span style="font-weight:bold;color:#666">{</span><span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TablePlus</span><span style="color:#710">&quot;</span></span>,     <span style="color:#069">nil</span>, second_monitor,  hs.layout.right50,   <span style="color:#069">nil</span>, <span style="color:#069">nil</span><span style="font-weight:bold;color:#666">}</span></span>,
+<span style="color:#40A">}</span></span>
+
+hs.hotkey.bind(hyper, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">2</span><span style="color:#710">'</span></span>, <span style="color:#080;font-weight:bold">function</span>()
+  hs.application.launchOrFocus(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">Terminal</span><span style="color:#710">'</span></span>)
+  hs.application.launchOrFocus(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">Google Chrome</span><span style="color:#710">'</span></span>)
+  hs.application.launchOrFocus(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">Emacs</span><span style="color:#710">'</span></span>)
+  hs.application.launchOrFocus(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">Station</span><span style="color:#710">'</span></span>)
+  hs.application.launchOrFocus(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">TablePlus</span><span style="color:#710">'</span></span>)
+
+  hs.layout.apply(coding_layout)
+<span style="color:#080;font-weight:bold">end</span>)
+</pre> <h3>Writing layout</h3> <p>Writing posts is difference from writing code, I don&#8217;t want to be interrupted and I need music.</p> <p>left: IINA(Media Player) middle: Emacs right: Chrome</p> <pre class=src lang=lua>
+<span style="color:#080;font-weight:bold">local</span> <span style="color:#950">writing_layout</span>= <span style="background-color:hsla(200,100%,50%,0.06)"><span style="color:#40A">{</span>
+  <span style="background-color:hsla(200,100%,50%,0.06)"><span style="font-weight:bold;color:#666">{</span><span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Emacs</span><span style="color:#710">&quot;</span></span>,         <span style="color:#069">nil</span>, main_monitor,    hs.layout.maximized, <span style="color:#069">nil</span>, <span style="color:#069">nil</span><span style="font-weight:bold;color:#666">}</span></span>,
+  <span style="background-color:hsla(200,100%,50%,0.06)"><span style="font-weight:bold;color:#666">{</span><span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Google Chrome</span><span style="color:#710">&quot;</span></span>, <span style="color:#069">nil</span>, second_monitor,  hs.layout.maximized, <span style="color:#069">nil</span>, <span style="color:#069">nil</span><span style="font-weight:bold;color:#666">}</span></span>,
+  <span style="background-color:hsla(200,100%,50%,0.06)"><span style="font-weight:bold;color:#666">{</span><span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">IINA</span><span style="color:#710">&quot;</span></span>,          <span style="color:#069">nil</span>, macbook_monitor, hs.layout.maximized, <span style="color:#069">nil</span>, <span style="color:#069">nil</span><span style="font-weight:bold;color:#666">}</span></span>,
+<span style="color:#40A">}</span></span>
+
+hs.hotkey.bind(hyper, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">3</span><span style="color:#710">'</span></span>, <span style="color:#080;font-weight:bold">function</span>()
+  hs.application.launchOrFocus(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">Google Chrome</span><span style="color:#710">'</span></span>)
+  hs.application.launchOrFocus(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">Emacs</span><span style="color:#710">'</span></span>)
+  hs.application.launchOrFocus(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">IINA</span><span style="color:#710">'</span></span>)
+
+  hs.layout.apply(writing_layout)
+<span style="color:#080;font-weight:bold">end</span>)
+</pre> <h2>Reacting events</h2> <p>These part of functions has nothing to do with windows management, they are very useful.</p> <h3>bring all the window front</h3> <p>Application like Finder may have multiple windows on every secreen. With this simple config, when you active any Finder window, all the other windows will be actived too.</p> <pre class=src lang=lua>
+<span style="color:#080;font-weight:bold">function</span> <span style="color:#06B;font-weight:bold">applicationWatcher</span>(appName, eventType, appObject)
+  <span style="color:#080;font-weight:bold">if</span> (eventType == hs.application.watcher.activated) <span style="color:#080;font-weight:bold">then</span>
+    <span style="color:#080;font-weight:bold">if</span> (appName == <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Finder</span><span style="color:#710">&quot;</span></span>) <span style="color:#080;font-weight:bold">then</span>
+      <span style="color:#777">-- Bring all Finder windows forward when one gets activated</span>
+      appObject:selectMenuItem(<span style="background-color:hsla(200,100%,50%,0.06)"><span style="color:#40A">{</span><span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Window</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Bring All to Front</span><span style="color:#710">&quot;</span></span><span style="color:#40A">}</span></span>)
+    <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+appWatcher = hs.application.watcher.new(applicationWatcher)
+appWatcher:start()
+</pre> <h3>connect wifi</h3> <p>I have two routers in my house. In some rooms, the signal of router A is stronger, while in other rooms, router B is better. So I can config like this to make sure I can connect to the stronger one.</p> <pre class=src lang=lua>
+bedroomSSID = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">MyBedroomNetwork</span><span style="color:#710">&quot;</span></span>
+studySSID = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">MyStudyNetwork</span><span style="color:#710">&quot;</span></span>
+SSID = hs.wifi.currentNetwork()
+
+hs.hotkey.bind(hyperShift, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">9</span><span style="color:#710">'</span></span>, <span style="color:#080;font-weight:bold">function</span>()
+  <span style="color:#080;font-weight:bold">if</span> SSID ~= bedroomSSID <span style="color:#080;font-weight:bold">then</span>
+    hs.wifi.associate(bedroomSSID, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">myPassPhrase</span><span style="color:#710">&quot;</span></span>)
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>)
+
+hs.hotkey.bind(hyperShift, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">8</span><span style="color:#710">'</span></span>, <span style="color:#080;font-weight:bold">function</span>()
+  <span style="color:#080;font-weight:bold">if</span> SSID ~= studySSID <span style="color:#080;font-weight:bold">then</span>
+    hs.wifi.associate(studySSID, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">myPassPhrase</span><span style="color:#710">&quot;</span></span>)
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>)
+</pre> <h3>caffeinate on the menu bar</h3> <p>I used to type <code>caffeinate -t 99999</code> to make OS awake. But now I can create a menubar by the following config:</p> <pre class=src lang=lua>
+caffeine = hs.menubar.new()
+<span style="color:#080;font-weight:bold">function</span> <span style="color:#06B;font-weight:bold">setCaffeineDisplay</span>(state)
+    <span style="color:#080;font-weight:bold">if</span> state <span style="color:#080;font-weight:bold">then</span>
+        caffeine:setTitle(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">AWAKE</span><span style="color:#710">&quot;</span></span>)
+    <span style="color:#080;font-weight:bold">else</span>
+        caffeine:setTitle(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">SLEEPY</span><span style="color:#710">&quot;</span></span>)
+    <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+
+<span style="color:#080;font-weight:bold">function</span> <span style="color:#06B;font-weight:bold">caffeineClicked</span>()
+    setCaffeineDisplay(hs.caffeinate.toggle(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">displayIdle</span><span style="color:#710">&quot;</span></span>))
+<span style="color:#080;font-weight:bold">end</span>
+
+<span style="color:#080;font-weight:bold">if</span> caffeine <span style="color:#080;font-weight:bold">then</span>
+    caffeine:setClickCallback(caffeineClicked)
+    setCaffeineDisplay(hs.caffeinate.get(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">displayIdle</span><span style="color:#710">&quot;</span></span>))
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <h2>Conclusion</h2> <p>Hammerspoon is a powerful tool allowing you to have powerful effects on your system by writing Lua scripts. By the way, you can learn Lua by reading other&#8217;s hammerspoon config files.</p> <p>The more you know about hammerspoon, the more you can control your MacOS.</p> <p>I have used hammerspoon for a long time, recently I found that the new version of hammerspoon supported Lua plugins called “Spoons”.</p> <p>So I deceided to rewrite my hammerspoon config file with spoons.</p> <p>I hope this post can help beginners to get started with hammerspoon (and spoons).</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/powerful-hammerspoon"></script> </body> </html>

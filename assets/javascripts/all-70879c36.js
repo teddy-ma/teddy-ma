@@ -1,0 +1,1 @@
+if(console.log("No Easter Egg"),"localhost"!=window.location.hostname){var targetProtocol="https:";window.location.protocol!=targetProtocol&&(window.location.href=targetProtocol+window.location.href.substring(window.location.protocol.length))}

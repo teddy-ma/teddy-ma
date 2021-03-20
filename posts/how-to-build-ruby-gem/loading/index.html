@@ -1,0 +1,69 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_how-to-build-ruby-gem posts_how-to-build-ruby-gem_loading posts_how-to-build-ruby-gem_loading_index typo"> <article> <h1>构建一个 Ruby Gem 第九章 加载</h1> <p>回到那个使用中划线和下划线没有很多规范的时代, 很多库选择了前者。这导致在当下划线成为标准时，用户感到非常困惑。</p> <p>还记得当我们的讨论关于在 mega_lotto.gemspec 文件的头部声明加载路径吗? 嗯&#8230;当我们在一个 Gemfile 中指定一个 gem 时 bundler 加载了同和我们的加载路径同名的文件。 并且因为我们加入了我们的 gem 的 lib/ 目录到加载路径（bundler 已经在 gemspec 文件中帮我们设定好了），我们的入口文件已经被加载了。</p> <p>所以通过加入 mega_lotto 到 Gemfile 中, bundler 知道去寻找入口文件 lib/mega_lotto.rb. 这都是约定俗成的，因为你知道，我们 Rubyist，热爱我们的约定。</p> <p>不是所有的类库都需要在运行时被加载。在入口文件声明依赖取决于我们。这是非常常见的一个 gem 中的类库不是被默认加载的。 一些例子是 命令行 可执行文件的类，web 引擎和支持测试的类库。</p> <p>在本章中，我们将会讨论关于加载一个可选类库就像上面提到的最佳实践和看看一些在我们的 gem 中扩展 Ruby 基本类库的方法。</p> <h2>支持类库</h2> <p>假设我们为我们的 mega_lotto gem创建一个 web 引擎并且想要在一个宿主应用中被加载。 支持 web 界面的类库可能位于 <code>lib/mega_lotto/web.rb</code> 如果是这样我们可以在 Gemfile 中 require 它这样它就会被自动加载了:</p> <p>或者，也许，在一个 Rails 的 initializer 中和一些其它的配置文件一起加载它：</p> <pre class=src lang=ruby>
+<span style="color:#777"># config/initializers/mega_lotto.rb</span>
+
+require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">mega_lotto/web</span><span style="color:#710">&quot;</span></span>
+<span style="color:#777"># other gem configuration...</span>
+</pre> <p>在一个 Rails 应用中, 我们可以像 config/routes 文件那样挂载一个类库:</p> <pre class=src lang=ruby>
+mount <span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">Web</span> =&gt; <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">/mega_lotto</span><span style="color:#710">'</span></span>
+</pre> <p>因为加载这个 web 类库是可选的，我们/不会/包含它在 lib/mega_lotto.rb 的入口文件中:</p> <pre class=src lang=ruby>
+require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">mega_lotto/version</span><span style="color:#710">&quot;</span></span>
+require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">mega_lotto/drawing</span><span style="color:#710">&quot;</span></span>
+<span style="color:#777"># notice that &quot;mega_lotto/web&quot; is not included here</span>
+
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">MegaLotto</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <h2>真实世界的例子</h2> <p>Sidekiq gem 有一个关于不需要默认依赖的 web 库的绝佳的例子。你可以选择通过 require sidekiq/web 类库并且挂载包含的 Sinatra 应用到你的宿主应用中.</p> <p>用来支持测试的类库是另一个常见的例子： 测试的 模块/类 可能是你的 gem 一部分，但是不是默认加载的。 Sidekiq 有一个测试类会直接运行你的后台脚本而不是异步执行。我的 gem Sucker Punch 有一个类似的测试库也不会被默认加载。</p> <p>这两个例子中, 类库都没有被包含在入口文件并且留给用户去包含它们的 <code>spec/spec_helper.rb</code> 文件的权力，如果他们想要这个功能的话。</p> <h2>核心扩展</h2> <p>active_support gem 是一个 Rails 的依赖并且提供了成吨地价值。看一看 core_ext 目录。</p> <p>这些是加入的扩展，它们看上去就像一个个 Ruby 标准库中的类。这些扩展让我们的生活更美好。比如这些方法:</p> <pre class=src lang=ruby>
+<span style="color:#00D">5</span>.seconds <span style="color:#777"># =&gt; 5 seconds &quot;asdf&quot;.present? # =&gt; true (1..42).to_a.forty_two # =&gt; 42</span>
+</pre> <p>好吧，可能它们并不是每个都非常有用，但是很多是有用的。这些功能本可能被放在不用的类中，但是 Rails 核心团队选择扩展 Ruby 的默认行为，使得框架更容易适应新的开发者。 这就是为什么很多 Ruby 和 Rails 的新手会难以分辨哪些方法是 Rails 的，哪些是 Ruby 的。</p> <p>Ruby 让扩展标准类库变得非常容易。比如，如果我们想要加入 #bananas 方法到 String 类中，只要这样做：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">String</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">bananas</span>
+    <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">bananas</span><span style="color:#710">&quot;</span></span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>。。。这就是一个核心扩展! 很简单, 是吧?</p> <p>然而, 能力越大，责任越大。到处加入核心扩展不是一个好主意。事实上，我得说在大部分情况下，创建一个单独的类在我们的 gem 的命名空间下来加入额外的功能都是更好的选择。</p> <p>假定我们发现没有更好的方法来包含扩展的方法在你的 gem 中，让我们讨论一下在我们的 gem 中使用 Ruby 的猴子补丁。</p> <p>如果我们只加入 1 个或 2 个方法到 1 个或 2 个类中，通常采用的实践是创建一个叫做 core_ext.rb 的文件在我们的 gem 的 lib/ 目录下.</p> <p>想象下我们正在开发 mega_lotto gem 并且我们想要加入 #draw 方法到 Array 类（不要真的这样做）。 #draw 方法将会选择一个随机元素在 array 中并且返回它。幸运的是，Ruby 已经有了一个方法来做这件事，所以我们的实现将会委托它。</p> <pre class=src lang=ruby>
+<span style="color:#777"># lib/mega_lotto/core_ext.rb</span>
+
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Array</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">draw</span> sample
+
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>我们搞定了。</p> <p>这个文件现在就像其他我们在 gem 中创建的文件一样。把它加入到主入口 <code>lib/mega_lotto.rb</code> 文件中，这样我们可以从 Array 类中访问到 draw 方法。</p> <h2>大量的方法</h2> <p>如果，由于某些原因，我们需要加入不止一些的方法到 Ruby 的核心类库，比较好的做法是把它们分离到一个单独的文件，每个文件对应它们要打的猴子补丁的类。</p> <p>为了举例，我们将会把 #draw 方法加入上述的方法，并且一个新的方法 mega_lotto 在 String 类中将会从已有的字符串中打印一个随机的名字。</p> <p>就像这样：</p> <p>已经我们想要加入一个方法给 String 类并且另一个给 Array 类，让我们创建一个主 core_ext.rb 文件，它就做一件事，加载我们将会创建的独立的扩展类。</p> <pre class=src lang=ruby>
+<span style="color:#777"># lib/mega_lotto/core_ext.rb</span>
+
+require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">mega_lotto/core_ext/array</span><span style="color:#710">&quot;</span></span>
+require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">mega_lotto/core_ext/string</span><span style="color:#710">&quot;</span></span>
+</pre> <p>#draw 方法的实现就和以前一样，仅仅是在不同的文件中而已：</p> <pre class=src lang=ruby>
+<span style="color:#777"># lib/mega_lotto/core_ext/array.rb</span>
+
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Array</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">draw</span> sample
+
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>注意这个文件是如何放在 lib/mega_lotto/core_ext/ 目录中的。这是一个常用实践对于命名空间任何类库包含多个子类。 也注意下虽然我们的扩展是在 lib/mega_lotto/ 目录下，这个类不是一个 MegaLott 命名空间的派生。如果是的话，就会创建一个完全新的 String 类在我们的命名空间了，而不是 Ruby 标准库里的 String 类了。</p> <p>这是我们的 mega_lotto 对应 String 类的实现：</p> <pre class=src lang=ruby>
+<span style="color:#777"># lib/mega_lotto/core_ext/string.rb</span>
+
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">String</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">mega_lotto</span>
+    <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Mega Lotto: </span><span style="background-color:hsla(0,0%,0%,0.07);color:black"><span style="font-weight:bold;color:#666">#{</span><span style="color:#069">self</span><span style="font-weight:bold;color:#666">}</span></span><span style="color:#710">&quot;</span></span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>由于我们的 lib/mega_lotto/core_ext.rb 文件已经完成了加载单独扩展的任务，主文件lib/mega_lotto.rb 可以再一次加载 lib/mega_lotto/core_ext.rb 文件。 lib/mega_lotto/core_ext.rb 文件可以刻刀所有它包含的库。 这就是当 gem 加载单独的类扩展时的文件结构看起来的样子：</p> <h2>真实世界的例子</h2> <p>在我的 sucker_punch gem 中, 我扩展了 String 类用一个下划线方法. 这是一个完美的例子 需要一个方法从 active_suppoert. 不是把整个 active_support gem 拽到我的项目中仅仅为了一个方法, 我选择复制了复制 underscore 方法的实现到一个单独的 core_ext.rb 文件. 像这样复制方法不总是明智的, 但是我很确定这个实现可以满足我的需求而且今后不需要升级.</p> <p>Sidekiq gem也加入了扩展 Ruby 虽然这个文件中的代码是更复杂的, 但是用例对于任何 gem 来说都是一样的&#8212; 加入代码到标准 Ruby 类中来支持实现 gem 的代码.</p> <h2>总结</h2> <p>当考虑一个深层次的命名空间体系时很容易迷失在其中。当我创建一个新的 Ruby 类时，我倾向于也考虑一下它属于什么『bucket』。</p> <p>这个『bucket』，在大在大多数情况下，可以翻译为 Ruby 命名空间和它所处的目录名称，因为它们通常是相关的。</p> <p>本章提到的内容是有价值的因为它们不仅适用于 Ruby gems，也适用于任何 Ruby 应用只要有多于一层命名空间。</p> <p>我喜欢规范的答案，但是不幸的是可预期的解决方案对于组织代码在一个程序中不总是存在的。通常来说，我喜欢在行动之前痛苦。 虽然，如果等待了太久，挖掘你的出路往往是更痛苦的。平衡复杂性和过度工程是所有开发者的挑战任务。你从你的决定中经历的痛苦越多，你就会在将来更好的避免这个问题。 并没有硬性规定。 Ruby 足够灵活来实现作为开发者的我们的需求。保持良好的组织和易懂性的责任在于我们。</p> <p>如果我们想要开源我们的 gem 并且关注其他贡献者，从贡献者的角度考虑组织是明智的。无论你的 gem 有多酷，很少有人会愿意牺牲自己的时间来贡献给一团糟的代码。</p> <p>在下一章，我们将会探索如何结合可执行命令到一个 gem。</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/how-to-build-ruby-gem/loading"></script> </body> </html>

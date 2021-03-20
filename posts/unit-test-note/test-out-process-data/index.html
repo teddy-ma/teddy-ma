@@ -1,0 +1,71 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_unit-test-note posts_unit-test-note_test-out-process-data posts_unit-test-note_test-out-process-data_index typo"> <article> <h1>实战单元测试之外部数据的准备</h1> <p>上篇我们讲解了数据库中的数据准备，这次我们来讲下写测试时碰到外部数据的情况改如何应对。</p> <p>首先来讲一下外部数据和测试数据库的区别，测试数据库是可控的外部依赖，因为测试数据库是我们完全可控的。</p> <p>而我们现在要讲的是外部数据是不可控的数据，如：天气，汇率等需要从外部服务获取的数据。</p> <p>刚才说到了外部依赖这个词，一定有同学想到了要用 Test double 了，这里简单说明一下：</p> <p>系统专用的数据库（前提是系统的数据库是专用的，不包括多个系统共用同一数据库的情况），虽然很明显是一个外部依赖，但是由于数据库只和系统交互，从外部来看，是感觉不到数据库的存在的。因此我们可以把它视为系统的一部分。</p> <p>回到正题，本文提到的外部数据那是不归系统管的，比如天气问题，股票汇率等，系统只能接收这些数据，无法进行控制。</p> <p>那么对于这样的数据，只能使用 Stub 了，关于 Stub 和 Mock 之类的话题之后会专门讲解的，这里只要知道这种情况要使用 Stub 就行了。</p> <p>现代的测试工具功能都很强大，只要你想，都可以 Stub 出来，但是如果可能，还是应该尽量使用优雅的方法。</p> <p>比如现在有一段代码，提供货物到达的时间：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Shipment</span>
+  attr_reader <span style="color:#A60">:arrival_time</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">initialize</span>(arrival_time)
+    <span style="color:#33B">@arrival_time</span> = arrival_time
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">get_arrival_time</span>()
+    weather = <span style="color:#036;font-weight:bold">WeatherSDK</span>.new(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">Sydney</span><span style="color:#710">'</span></span>).get_today_weather
+    extra_time = <span style="color:#080;font-weight:bold">case</span> weather
+                 <span style="color:#080;font-weight:bold">when</span> <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">sunny</span><span style="color:#710">'</span></span>
+                   <span style="color:#00D">5</span>.minutes
+                 <span style="color:#080;font-weight:bold">when</span> <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">cloudy</span><span style="color:#710">'</span></span>
+                   <span style="color:#00D">10</span>.minutes
+                 <span style="color:#080;font-weight:bold">when</span> <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">rainy</span><span style="color:#710">'</span></span>
+                   <span style="color:#00D">15</span>.minutes
+                 <span style="color:#080;font-weight:bold">else</span>
+                   <span style="color:#00D">0</span>
+                 <span style="color:#080;font-weight:bold">end</span>
+    <span style="color:#069">self</span>.arrival_time + extra_time
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>那么测试的时候，需要验证不同天气下到达时间的计算是否正确，那当然不能真的去外部服务器获取真实数据。 我们可以，用这样的方法来强制获取 sunny 的天气，这样就保证了测试时的稳定性。</p> <pre class=src lang=ruby>
+<span style="color:#036;font-weight:bold">WeatherSDK</span>.any_instance.stub(<span style="color:#A60">:get_today_weiather</span>).and_return(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">sunny</span><span style="color:#710">'</span></span>)
+</pre> <p>测试倒是没问题，但是生产代码是否可以改进一下呢？</p> <p>假设这个提供天气信息的服务停止了，我们需要另一个 SDK 来维持这个功能不受影响，那就需要同时修改测试和生产代码。</p> <p>所以对于第三方的 SDK, 应该无脑操作自己再封装一次，这样测试代码中的</p> <pre class=src lang=ruby>
+<span style="color:#036;font-weight:bold">MyWeatherSDK</span>.any_instance.stub(<span style="color:#A60">:get_today_weiather</span>).and_return(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">sunny</span><span style="color:#710">'</span></span>)
+</pre> <p>就不需要修改了。</p> <p>还没完，假设我们目前所有的物流都限于悉尼一座城市，如果这个系统上海分部的公司也需要使用呢？ 当然我们可以给 <code>get_arrival_time</code> 加一个地理位置的参数，不过要说这样的代码的根本问题是，在方法中存在一个不可控的变量。</p> <p>如果可以把这个外部依赖使用依赖注入的手法来消除这个隐患的话那再好不过了。</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Shipment</span>
+  attr_reader <span style="color:#A60">:arrival_time</span>, <span style="color:#A60">:weather_sdk</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">initialize</span>(arrival_time, weather_sdk)
+    <span style="color:#33B">@arrival_time</span> = arrival_time
+    <span style="color:#33B">@weather_sdk</span> = weather_sdk
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">get_arrival_time</span>()
+    weather = weather_sdk.get_today_weather
+    extra_time = <span style="color:#080;font-weight:bold">case</span> weather
+                 <span style="color:#080;font-weight:bold">when</span> <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">sunny</span><span style="color:#710">'</span></span>
+                   <span style="color:#00D">5</span>.minutes
+                 <span style="color:#080;font-weight:bold">when</span> <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">cloudy</span><span style="color:#710">'</span></span>
+                   <span style="color:#00D">10</span>.minutes
+                 <span style="color:#080;font-weight:bold">when</span> <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">rainy</span><span style="color:#710">'</span></span>
+                   <span style="color:#00D">15</span>.minutes
+                 <span style="color:#080;font-weight:bold">else</span>
+                   <span style="color:#00D">0</span>
+                 <span style="color:#080;font-weight:bold">end</span>
+    <span style="color:#069">self</span>.arrival_time + extra_time
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>这样一来，测试的方式也有了变化，由于现在 weather sdk 是显式注入的，我们可以不需要使用测试工具的 <code>stub</code> 方法，而采取另一种 Stub: <code>dummy</code></p> <pre class=src lang=ruby>
+dummy_weiather_sdk = <span style="color:#036;font-weight:bold">OpenStruct</span>.new(<span style="color:#606">get_today_weather</span>: <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">sunny</span><span style="color:#710">&quot;</span></span>)
+</pre> <p>对比一下之前的 <code>stub</code> 方式，在阅读代码时，需要知道要 stub 一些东西，但是 stub 的对象从表面根本发现不了，需要阅读实现细节才能知道。</p> <p>相比之下，通过显式注入和 dummy 对象的测试起来无论可读性还是运行效率都要更高。</p> <p>当然在这个例子中，你可以说直接注入 <code>today_weather</code> 更加简单，不过这不是本文要讨论的了。</p> <p>之后我们会进入下一个步骤，就是 AAA 中的 Act 或者说 Given When Then 中的 When 部分。</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/unit-test-note/test-out-process-data"></script> </body> </html>

@@ -1,0 +1,323 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_simple-refactor-practice posts_simple-refactor-practice_index typo"> <article> <h1>一次简单的重构练习记录</h1> <p>在等待马丁大叔的《重构》第二版的艰难日子里，恰巧在一本书里看到了一个 C# 的重构的例子，觉得不错，就转成了 Java 版的，在此记录一下整个过程。</p> <h2>初始版本</h2> <p>这是一个用于计算不同帐户类型的积分计算的类：</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">package</span> <span style="color:#707;font-weight:bold">com.songofcode.refactor.account</span>;
+
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Account</span> {
+
+    <span style="color:#088;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">int</span> balance;
+    <span style="color:#088;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">int</span> rewardPoints;
+    <span style="color:#088;font-weight:bold">private</span> AccountType type;
+
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">int</span> getRewardPoints(){
+        <span style="color:#080;font-weight:bold">return</span> rewardPoints;
+    }
+
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">enum</span> AccountType {
+        Silver,
+        Gold,
+        Platinum
+    }
+
+    <span style="color:#088;font-weight:bold">public</span> Account(AccountType type) {
+        <span style="color:#950">this</span>.type = type;
+    }
+
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> AddTransaction(<span style="color:#339;font-weight:bold">int</span> amount) {
+        rewardPoints += calculateRewardPoints(amount);
+        balance += amount;
+    }
+
+    <span style="color:#088;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">int</span> calculateRewardPoints(<span style="color:#339;font-weight:bold">int</span> amount) {
+        <span style="color:#339;font-weight:bold">int</span> points = <span style="color:#00D">0</span>;
+        <span style="color:#080;font-weight:bold">switch</span> (type) {
+        <span style="color:#080;font-weight:bold">case</span> Silver:
+            points = amount / <span style="color:#00D">10</span>;
+            <span style="color:#080;font-weight:bold">break</span>;
+        <span style="color:#080;font-weight:bold">case</span> Gold:
+            points = (balance / <span style="color:#00D">10000</span> * <span style="color:#00D">5</span>) + (amount / <span style="color:#00D">5</span>);
+            <span style="color:#080;font-weight:bold">break</span>;
+        <span style="color:#080;font-weight:bold">case</span> Platinum:
+            points = (balance / <span style="color:#00D">10000</span> * <span style="color:#00D">40</span>) + (amount / <span style="color:#00D">2</span>);
+            <span style="color:#080;font-weight:bold">break</span>;
+        <span style="color:#080;font-weight:bold">default</span>:
+            points = <span style="color:#00D">0</span>;
+            <span style="color:#080;font-weight:bold">break</span>;
+        }
+        <span style="color:#080;font-weight:bold">return</span> points;
+    }
+
+}
+</pre> <p>可以看到，这个 Account 类的构造函数中接收一个 AccountType, 在计算积分的时候，根据这个 type, 会有不同的算法，获取的积分也就不同了。</p> <p>那么我们来看看这个类可以怎么重构呢？（重构之前应该是要在有单元测试的基础上的，这里略去单元测试的代码）。</p> <h2>去掉 magic numbers</h2> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">package</span> <span style="color:#707;font-weight:bold">com.songofcode.refactor.account</span>;
+
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Account</span> {
+
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> <span style="color:#088;font-weight:bold">final</span> <span style="color:#339;font-weight:bold">int</span> SILVER_TRANSACTION_COST_PER_POINT = <span style="color:#00D">10</span>;
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> <span style="color:#088;font-weight:bold">final</span> <span style="color:#339;font-weight:bold">int</span> GOLD_TRANSACTION_COST_PER_POINT = <span style="color:#00D">5</span>;
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> <span style="color:#088;font-weight:bold">final</span> <span style="color:#339;font-weight:bold">int</span> PLATINUM_TRANSACTION_COST_PER_POINT = <span style="color:#00D">40</span>;
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> <span style="color:#088;font-weight:bold">final</span> <span style="color:#339;font-weight:bold">int</span> GOLD_BALANCE_COST_PER_POINT = <span style="color:#00D">20000</span>;
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> <span style="color:#088;font-weight:bold">final</span> <span style="color:#339;font-weight:bold">int</span> PLATINUM_BALANCE_COST_PER_POINT = <span style="color:#00D">10000</span>;
+
+    <span style="color:#088;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">int</span> balance;
+    <span style="color:#088;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">int</span> rewardPoints;
+    <span style="color:#088;font-weight:bold">private</span> AccountType type;
+
+    <span style="color:#088;font-weight:bold">public</span> Account(AccountType type) {
+        <span style="color:#950">this</span>.type = type;
+    }
+
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">int</span> getRewardPoints(){
+        <span style="color:#080;font-weight:bold">return</span> rewardPoints;
+    }
+
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> AddTransaction(<span style="color:#339;font-weight:bold">int</span> amount) {
+        rewardPoints += calculateRewardPoints(amount);
+        balance += amount;
+    }
+
+    <span style="color:#088;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">int</span> calculateRewardPoints(<span style="color:#339;font-weight:bold">int</span> amount) {
+        <span style="color:#339;font-weight:bold">int</span> points = <span style="color:#00D">0</span>;
+        <span style="color:#080;font-weight:bold">switch</span> (type) {
+            <span style="color:#080;font-weight:bold">case</span> Silver:
+                points = amount / SILVER_TRANSACTION_COST_PER_POINT;
+                <span style="color:#080;font-weight:bold">break</span>;
+            <span style="color:#080;font-weight:bold">case</span> Gold:
+                points = (balance / GOLD_BALANCE_COST_PER_POINT * GOLD_TRANSACTION_COST_PER_POINT) + (amount / GOLD_TRANSACTION_COST_PER_POINT);
+                <span style="color:#080;font-weight:bold">break</span>;
+            <span style="color:#080;font-weight:bold">case</span> Platinum:
+                points = (balance / PLATINUM_BALANCE_COST_PER_POINT * PLATINUM_TRANSACTION_COST_PER_POINT) + (amount / PLATINUM_TRANSACTION_COST_PER_POINT);
+                <span style="color:#080;font-weight:bold">break</span>;
+            <span style="color:#080;font-weight:bold">default</span>:
+                points = <span style="color:#00D">0</span>;
+                <span style="color:#080;font-weight:bold">break</span>;
+        }
+        <span style="color:#080;font-weight:bold">return</span> points;
+    }
+
+}
+
+</pre> <p>这样做相当于给了这些 magic numbers 命名，增强了代码的可读性。</p> <h2>用多态替代条件语句</h2> <p>这里的条件语句就是那个 switch 了，目前的积分计算逻辑都是在那一大块 switch 中的代码里，这样随着 AccountType 的种类变多， switch 中的代码有会越来越多。 我们可以通过创建 SilverAccount, GoldAccount, PlatinumAccount 来替代 AccoutType. 这样一来，当新的 AccountType 出现时，只需要新建一个类， 而不需要在 CalculateRewardPoints 方法里增加一个 case 条件，这样更符合开闭原则。</p> <p>创建不同类型的 Account 的 class, 它们都集成了 Account class (要把 Account 改为 Abstract class):</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">package</span> <span style="color:#707;font-weight:bold">com.songofcode.refactor.account</span>;
+
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">abstract</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Account</span> {
+
+    <span style="color:#088;font-weight:bold">protected</span> <span style="color:#339;font-weight:bold">int</span> balance;
+    <span style="color:#088;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">int</span> rewardPoints;
+    <span style="color:#088;font-weight:bold">private</span> AccountType type;
+
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">int</span> getRewardPoints() {
+        <span style="color:#080;font-weight:bold">return</span> rewardPoints;
+    }
+
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> AddTransaction(<span style="color:#339;font-weight:bold">int</span> amount) {
+        rewardPoints += calculateRewardPoints(amount);
+        balance += amount;
+    }
+
+    <span style="color:#088;font-weight:bold">protected</span> <span style="color:#088;font-weight:bold">abstract</span> <span style="color:#339;font-weight:bold">int</span> calculateRewardPoints(<span style="color:#339;font-weight:bold">int</span> amount);
+
+}
+</pre> <p>可以看到，最复杂的 calculateRewardPoints 方法变成了抽象方法，同时构造函数也消失了。 下面就是不同帐户子类的实现（之前的常量也被分散到了各自的子类中了）。</p> <pre class=src lang=java>
+<span style="color:#080;font-weight:bold">package</span> <span style="color:#707;font-weight:bold">com.songofcode.refactor.account</span>;
+
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">GoldAccount</span> <span style="color:#088;font-weight:bold">extends</span> Account {
+
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> <span style="color:#088;font-weight:bold">final</span> <span style="color:#339;font-weight:bold">int</span> GOLD_TRANSACTION_COST_PER_POINT = <span style="color:#00D">5</span>;
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> <span style="color:#088;font-weight:bold">final</span> <span style="color:#339;font-weight:bold">int</span> GOLD_BALANCE_COST_PER_POINT = <span style="color:#00D">20000</span>;
+
+    <span style="color:#007">@Override</span>
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">int</span> calculateRewardPoints(<span style="color:#339;font-weight:bold">int</span> amount) {
+        <span style="color:#080;font-weight:bold">return</span> (balance / GOLD_BALANCE_COST_PER_POINT * GOLD_TRANSACTION_COST_PER_POINT) + (amount / GOLD_TRANSACTION_COST_PER_POINT);
+    }
+}
+
+
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">SilverAccount</span> <span style="color:#088;font-weight:bold">extends</span> Account {
+
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> <span style="color:#088;font-weight:bold">final</span> <span style="color:#339;font-weight:bold">int</span> SILVER_TRANSACTION_COST_PER_POINT = <span style="color:#00D">10</span>;
+
+    <span style="color:#007">@Override</span>
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">int</span> calculateRewardPoints(<span style="color:#339;font-weight:bold">int</span> amount) {
+        <span style="color:#080;font-weight:bold">return</span> amount / SILVER_TRANSACTION_COST_PER_POINT;
+    }
+}
+
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">PlatinumAccount</span> <span style="color:#088;font-weight:bold">extends</span> Account {
+
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> <span style="color:#088;font-weight:bold">final</span> <span style="color:#339;font-weight:bold">int</span> PLATINUM_TRANSACTION_COST_PER_POINT = <span style="color:#00D">40</span>;
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> <span style="color:#088;font-weight:bold">final</span> <span style="color:#339;font-weight:bold">int</span> PLATINUM_BALANCE_COST_PER_POINT = <span style="color:#00D">10000</span>;
+
+    <span style="color:#007">@Override</span>
+    <span style="color:#088;font-weight:bold">protected</span> <span style="color:#339;font-weight:bold">int</span> calculateRewardPoints(<span style="color:#339;font-weight:bold">int</span> amount) {
+        <span style="color:#080;font-weight:bold">return</span> (balance / PLATINUM_BALANCE_COST_PER_POINT * PLATINUM_TRANSACTION_COST_PER_POINT) + (amount / PLATINUM_TRANSACTION_COST_PER_POINT);
+    }
+}
+</pre> <p>想象一下，这样做之后，如果要新添加一个新的 Account 类别，只需要新建一个类，然后实现 calculateRewardPoints 方法就可以了。</p> <h2>用工厂方法替代构造函数</h2> <p>刚才我们把 Account 类改成 Abstract 之后，测试代码肯定 broken 了，因为我们没有一个统一的接口来创建各类 Account 了。 之前我们用 Account 的构造函数来区分不同的帐户类别，现在可以使用工厂方法来替代它。</p> <pre class=src lang=java>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">abstract</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Account</span> {
+
+    <span style="color:#088;font-weight:bold">protected</span> <span style="color:#339;font-weight:bold">int</span> balance;
+    <span style="color:#088;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">int</span> rewardPoints;
+    <span style="color:#088;font-weight:bold">private</span> AccountType type;
+
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> Account CreateAccount(AccountType type) {
+        Account account = <span style="color:#069">null</span>;
+        <span style="color:#080;font-weight:bold">switch</span> (type) {
+        <span style="color:#080;font-weight:bold">case</span> Silver:
+            account = <span style="color:#080;font-weight:bold">new</span> SilverAccount();
+            <span style="color:#080;font-weight:bold">break</span>;
+        <span style="color:#080;font-weight:bold">case</span> Gold:
+            account = <span style="color:#080;font-weight:bold">new</span> GoldAccount();
+            <span style="color:#080;font-weight:bold">break</span>;
+        <span style="color:#080;font-weight:bold">case</span> Platinum:
+            account = <span style="color:#080;font-weight:bold">new</span> PlatinumAccount();
+            <span style="color:#080;font-weight:bold">break</span>;
+        }
+        <span style="color:#080;font-weight:bold">return</span> account;
+    }
+
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">int</span> getRewardPoints() {
+        <span style="color:#080;font-weight:bold">return</span> rewardPoints;
+    }
+
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> AddTransaction(<span style="color:#339;font-weight:bold">int</span> amount) {
+        rewardPoints += calculateRewardPoints(amount);
+        balance += amount;
+    }
+
+    <span style="color:#088;font-weight:bold">protected</span> <span style="color:#088;font-weight:bold">abstract</span> <span style="color:#339;font-weight:bold">int</span> calculateRewardPoints(<span style="color:#339;font-weight:bold">int</span> amount);
+}
+</pre> <p>这次的改动很小，相较于之前的代码，只是把构造函数换成了一个静态方法，不过这是过渡的方式，接下来我们要把工厂方法抽取出来。</p> <h2>一个新的帐户类型</h2> <p>经过之前的重构，让我们看看当新增一个帐户类型时，需要做哪些改动。 假设我们要新增一个青铜级别（bronze）的帐户。 首先，需要创建一个 BronzeAccount 的 Account 子类。</p> <pre class=src lang=java>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">BronzeAccount</span> <span style="color:#088;font-weight:bold">extends</span> Account {
+
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> <span style="color:#088;font-weight:bold">final</span> <span style="color:#339;font-weight:bold">int</span> BRONZE_TRANSACTION_COST_PER_POINT = <span style="color:#00D">20</span>;
+
+    <span style="color:#007">@Override</span>
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">int</span> calculateRewardPoints(<span style="color:#339;font-weight:bold">int</span> amount) {
+        <span style="color:#080;font-weight:bold">return</span> amount / BRONZE_TRANSACTION_COST_PER_POINT;
+    }
+
+}
+</pre> <p>这个类中我们定义了青铜帐户的积分算法，接下来就是要在工厂方法中新增对青铜帐号的支持。</p> <pre class=src lang=java>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> Account CreateAccount(AccountType type) {
+       Account account = <span style="color:#069">null</span>;
+       <span style="color:#080;font-weight:bold">switch</span> (type) {
+           <span style="color:#080;font-weight:bold">case</span> Bronze:
+               account = <span style="color:#080;font-weight:bold">new</span> BronzeAccount();
+               <span style="color:#080;font-weight:bold">break</span>;
+           <span style="color:#080;font-weight:bold">case</span> Silver:
+               account = <span style="color:#080;font-weight:bold">new</span> SilverAccount();
+               <span style="color:#080;font-weight:bold">break</span>;
+           <span style="color:#080;font-weight:bold">case</span> Gold:
+               account = <span style="color:#080;font-weight:bold">new</span> GoldAccount();
+               <span style="color:#080;font-weight:bold">break</span>;
+           <span style="color:#080;font-weight:bold">case</span> Platinum:
+               account = <span style="color:#080;font-weight:bold">new</span> PlatinumAccount();
+               <span style="color:#080;font-weight:bold">break</span>;
+       }
+       <span style="color:#080;font-weight:bold">return</span> account;
+   }
+</pre> <p>这样做的话，每次有新的 accountType 加入，都要修改这个 switch 代码块。 我们可以考虑使用元编程来动态创造 account 实例：</p> <pre class=src lang=java>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> Account CreateAccount(<span style="color:#0a8;font-weight:bold">String</span> accountType) <span style="color:#088;font-weight:bold">throws</span> <span style="color:#C00;font-weight:bold">ClassNotFoundException</span>, <span style="color:#C00;font-weight:bold">IllegalAccessException</span>, <span style="color:#C00;font-weight:bold">InstantiationException</span> {
+    <span style="color:#0a8;font-weight:bold">Class</span> c= <span style="color:#0a8;font-weight:bold">Class</span>.forName(accountType + <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Account</span><span style="color:#710">&quot;</span></span>);
+    <span style="color:#080;font-weight:bold">return</span> (Account) c.newInstance();
+}
+</pre> <p>不过这种方式太脆弱了，它必须满足下面几个条件：</p> <ol> <li>Account 的类型名必须遵守规范 [Type]Account</li> <li>Account Type 必须和工厂方法在同一个 assembly 中</li> <li>每种 Account Type 必须有一个无参的构造方法</li> </ol> <p>如果有这么多限制的话，那通常说明你的重构有点过了。</p> <h2>代码坏味道：拒绝遗赠</h2> <p>假设我们发现，不是所有的帐户都能够获取积分的，大部份的帐户都是普通帐户，没有积分方面的需求。 那么我们可以创建一个 StandardAccount 的 Account 子类：</p> <pre class=src lang=java>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">StandardAccount</span> <span style="color:#088;font-weight:bold">extends</span> Account {
+
+    <span style="color:#088;font-weight:bold">protected</span> <span style="color:#339;font-weight:bold">int</span> calculateRewardPoints(<span style="color:#339;font-weight:bold">int</span> amount) {
+        <span style="color:#080;font-weight:bold">return</span> <span style="color:#00D">0</span>;
+    }
+}
+</pre> <p>在 StandardAccount 中，把 calculateRewardPoints 这个方法直接返回 0, 这是实现的一种方式。 在这个例子中，父类的抽象方法 calculateRewardPoints 对于子类 StandardAccount 来说，是没有意义的， 甚至是一种累赘，因此这种现象可以被称为“拒绝遗赠（refused bequest）”。</p> <h2>使用代理替代继承</h2> <p>继承是一种强耦合关系，从目前的需求来看，标准帐户和其他帐户是不同的两个种类了。 因此我们需要把积分相关的逻辑分离出来，比如创建一个接口 IRewardCard</p> <p>通过让帐户持有不同的卡片，达到不同的积分记录效果。这里的“持有”就是把 IReardCard 作为 Account 的构造函数参数。</p> <pre class=src lang=java>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">interface</span> <span style="color:#B06;font-weight:bold">IRewardCard</span> {
+    <span style="color:#339;font-weight:bold">int</span> getRewardPoints();
+    <span style="color:#339;font-weight:bold">void</span> calculateRewardPoints(<span style="color:#339;font-weight:bold">int</span> amount, <span style="color:#339;font-weight:bold">int</span> blance);
+}
+</pre> <p>上面是积分卡的接口，下面是 Account 类，它又变回了一个普通类：</p> <pre class=src lang=java>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">Account</span> {
+
+    <span style="color:#088;font-weight:bold">private</span> IRewardCard rewardCard;
+    <span style="color:#088;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">int</span> balance;
+
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">int</span> getBalance() {
+        <span style="color:#080;font-weight:bold">return</span> balance;
+    }
+
+    <span style="color:#088;font-weight:bold">public</span> Account(IRewardCard rewardCard) {
+        <span style="color:#950">this</span>.rewardCard = rewardCard;
+    }
+
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> addTransaction(<span style="color:#339;font-weight:bold">int</span> amount) {
+        rewardCard.calculateRewardPoints(amount, balance);
+        balance += amount;
+    }
+
+}
+
+</pre> <p>只不过构造函数会接收一个 IRewardCard 的实现。 那么我们就以黄金会员卡为例实现 IReardCard 接口。</p> <pre class=src lang=java>
+  <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">GoldRewardCard</span> <span style="color:#088;font-weight:bold">implements</span> IRewardCard {
+    <span style="color:#088;font-weight:bold">private</span> <span style="color:#088;font-weight:bold">static</span> <span style="color:#088;font-weight:bold">final</span> <span style="color:#339;font-weight:bold">int</span> GOLD_BALANCE_COST_PER_POINT = <span style="color:#00D">20000</span>;
+    <span style="color:#088;font-weight:bold">private</span> <span style="color:#088;font-weight:bold">static</span> <span style="color:#088;font-weight:bold">final</span> <span style="color:#339;font-weight:bold">int</span> GOLD_TRANSACTION_COST_PER_POINT = <span style="color:#00D">5</span>;
+
+    <span style="color:#088;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">int</span> points;
+
+    <span style="color:#007">@Override</span>
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">int</span> getRewardPoints() {
+        <span style="color:#080;font-weight:bold">return</span> points;
+    }
+
+    <span style="color:#007">@Override</span>
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> calculateRewardPoints(<span style="color:#339;font-weight:bold">int</span> amount, <span style="color:#339;font-weight:bold">int</span> balance) {
+        points += (balance / GOLD_BALANCE_COST_PER_POINT * GOLD_TRANSACTION_COST_PER_POINT) + (amount / GOLD_TRANSACTION_COST_PER_POINT);
+    }
+}
+</pre> <p>相比之前的版本，积分的计算逻辑都放到了 RewardCard 中，然后注入到 Account 中，再由 Account 去调用 RewardCard 的方法实现积分计算。</p> <pre class=src lang=java>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">AccountTest</span> {
+
+    <span style="color:#007">@Test</span>
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> testGoldRewardCard() {
+        IRewardCard goldRewardCard = <span style="color:#080;font-weight:bold">new</span> GoldRewardCard();
+        Account goldAccount = <span style="color:#080;font-weight:bold">new</span> Account(goldRewardCard);
+        goldAccount.addTransaction(<span style="color:#00D">10000000</span>);
+        assertEquals(<span style="color:#00D">10000000</span>, goldAccount.getBalance());
+        assertEquals(<span style="color:#00D">2000000</span>, goldRewardCard.getRewardPoints());
+    }
+}
+</pre> <p>现在回到之前的问题：如何处理 StardardAccount ? 这里我们可以使用 Null Object Pattern 来处理。</p> <pre class=src lang=java>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">NullRewardCard</span> <span style="color:#088;font-weight:bold">implements</span> IRewardCard {
+
+    <span style="color:#007">@Override</span>
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">int</span> getRewardPoints() {
+        <span style="color:#080;font-weight:bold">return</span> <span style="color:#00D">0</span>;
+    }
+
+    <span style="color:#007">@Override</span>
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> calculateRewardPoints(<span style="color:#339;font-weight:bold">int</span> amount, <span style="color:#339;font-weight:bold">int</span> blance) {}
+
+}
+</pre> <p>通过向 Account 注入一个 NullRewardCard 来实现 standardAccount:</p> <pre class=src lang=java>
+<span style="color:#007">@Test</span>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> testNullRewardCard() {
+    IRewardCard nullRewardCard = <span style="color:#080;font-weight:bold">new</span> NullRewardCard();
+    Account standardAccount = <span style="color:#080;font-weight:bold">new</span> Account(nullRewardCard);
+    standardAccount.addTransaction(<span style="color:#00D">10000000</span>);
+    assertEquals(<span style="color:#00D">10000000</span>, standardAccount.getBalance());
+    assertEquals(<span style="color:#00D">0</span>, nullRewardCard.getRewardPoints());
+}
+</pre> <p>可能有人会觉得这两种实现方式没什么区别，现在是 NullRewardCard 返回 0, 之前是 StardardAccount 返回 0. 但我觉得最重要的是，这样做分离了 balance 和 points, 这样 Account 可以专注于处理 balance 相关的操作， 而 rewardCard 则用于处理 points, 更符合单一职责原则。</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/simple-refactor-practice"></script> </body> </html>

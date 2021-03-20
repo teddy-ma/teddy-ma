@@ -1,0 +1,122 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_unit-test-note posts_unit-test-note_test-output-data posts_unit-test-note_test-output-data_index typo"> <article> <h1>实战单元测试之输出数据的测试</h1> <p>之前讲的都是外部的输入数据，这次我们讲下输出的数据如何测试。 说到输出数据，最常见的就是邮件的发送了，当然短信，各类 IM 的接口同理。 一般这类接收我们发出的数据的平台都有自己的 SDK, 比如邮件发送平台 SendGrid, 使用它的接口示例代码如下：</p> <pre class=src lang=ruby>
+require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">sendgrid-ruby</span><span style="color:#710">'</span></span>
+include <span style="color:#036;font-weight:bold">SendGrid</span>
+
+from = <span style="color:#036;font-weight:bold">SendGrid</span>::<span style="color:#036;font-weight:bold">Email</span>.new(<span style="color:#606">email</span>: <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">test@example.com</span><span style="color:#710">'</span></span>)
+to = <span style="color:#036;font-weight:bold">SendGrid</span>::<span style="color:#036;font-weight:bold">Email</span>.new(<span style="color:#606">email</span>: <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">test@example.com</span><span style="color:#710">'</span></span>)
+subject = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">Sending with Twilio SendGrid is Fun</span><span style="color:#710">'</span></span>
+content = <span style="color:#036;font-weight:bold">SendGrid</span>::<span style="color:#036;font-weight:bold">Content</span>.new(<span style="color:#606">type</span>: <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">text/plain</span><span style="color:#710">'</span></span>, <span style="color:#606">value</span>: <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">and easy to do anywhere, even with Ruby</span><span style="color:#710">'</span></span>)
+mail = <span style="color:#036;font-weight:bold">SendGrid</span>::<span style="color:#036;font-weight:bold">Mail</span>.new(from, subject, to, content)
+
+sg = <span style="color:#036;font-weight:bold">SendGrid</span>::<span style="color:#036;font-weight:bold">API</span>.new(<span style="color:#606">api_key</span>: <span style="color:#069">ENV</span>[<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">SENDGRID_API_KEY</span><span style="color:#710">'</span></span>])
+response = sg.client.mail._(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">send</span><span style="color:#710">'</span></span>).post(<span style="color:#606">request_body</span>: mail.to_json)
+</pre> <p>肯定会有新手会写出这样的代码：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">create_order</span>(params)
+  <span style="color:#777"># ......</span>
+  <span style="color:#080;font-weight:bold">if</span> order.save
+    <span style="color:#777"># ...</span>
+    to = order.buyer.email
+    <span style="color:#777"># ...</span>
+    response = sg.client.mail._(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">send</span><span style="color:#710">'</span></span>).post(<span style="color:#606">request_body</span>: {<span style="color:#606">amount</span>: order.amount, <span style="color:#606">number</span>: order.number})
+    <span style="color:#777"># ...</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>当然，稍有经验的程序员都应该知道，拿到一个 SDK, 第一件事就是把它包起来。</p> <p>另外，这和接下来要讲的 Mock 也有关，关于 Mock 的一项准则就是，只 mock 你自己的类，对第三方的类进行 Mock 很容易出问题，何况真要这样做也很方法，所以不管怎么说，都应该把 SDK 封装一下。</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">MyMailer</span>
+
+  <span style="color:#777"># use send grid api</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">send</span>(email, params)
+    <span style="color:#777"># ...</span>
+    to = email
+    <span style="color:#777"># ...</span>
+    response = sg.client.mail._(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">send</span><span style="color:#710">'</span></span>).post(<span style="color:#606">request_body</span>: {params})
+    <span style="color:#777"># ...</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>SDK 本身的接口只代表它自己的能力，我们的代码应该表达的是意图，比如通知买家去完成付款：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">create_order</span>(params)
+  <span style="color:#080;font-weight:bold">if</span> order.save
+    notify_buyer_to_finish_payment(order)
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+
+private
+<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">notify_buyer_to_finish_payment</span>(order)
+  <span style="color:#036;font-weight:bold">MyMailer</span>.new.send(order.buyer.email, {<span style="color:#606">amount</span>: order.amount, <span style="color:#606">number</span>: order.number})
+<span style="color:#080;font-weight:bold">end</span>
+
+</pre> <p>这样一来，SendGrid 这个依赖已经从代码中被封装起来了。</p> <p>哦，对了，我们是来讲测试的，那么怎么测试这个邮件发送的功能呢？</p> <p>首先，测试私有方法是 anti pattern, 那我们可以测试 create_order 方法，这样可以覆盖到私有方法。 但是仅仅是覆盖到了而已，邮件发送的正确性如何判断？ 或者我们测试 MyMailer 类，可它就是一个 SKD 的包装而已，测试它的功能与业务的正确性无关。</p> <p>那怎么办呢？看来在具体的实现（SendGrid 的 SDK）和意图（发给谁邮件，邮件内容是什么）之间还应该有一个类（职责）：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">OrderNotifier</span>
+  attr_reader <span style="color:#A60">:order</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">initialize</span>(order)
+    <span style="color:#33B">@order</span> = order
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">notify_buyer_to_finish_payment</span>
+    <span style="color:#036;font-weight:bold">MyMailer</span>.new.send(order.buyer.email, {<span style="color:#606">amount</span>: order.amount, <span style="color:#606">number</span>: order.number})
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>对于之前的代码，要测试邮件发送的功能是比较困难的，因为耦合太严重了，像现在这样明确了抽取为一个类后，终于可以比较方便的测试了，那么怎么测试呢？</p> <p>首先，我们要明确，我们测试的是什么？我们只能测输出到外部的数据是否与预期一致。（真的检查发出的邮件如何那是 staging 环境的测试项目了）</p> <p>在这个例子中，我们对外输出的数据有</p> <ol> <li>收件人的 email (是买家而不是卖家)</li> <li>订单的金额</li> <li>订单的编号</li> </ol> <p>我们可以先试一下一种测试方式（或者说风格），叫基于状态的测试（state based testing ），顺便说下，另外还有基于输出和基于交互的测试这两种测试风格。</p> <p>不过我们要稍微修改一下代码：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">OrderNotifier</span>
+  attr_reader <span style="color:#A60">:email</span>, <span style="color:#A60">:amount</span>, <span style="color:#A60">:number</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">initialize</span>(order)
+    <span style="color:#33B">@email</span> =  order.buyer.email
+    <span style="color:#33B">@amount</span> = order.amount
+    <span style="color:#33B">@number</span> = order.number
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">notify_buyer_to_finish_payment</span>
+    <span style="color:#036;font-weight:bold">MyMailer</span>.new.send(email, {<span style="color:#606">amount</span>: amount, <span style="color:#606">number</span>: number})
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>这样一来，我们可以通过 <code>OrderNotifier</code> 实例的字段来测试输出的数据了。</p> <pre class=src lang=ruby>
+test <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">notify_buyer_to_finish_payment</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+  order = orders(<span style="color:#A60">:one</span>)
+  order_notifier = <span style="color:#036;font-weight:bold">OrderNotifier</span>.new(order)
+  assert_equal <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">foo@bar.com</span><span style="color:#710">&quot;</span></span>, order_notifier.email
+  assert_equal <span style="color:#00D">100</span>, order_notifier.amount
+  assert_equal <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">123456</span><span style="color:#710">&quot;</span></span>, order_notifier.number
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>当然，这样做肯定也是不完美的。首先，没有真正测试到发送通知的方法，尽管我们可以看到发送方法中只有对这三个属性的引用，几乎不会有 bug, 但是这样的测试是脆弱的， 面对邮件内容的修改，这样的测试是发现不了问题的，何况，为了这个测试，我们把这三个属性暴露了出来，而这本来是不必要的，这样一来面向对象的封装就被破坏了，得不偿失。</p> <p>可是，不真的调用发送方法，就不能真的测试发送方法啊。。。由于会产生未知副作用，所以输出的数据不能真的被输出。这里就是 Mock 发挥作用的时候了。</p> <p>首先，我们要使用依赖注入的手法来修改一下 OrderNotifier 类：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">OrderNotifier</span>
+  attr_reader <span style="color:#A60">:order</span>, <span style="color:#A60">:mailer</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">initialize</span>(order, mailer = <span style="color:#036;font-weight:bold">MyMailer</span>.new)
+    <span style="color:#33B">@order</span> = order
+    <span style="color:#33B">@mailer</span> = mailer
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">notify_buyer_to_finish_payment</span>
+    mailer.send(order.buyer.email, {<span style="color:#606">amount</span>: order.amount, <span style="color:#606">number</span>: order.number})
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>可以看到，我们把发送邮件的工具类作为一个依赖通过初始化方法注入到了 OrderNotifier 类中。还使用了参数的默认值，把影响缩到了最小。</p> <p>现在就可以这样写测试方法了：</p> <pre class=src lang=ruby>
+test <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">send correct email</span><span style="color:#710">&quot;</span></span> <span style="color:#080;font-weight:bold">do</span>
+  order = orders(<span style="color:#A60">:one</span>)
+  mock_mailer = <span style="color:#036;font-weight:bold">MiniTest</span>::<span style="color:#036;font-weight:bold">Mock</span>.new
+  mock_mailer.expect(<span style="color:#A60">:send</span>, <span style="color:#069">nil</span>, [<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">foo@bar.com</span><span style="color:#710">&quot;</span></span>, <span style="color:#00D">100</span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">123456</span><span style="color:#710">'</span></span>])
+
+  <span style="color:#036;font-weight:bold">OrderNotifier</span>.new(order, mock_mailer).notify_buyer_to_finish_payment
+
+  mock_mailer.verify
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>可见，Mock 是很强大的工具，但是千万不要乱用 mock, 当需要使用 mock 的时候，要多想想，这个地方一定要使用 mock 吗？</p> <p>Mock 应该只在系统的边界才使用，如果不是的话，很可能是你的设计有问题，切记。</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/unit-test-note/test-output-data"></script> </body> </html>

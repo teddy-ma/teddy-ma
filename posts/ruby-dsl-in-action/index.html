@@ -1,0 +1,124 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_ruby-dsl-in-action posts_ruby-dsl-in-action_index typo"> <article> <h1>实例讲解 Ruby DSL</h1> <p>Ruby 语言的一大特色就是其非常强大 DSL 能力。</p> <p>那什么是 DSL 呢？英文全称为 &#8220;Domain-Specific Language&#8221;, Martin Fowler 对其的定义为：</p> <blockquote> <p>Domain-specific language (noun): a computer programming language of limited expressiveness focused on a particular domain.</p> </blockquote> <p>大家可以想象一下，一门用来解决特定领域问题的语言，它相对于通用领域的语言，所面对的问题是有限的，因此相对而言，领域特定语言的表达是更简洁的，因为使用领域特定语言就相当于默认已经给定了上下文。</p> <p>领域特定语言分为外部 DSL 和内部 DSL，我们要讲解的 Ruby 语言编写的 DSL 就属于内部 DSL。</p> <p>上面讲过了，DSL 是用于解决特定领域问题的语言，那什么是特定领域呢？举个例子，Rails 可以说就是一门 <a href="https://stackoverflow.com/questions/2822002/why-is-ruby-on-rails-called-a-domain-specific-language">DSL</a> , 因为它就是 Web 开发这一特定领域的一套解决方案。</p> <p>如果按照 Rails 给定的思路写程序，那么就能用较少的代码，完成更多的工作。</p> <p>下面我会以命令行应用的 UI 为例来介绍一下 DSL 的用法。</p> <h2>领域问题</h2> <p>要使用领域特定语言, 就一定要知道 <b>领域问题</b> 是什么。</p> <p>以构建命令行应用为例，要面对的一个领域问题就是 UI 的构建。</p> <p>命令行的表现能力是有限的，因此对于命令行的 UI, 基本也有一套固定的思路。</p> <p>和 RESTFul 有一套固定格式类似，命令行应用也是有一套自己的参数格式的。</p> <p>一个命令后应用可以被分为 <code>Executable</code> <code>Options</code> <code>Arguments</code> 这么几个部分。</p> <p>先以下面这个命令行应用为例子：</p> <pre class=src lang=bash>
+grep --ignore-case -r &quot;some string&quot; /tmp
+</pre> <h3>Executable</h3> <p><code>grep</code> 也就是被执行的程序</p> <h3>Options</h3> <p><code>--ignore-case</code> 和 <code>-r</code> ，前者是 <code>long-form</code> ，后者是 <code>short-form</code> 。同一个 option 可以同时拥有 long-form 和 short-form 两种写法。</p> <h3>Arguments</h3> <p><code>some string</code> 和 <code>/tmp</code></p> <h3>Command</h3> <p>实际上更复杂的命令行程序还有 Command 这个概念，不过这里不作讨论。</p> <h3>我们的任务</h3> <p>解决命令行应用的 help UI 的构建问题，设定好 options 后，可以方便的打印出各项 options 的用法。</p> <h2>非 DSL 的写法</h2> <p>这里不做具体实现了，就写点伪代码。</p> <p>一般的思路无非就是：</p> <pre class=src lang=ruby>
+<span style="color:#777"># mygrep</span>
+options = {
+  <span style="color:#606">ignore_case</span>: {<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">-i</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">--ignore-case</span><span style="color:#710">&quot;</span></span>, <span style="color:#069">true</span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Perform case insensitive matching.</span><span style="color:#710">&quot;</span></span>}
+  <span style="color:#606">recurse</span>: {<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">-r</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">--recursive</span><span style="color:#710">&quot;</span></span>, <span style="color:#069">false</span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Recursively search subdirectories listed.</span><span style="color:#710">&quot;</span></span>}
+}
+
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">OptionsParser</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">initialize</span>(options)
+    <span style="color:#777"># ... parse</span>
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">to_s</span>
+    puts <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Usage: mygrep [options]</span><span style="color:#710">&quot;</span></span>
+    options.values.each <span style="color:#080;font-weight:bold">do</span> |opts|
+      puts <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#b0b">\t</span><span style="color:#D20"> </span><span style="background-color:hsla(0,0%,0%,0.07);color:black"><span style="font-weight:bold;color:#666">#{</span>opts[<span style="color:#00D">0</span>]<span style="font-weight:bold;color:#666">}</span></span><span style="color:#D20">, </span><span style="background-color:hsla(0,0%,0%,0.07);color:black"><span style="font-weight:bold;color:#666">#{</span>opts[<span style="color:#00D">1</span>]<span style="font-weight:bold;color:#666">}</span></span><span style="color:#D20"> </span><span style="color:#b0b">\t</span><span style="color:#D20"> </span><span style="background-color:hsla(0,0%,0%,0.07);color:black"><span style="font-weight:bold;color:#666">#{</span>opts[<span style="color:#00D">2</span>]<span style="font-weight:bold;color:#666">}</span></span><span style="color:#710">&quot;</span></span>
+    <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>创建一个散列表来储存 options 的信息，然后解析之，最后打印出来。</p> <pre class=src lang=sh>
+ruby mygrep.rb
+Usage: mygrep [options]
+    -i, --ignore-case                Recursively search subdirectories listed.
+    -r, --recursive                  Perform case insensitive matching.
+</pre> <h2>DSL 的写法</h2> <p>先看看 Ruby 标准库自带的 OptionParser 是怎么做的</p> <pre class=src lang=ruby>
+<span style="color:#777"># mygrep.rb</span>
+
+<span style="color:#777"># !/usr/bin/env ruby</span>
+require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">optparse</span><span style="color:#710">'</span></span>
+options = {}
+option_parser = <span style="color:#036;font-weight:bold">OptionParser</span>.new <span style="color:#080;font-weight:bold">do</span> |opts|
+  options[<span style="color:#A60">:ignore_case</span>] = <span style="color:#069">false</span>
+  opts.on(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">-i</span><span style="color:#710">'</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">--ignore-case</span><span style="color:#710">'</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">Recursively search subdirectories listed.</span><span style="color:#710">'</span></span>) <span style="color:#080;font-weight:bold">do</span>
+    options[<span style="color:#A60">:ignore_case</span>] = <span style="color:#069">true</span>
+  <span style="color:#080;font-weight:bold">end</span>
+
+  options[<span style="color:#A60">:recursive</span>] = <span style="color:#069">false</span>
+  opts.on(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">-r</span><span style="color:#710">'</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">--recursive</span><span style="color:#710">'</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">Perform case insensitive matching.</span><span style="color:#710">'</span></span>) <span style="color:#080;font-weight:bold">do</span>
+    options[<span style="color:#A60">:recursive</span>] = <span style="color:#069">true</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>.parse!
+</pre> <p>运行结果：</p> <pre class=src lang=sh>
+ruby mygrep.rb -h
+Usage: mygrep [options]
+    -i, --ignore-case                Recursively search subdirectories listed.
+    -r, --recursive                  Perform case insensitive matching.
+</pre> <p>怎么样，是不是可读性上了一个档次。</p> <h2>创建自己的 DSL</h2> <p>在下面这个例子中, 我们要创建一个用于 &#8220;模拟&#8221; git 提交记录的 DSL, 类似于 git 中的 Lorem Ipsum.</p> <p>比如说为了讲解 git 的分支使用方式, 我可能需要一个用于教学的 git 仓库, 如果真的自己手动一次一次地提交, 或者写成脚本都是很枯燥乏味的. 如果有如下的方式来方便地构建一组提交记录, 那想必是极好的，DSL 的写法如下：</p> <pre class=src lang=ruby>
+<span style="color:#777"># git-dsl.rb</span>
+<span style="color:#036;font-weight:bold">GitLorem</span>.new <span style="color:#080;font-weight:bold">do</span>
+  master <span style="color:#080;font-weight:bold">do</span>
+    mentor  <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">init rails project</span><span style="color:#710">&quot;</span></span>
+    student <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">update README</span><span style="color:#710">&quot;</span></span>
+
+    layout <span style="color:#080;font-weight:bold">do</span>
+      mentor <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">import reactjs</span><span style="color:#710">&quot;</span></span>
+      student <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">import bootstrap</span><span style="color:#710">&quot;</span></span>
+    <span style="color:#080;font-weight:bold">end</span>
+
+    devise <span style="color:#080;font-weight:bold">do</span>
+      student <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">init devise</span><span style="color:#710">&quot;</span></span>
+      mentor <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">add devise user model</span><span style="color:#710">&quot;</span></span>
+    <span style="color:#080;font-weight:bold">end</span>
+
+    mentor <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">add heroku config</span><span style="color:#710">&quot;</span></span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>可以看到 DSL 的表达力非常强，一个产品的开发流程就这样展示出来了。</p> <p>下面就是具体的实现，这一定不是最好的实现，但足够理解了</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">GitLorem</span>
+  attr_accessor <span style="color:#A60">:branch_names</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">initialize</span>(&amp;block)
+    <span style="color:#33B">@branch_names</span> = []
+    instance_eval(&amp;block)
+  <span style="color:#080;font-weight:bold">end</span>
+
+  private
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">current_branch_name</span>
+    <span style="color:#33B">@branch_names</span>.last
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">method_missing</span>(name, *args, &amp;block)
+    <span style="color:#080;font-weight:bold">if</span> block_given?
+      <span style="color:#33B">@branch_names</span> &lt;&lt; name
+      branch_name = name
+      instance_eval(&amp;block)
+    <span style="color:#080;font-weight:bold">else</span>
+      commit(name, current_branch_name, args.first)
+    <span style="color:#080;font-weight:bold">end</span>
+    <span style="color:#33B">@branch_names</span>.pop <span style="color:#080;font-weight:bold">if</span> branch_name == current_branch_name
+  <span style="color:#080;font-weight:bold">end</span>
+
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">commit</span>(committer, branch, message)
+    puts <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">提交者: </span><span style="background-color:hsla(0,0%,0%,0.07);color:black"><span style="font-weight:bold;color:#666">#{</span>committer<span style="font-weight:bold;color:#666">}</span></span><span style="color:#D20"> 在分支 </span><span style="background-color:hsla(0,0%,0%,0.07);color:black"><span style="font-weight:bold;color:#666">#{</span>branch<span style="font-weight:bold;color:#666">}</span></span><span style="color:#D20"> 创建了提交: </span><span style="background-color:hsla(0,0%,0%,0.07);color:black"><span style="font-weight:bold;color:#666">#{</span>message<span style="font-weight:bold;color:#666">}</span></span><span style="color:#710">&quot;</span></span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>运行结果如下：</p> <pre class=src lang=sh>
+ruby git-dsl.rb
+提交者: mentor 在分支 master 创建了提交: init rails project
+提交者: student 在分支 master 创建了提交: update README
+提交者: mentor 在分支 layout 创建了提交: import reactjs
+提交者: student 在分支 layout 创建了提交: import bootstrap
+提交者: student 在分支 devise 创建了提交: init devise
+提交者: mentor 在分支 devise 创建了提交: add devise user model
+提交者: mentor 在分支 master 创建了提交: add heroku config
+</pre> <h2>总结</h2> <p>限于篇幅，本文到此为止，有兴趣的同学可以自己实现 commit 方法，让这段代码可以变成真正有用的脚本。 最后引用《Ruby元编程》中的一句话：</p> <blockquote> <p>根本没有什么元编程，从来只有编程而已。</p> </blockquote> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/ruby-dsl-in-action"></script> </body> </html>

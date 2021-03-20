@@ -1,0 +1,50 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_effective-emacs-habits posts_effective-emacs-habits_index typo"> <article> <h1>Emacs: Seven habits of effective text editing</h1> <p>Vim 用户一定都看过 <a href="http://www.moolenaar.net/habits.html">Seven habits of effective text editing</a> 这篇文章。 虽然原文是针对 Vim 的，但道理都是相通的，所以我总结了这份 Emacs 版本的高效文字编辑的习惯。</p> <p>本文不会过多的深入 Emacs 的配置，因为我觉得展示 Emacs 能做什么比怎么做更重要。</p> <h2>快速移动</h2> <h3>下面是最基本的移动</h3> <table> <tr><th>key</th><th>description</th></tr> <tr><td>C-f</td><td>向前移动一个字符</td></tr> <tr><td>C-b</td><td>向后移动一个字符</td></tr> <tr><td>C-p</td><td>向上移动一行</td></tr> <tr><td>C-n</td><td>向下移动一行</td></tr> <tr><td>C-a</td><td>移动到行首</td></tr> <tr><td>C-e</td><td>移动到行尾</td></tr> <tr><td>M-f</td><td>向前移动一个单词</td></tr> <tr><td>M-b</td><td>向后移动一个单词</td></tr> <tr><td>M-g M-g</td><td>移动到特定一行</td></tr> <tr><td>C-v</td><td>下一页</td></tr> <tr><td>M-v</td><td>上一页</td></tr> <tr><td>C-l</td><td>屏幕居中（以光标为中心）</td></tr> <tr><td>M-r</td><td>切换光标到到屏幕的上中下位置</td></tr> </table> <h3>查找哪几行文字里面使用到了某个特定的单词或者短语</h3> <table> <tr><th>key</th><th>description</th></tr> <tr><td>C-r</td><td>向前搜索</td></tr> <tr><td>C-s</td><td>向后搜索</td></tr> <tr><td>M-s</td><td>swiper search</td></tr> </table> <h3>在一个开括号和与其配对的闭括号间跳转</h3> <table> <tr><th>key</th><th>description</th></tr> <tr><td>C-M-f</td><td>前向移动一个 s 表达式</td></tr> <tr><td>C-M-b</td><td>向后移动一个 s 表达式</td></tr> </table> <h3>跳转到一个变量的本地声明的位置，寻找一个方法在哪里声明</h3> <p>建立好 ctags 后（参考后文） 使用 <code>M-.</code> 跳转。</p> <h2>减少重复输入</h2> <h3>你经常要将一个词语修改成另一个词语</h3> <p>如果是一个 buffer 的话，可以使用 <code>replace-string</code> 如果是全局的话，使用 <code>project-replace</code> (C-p r)</p> <h3>有一些函数或者变量很难输入。</h3> <p>你可以一字不差地输入&#8221;XpmCreatePixmapFromData&#8221;么？ 使用 <code>company</code> mode 可以自动补全，不同语言可能有自己的特殊实现</p> <h3>当你需要多次输入一个短语或者句子的时候，有一个更快的捷径。</h3> <p>Emacs 有一个录制宏的机制。</p> <table> <tr><th>key</th><th>description</th></tr> <tr><td>f3 or C-x (</td><td>Start recording macro</td></tr> <tr><td>f4 or C-x )</td><td>Stop recording macro</td></tr> <tr><td>C-x e or f4</td><td>Playback macro</td></tr> </table> <h2>订正错误</h2> <h3>或许你可以使用缩写来订正, 这一机制也可以被用到使用输入缩写来替代一个长的词语</h3> <p>在 ~~/.emacs.d/abbrev_defs~ 中可以定义：</p> <pre class=src lang=emacs-lisp>
+(define-abbrev-table 'global-abbrev-table
+  '(
+    (&quot;afaict&quot; &quot;as far as I can tell&quot; nil 1)
+    (&quot;omuse&quot; &quot;http://www.emacswiki.org/cgi-bin/oddmuse.pl&quot; nil 0)
+    (&quot;btw&quot; &quot;by the way&quot; nil 3)
+    (&quot;wether&quot; &quot;whether&quot; nil 5)
+    (&quot;ewiki&quot; &quot;http://www.emacswiki.org/cgi-bin/wiki.pl&quot; nil 3)
+    (&quot;pov&quot; &quot;point of view&quot; nil 1)
+    ))
+</pre> <p>输入 <code>btw</code> 后 <code>C-x &#39;~ 就会得到 ~by thw way</code></p> <h2>文件很少独立存在</h2> <h3>为你的项目使用一个标签文件。</h3> <p>你可以快速地在项目中的文件间跳转，来找到函数、结构体、类型的定义。 首先安装 ctags (MacOS)</p> <pre class=src lang=shell>
+brew install ctags
+brew link --overwrite ctags
+</pre> <p>然后执行 <code>projectile-regenerate-tags</code> 之后就能使用 <code>M-.</code> 来跳转</p> <h3>另一个强大的机制是使用:grep命令在一组文件中搜索你想要的内容</h3> <p>C-p-s-(g|r|s) 可以调用 projectile 的搜索功能，不限于 grep（g）。</p> <h3>有很多相关的命令可以用来打开、关闭窗口，切换窗口，甚至暂隐藏窗口等等</h3> <p>Emacs 对多窗口的支持非常好：</p> <table> <tr><th>key</th><th>description</th></tr> <tr><td>C-x 2</td><td>横向切分窗口</td></tr> <tr><td>C-x 3</td><td>纵向切分窗口</td></tr> <tr><td>C-x 1</td><td>只保留当前选中 的窗口</td></tr> <tr><td>C-x 0</td><td>关闭当前选中的窗口</td></tr> <tr><td>C-x 4 C-f</td><td>find-file-other-window</td></tr> <tr><td>C-x 4 C-o</td><td>display-buffer</td></tr> <tr><td>C-x 4 .</td><td>find-tag-other-window</td></tr> <tr><td>C-x 4 0</td><td>kill-buffer-and-window</td></tr> <tr><td>C-x 4 a</td><td>add-change-log-entry-other-window</td></tr> <tr><td>C-x 4 b</td><td>switch-to-buffer-other-window</td></tr> <tr><td>C-x 4 c</td><td>clone-indirect-buffer-other-window</td></tr> <tr><td>C-x 4 d</td><td>dired-other-window</td></tr> <tr><td>C-x 4 f</td><td>find-file-other-window</td></tr> </table> <h3>显示当前光标下的函数的文档</h3> <p>以 Ruby 为例，安装好 Ruby robe mode 后 <code>C-c C-d</code></p> <h2>协同工作</h2> <p>这部分 Emacs 没有对应的内容，因为你可以在 Emacs 中做任何事。 :)</p> <h2>文字是结构化的</h2> <h3>快速访问文件名：行号</h3> <p>一般出错信息都是 文件名:行号 的格式，可以用下面的配置来做到直接打开错误文件的位置。</p> <pre class=src lang=emacs-lisp>
+;; Open files and goto lines like we see from g++ etc. i.e. file:line#
+;; (to-do &quot;make `find-file-line-number' work for emacsclient as well&quot;)
+;; (to-do &quot;make `find-file-line-number' check if the file exists&quot;)
+(defadvice find-file (around find-file-line-number
+                             (filename &amp;optional wildcards)
+                             activate)
+  &quot;Turn files like file.cpp:14 into file.cpp and going to the 14-th line.&quot;
+  (save-match-data
+    (let* ((matched (string-match &quot;^\\(.*\\):\\([0-9]+\\):?$&quot; filename))
+           (line-number (and matched
+                             (match-string 2 filename)
+                             (string-to-number (match-string 2 filename))))
+           (filename (if matched (match-string 1 filename) filename)))
+      ad-do-it
+      (when line-number
+        ;; goto-line is for interactive use
+        (goto-char (point-min))
+        (forward-line (1- line-number))))))
+</pre> <p>然后就可以在 find-file 的时候使用 README.md:3 这样的格式了。</p> <h2>养成习惯</h2> <p>卸载你之前使用的编辑器，强迫自己使用 Emacs, 碰到操作不方便的地方，尝试去搜索解决方案。</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/effective-emacs-habits"></script> </body> </html>

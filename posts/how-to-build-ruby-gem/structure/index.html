@@ -1,0 +1,77 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_how-to-build-ruby-gem posts_how-to-build-ruby-gem_structure posts_how-to-build-ruby-gem_structure_index typo"> <article> <h1>构建一个 Ruby Gem 第二章 结构</h1> <p>当我第一次开始制作我自己的 Ruby gems 的时候，最让我沮丧的事情之一就是理解文件结构的约定。即使我可以让一些代码在一起工作，我想要真正理解到底发生了什么和相关的最佳实践。</p> <p>我发现的一些最好的资源是在 <a href="http://guides.rubygems.org/">RubyGems.org</a> 上(没想到吧......)。他们的手册写的很好并且值得一读的如果你想严肃地构建 gems。</p> <h2>命名</h2> <p>当构建一个 ruby gem 时一件值得考虑的事情是它的名字。随着越来越多的 gem 被创建，找到一个独一无二的并且有意义的名字就越来越难。 我偏好代表功能的名字。然而，名字取决于我们。只要我们的 gem 有一个自己的 <code>README</code> （我们很快会涉及）并且我们能精确描述它做了什么和如何使用它，名字就不是那么重要了。</p> <p>另一个需要考虑的点是当选择一个 gem 的名字时，如何才能谷歌到它。选择一个普通的名字比如 <code>graph</code> 或者 <code>statistics</code> 将会很难被谷歌到。 一个很好的检验方式是搜索目标名字加上 &#8220;ruby&#8221; 或者 &#8220;ruby gem&#8221;。</p> <p>另一件值得做的事情是快速的搜索一下 <a href="https://rubygems.org/">Rubygems.org</a> 和 <a href="http://github.com/">Github</a> 来确保没有人用过这个名字。我就预先确保了 <code>mega_lotto</code> 这个名字没有被人使用过。 这年头，就像搜索域名一样 &#8212; 所有的好名字都被抢了，或者说我们需要更多的创造力！</p> <p>Rubygems.org 有一个<a href="http://guides.rubygems.org/name-your-gem/">绝佳的关于命名规范的手册</a>. 花几分钟来阅读它(篇幅很短). 我在这里等你&#8230;</p> <p>插入你最喜欢的电梯音乐。</p> <p>好了，现在你已经在 Ruby gem 的世界中接受过完整的教育了，我要强调一件事：</p> <p><i>除非你知道你在做什么，使用下划线而不是中划线。</i></p> <p>中划线的常用意义是创建一个已有gem的扩展。比如：<a href="https://github.com/wildbit/postmark-rails">postmark-rails</a> 是给 rails 加上邮戳，<a href="https://github.com/fphilipe/premailer-rails">premailer-rails</a> 给 rails 加上 <a href="https://github.com/premailer/premailer">premailer</a>。 这些 gems 都使用中划线在它们的名字中表示它们是 rails 的扩展。</p> <p>你大概注意到了一些 gem 使用中划线但是不是已有 gem 的扩展。 可能有两个原因，一是这个 gem 是很多年前被创建的，那时标准不太清晰，或者他们没有意识到命名的最佳实践，本可以阅读一下上面的手册。</p> <p>保持名字和社区的约定一致。就会减少混乱，这从根本上是一件好事，因为我们是那个在发布 gem 后对可能造成的混乱负责的人.</p> <p>如果你发现了一个相同名字的 gem，给社区一个面子然后选择一个别的名字。否则不仅会让那些使用已存在的 gem 的人困惑，也会让使用你的 gem 的人困惑。 我以前走过这条路，结局是让人沮丧的。</p> <h2>Bundler</h2> <p>事实证明 bundler 包含的功能比大多数人意识到的要多。 除了使用它来安装一个应用程序的 gems (<code>bundle install</code>)，Bundler 也有内建的命令来帮助你管理创建和维护一个 ruby gem 的过程。</p> <pre class=example>
+$ bundle help
+...
+bundle gem(1)
+Create a simple gem, suitable for development with bundler
+...
+</pre> <p>所以我们还在等什么呢？让我们创建我们的一个第一个 Ruby gem 吧！我们将会使用 <code>bundle gem</code> 命令来启动我们的 <code>MeagLotto</code> gem 的初始化代码。</p> <pre class=example>
+$ bundle gem mega_loto
+</pre> <p>注意：因为我之前已经发布了 <code>mega_lotto</code> 这个 gem 到 Rubygems了，如果你使用相同的 gem 的名字就不能再发布了， 一个选择是改变 gem 的名字（比如 <code>brandons_mega_lotto</code> ），或者跳过发布的步骤。</p> <p>让我们看看我们都创建了什么：</p> <pre class=src lang=sh>
+.
+├── Gemfile
+├── LICENSE.txt
+├── README.md
+├── Rakefile
+├── lib
+│   ├── mega_lotto
+│   │   └── version.rb
+│   └── mega_lotto.rb
+└── mega_lotto.gemspec
+2 directories, 7 files
+</pre> <p>有很多需要注意的事情......有一个 <code>lib</code> 目录包含了一个文件 (<code>mega_lotto.rb</code>) 和一个目录 (<code>lib/mega_lotto/</code>) 都叫做 &#8220;mega_lotto&#8221;。 这和 Rubygems.org<a href="http://guides.rubygems.org/make-your-own-gem">关于文件结构的手册</a>上是一致的:</p> <blockquote> <p>你打包的代码位于 lib 目录。依照惯例应该有一个和你的 gem 名字一样的 Ruby 文件，因为当别的程序 =require &#8216;mega_lotto&#8217;= 时，这个文件会被加载。这个同名文件负责设定你的 gem 的代码和 API 。</p> </blockquote> <p>考虑到入口文件 ( <code>lib/mega_lotto.rb</code> ) 的工作是加载 gem 的依赖. 这些依赖可能是内部或者第三方的库. 而内部的类, 就像 Rubygems 建议的那样, 应该放在 <code>lib/mega_lotto/</code> 目录下并且从那里被引用.</p> <h2>默认文件</h2> <p>gem的根目录看起来就像这样:</p> <pre class=src lang=sh>
+├── Gemfile
+├── LICENSE.txt
+├── README.md
+├── Rakefile
+├── lib
+│   ├── mega_lotto
+│   │   └── version.rb
+│   └── mega_lotto.rb
+└── mega_lotto.gemspec
+</pre> <h2>许可证</h2> <p>上面输出的那个 LICENSE.txt 文件默认是 <a href="https://opensource.org/licenses/MIT">MIT许可证</a>。它规定代码可以被任何人用于做任何事而不用额外的许可或者认可。 大多数开源项目使用这个许可证，因此 bundler 默认就用它。</p> <p>选择一个许可证可以是很麻烦的。我敢保证有很多软件工程师在（或者曾经在）大型组织中花上数小时来要求公司的法律部门审批对于开源软件的使用请求。 无论你的态度如何，许可证是一件要紧的事情。如果默认的 MIT 许可证不适合你的项目，看看 <a href="http://choosealicense.com/">http://choosealicense.com/</a>。 它提供了一份常见软件许可证的指导手册。如果你还是有疑问，那就需要联系一个律师或者某个熟悉软件许可证的人去向他学习了。</p> <h2>Readme</h2> <p>README.md 文件是我们的gem的文档. 一个 README 文件的最简形式, 需要至少能够回答下面几个问题:</p> <ol> <li>它是什么</li> <li>我如何使用它</li> <li>我如何作贡献</li> </ol> <p>额外的部分比如系统要求, 安装, 作者, 贡献者和许可证可以在很多项目里被发现. 通常来说, 没人会责怪你在 README 里写太多的东西。</p> <p>幸运的是，bundler 生成的 README 文件已经包含了这些部分。我们所要做的就是适当的填上这些空白。 大多数项目使用 <a href="https://daringfireball.net/projects/markdown/">markdown</a> 文件格式(因为 .md 后缀)。</p> <p>如果你的项目的 README 开始变得非常的长并且host在github上, 那么github的项目wiki就是你的下一步选择. 如果我们特意使用了wiki, 我们要把这件事记录在README上, 这样用户们才会知道要去查看wiki. 另外一个使用项目wiki的好处是, 我们(作为项目拥有者), 可以允许其他人作贡献. 所以与其被更新文档的pull request淹没, 我们可以建议那些用户在必要的地方更新/创建wiki页面. 这替代了一部分社区的职责, 这是合理的因为我们正在创建免费软件供他们使用. 如果没有社区的出钱出力我们也不会有开源软件.</p> <h2>Rakefile</h2> <p>Rakefile 是一个用来定义和组织任务的文件，我们会从命令行运行它。默认情况下，它包含下面的内容：</p> <pre class=src lang=ruby>
+require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">bundler/gem_tasks</span><span style="color:#710">&quot;</span></span>
+</pre> <p>通过引用这个库，bundler 提供我们一些内置的任务来发布我们的gem。我们会在适当的时候更详细的了解它们。</p> <h2>Gemspec</h2> <p>最后, gem spec (mega_lotto.gemspec)&#8230; 只有很少的字段需要更新因为bundler已经为我们做了剩下的事情.</p> <pre class=src lang=ruby>
+<span style="color:#777"># coding: utf-8</span>
+lib = <span style="color:#036;font-weight:bold">File</span>.expand_path(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">../lib</span><span style="color:#710">'</span></span>, <span style="color:#069">__FILE__</span>)
+<span style="color:#d70">$LOAD_PATH</span>.unshift(lib) <span style="color:#080;font-weight:bold">unless</span> <span style="color:#d70">$LOAD_PATH</span>.include?(lib)
+require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">mega_lotto/version</span><span style="color:#710">'</span></span>
+<span style="color:#036;font-weight:bold">Gem</span>::<span style="color:#036;font-weight:bold">Specification</span>.new <span style="color:#080;font-weight:bold">do</span> |spec|
+  spec.name = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">mega_lotto</span><span style="color:#710">&quot;</span></span>
+  spec.version = <span style="color:#036;font-weight:bold">MegaLotto</span>::<span style="color:#036;font-weight:bold">VERSION</span>
+  spec.authors = [<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Brandon Hilkert</span><span style="color:#710">&quot;</span></span>]
+  spec.email = [<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">brandonhilkert@gmail.com</span><span style="color:#710">&quot;</span></span>]
+  spec.description = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">%q{</span><span style="color:#D20">TODO: Write a gem description</span><span style="color:#710">}</span></span>
+  spec.summary = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">%q{</span><span style="color:#D20">TODO: Write a gem summary</span><span style="color:#710">}</span></span>
+  spec.homepage = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#710">&quot;</span></span>
+  spec.license = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">MIT</span><span style="color:#710">&quot;</span></span>
+  spec.files = <span style="background-color:hsla(120,100%,50%,0.06)"><span style="color:#161">`</span><span style="color:#2B2">git ls-files</span><span style="color:#161">`</span></span>.split(<span style="color:#d70">$/</span>)
+  spec.executables = spec.files.grep(<span style="background-color:hsla(300,100%,50%,0.06)"><span style="color:#404">%r{</span><span style="color:#808">^bin/</span><span style="color:#404">}</span></span>) { |f| <span style="color:#036;font-weight:bold">File</span>.basename(f) }
+  spec.test_files = spec.files.grep(<span style="background-color:hsla(300,100%,50%,0.06)"><span style="color:#404">%r{</span><span style="color:#808">^(test|spec|features)/</span><span style="color:#404">}</span></span>)
+  spec.require_paths = [<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">lib</span><span style="color:#710">&quot;</span></span>]
+  spec.add_development_dependency <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">bundler</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">~&gt; 1.3</span><span style="color:#710">&quot;</span></span>
+  spec.add_development_dependency <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">rake</span><span style="color:#710">&quot;</span></span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>一开始的两行把我们的 gem 的 lib 目录加入了 load path (ruby会寻找的额外库的path)。 这会允许我们从我们的宿主应用调用 &#8220;mega_lotto&#8221;并且让它正确的加载我们的gem。</p> <p>规范的第一部分是一些关于我们(作为作者)和gem的元数据。在发布之前，我们要完成描述，总结和主页。之后，我们会看到这些信息被用在 gem 的 Rubygem.org 的页面上。</p> <p>中间部分使用 git 来确定我们的 gem 的文件。 有一点要注意，如果你更改你的 gem 并且通过本地文件路径引用你的 gem 的应用程序进行测试时，一些文件可能是不可见的如果它们没有被 git 提交过（比如 可执行的命令行文件）。</p> <p>最后一部分是我们的gem的依赖定义。当在宿主应用中被调用时，bundler 将会和我们的 gem 的代码一起安装这些依赖。要注意有两种依赖方法。</p> <ul> <li>add_development_dependency &#8212; 定义一个开发环境依赖。当被用于生产环境或者当开发我们的宿主程序时，这些依赖不会被安装；只有在开发本地 gem 时才会被安装。</li> <li>add_dependency &#8212; 定义在所有环境中都需要的依赖。</li> </ul> <p>虽然 bundler 在我们的项目的根目录创建了一个 Gemfile，它不应该被修改除非我们有特殊的理由这么做。</p> <pre class=example>
+source &#39;https://rubygems.org&#39;
+# Specify your gem&#39;s dependencies in mega_lotto.gemspec
+gemspec
+</pre> <p>gemspec方法表明了bundler会从 mega_lotto.gemspec 文件去定义 gem 的依赖。</p> <h2>README 驱动开发</h2> <p>这是一个真实的故事. Tom Preston-Werner 发帖说明了 <a href="http://tom.preston-werner.com/2010/08/23/readme-driven-development.html">REAME驱动开发的好处</a>，Zach Holman，也做了一个<a href="https://zachholman.com/talk/a-documentation-talk">相关的分享</a></p> <p>如果我们想要我的 gem 被其他人使用，我们应该为它写一个README。 如果这不能说服你，我可以告诉你无数次当我写代码，隔了几天之后就忘了代码在做什么了(这从来也没发生在你的身上, 可能吗?)。 因此，一个包含了代码用例的 README 就会很好的为我们服务。下面是我认为我们要先写 README 的理由：</p> <ol> <li>它迫使我们预先定义公共 API(宿主应用可以调用的方法)，这会减少我们过程工程的倾向。</li> <li>它把烦人的文档部分放到了前面。当你完成代码并且要发布gem时，最后要做的是撰写文档。说真的，这一点也不好玩。所以如果我们可以把这件事挪到前面来做，我们的处境就会好些。</li> <li>我们会忘记我的 gem 是如何工作的...... 所以如果我们想要其他人来使用它，我们应该写一个 README 来说明安装，用法和如何做贡献(如果我们欢迎贡献者)。</li> </ol> <p>希望这说服了你一个README 是重要的。虽然我认为如果你在开发之前就写 README 会比较好，但是我知道每个人的工作方式都是不同的。 更大更重要的点是你的项目要有一个 README。</p> <h2>公共 API</h2> <p>经常的, 很容易迷失在去写孤立的杀手级代码，但是记住我们的 gem 的重心是封装会被外在的宿主应用调用的逻辑和功能。 我们要让 gem 的方法能被用简单直接的方式调用。</p> <p>以 mega_lotto 为例, 这是我们期望的目标:</p> <pre class=example>
+MegaLotto::Drawing.new.draw # =&gt; [23, 22, 3, 7, 16]
+</pre> <p>注意：如果你正在写一个不同的 gem，想象为你的 gem 提交一个公共 API。从一开始就牢记这一点就会减少你代码的混乱并且让你聚焦在实现你需求的功能的部分。</p> <h2>总结</h2> <p>Bundler 搞定了样板代码，让我们把注意力放在我们的 gem 的价值和编码上，我们花了很多时间复习一个常规 gem 的文件结构。 一旦我们熟悉并且适应了这样的文件结构，我认为你会在其他地方发现它的价值。把代码都组织在一个 Rails 应用的 lib 目录下并没有坏处。 事实上，这就是抽取功能到一个独立的gem 的前身，我们会在本书的后续讨论。这也是一个很好的方法来保持 Ruby 类的组织和命名空间。 我也发现按照这样的文件结构导致我更多的考虑类的名字。结果是，我的代码有着更好的组织结构并且独立(赞一下单一职责原则)。</p> <p>在下一章，我们会看看如何设置 Rspec 和其他 debug 工具来帮助我们的开发过程。</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/how-to-build-ruby-gem/structure"></script> </body> </html>

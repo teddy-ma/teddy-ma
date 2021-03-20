@@ -1,0 +1,38 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_how-to-build-ruby-gem posts_how-to-build-ruby-gem_commandline-executables posts_how-to-build-ruby-gem_commandline-executables_index typo"> <article> <h1>构建一个 Ruby Gem 第十章 命令行可执行文件</h1> <p>很多 Ruby gems 提供了可执行的命令行作为它们的功能的一部分。想象一下离开了命令行你能使用 <code>bunlder</code> 或者 <code>rake</code> 吗？ &#8230; 那就不是一个 gem 了！</p> <p>这些可执行文件和我们在前几章看到的 web 和测试的支持库没有什么大的区别。 通常来说，它们是独立在一个单独的类库中并且不被入口文件包含用于加载。在本章中，我们将会集成一个可执行命令行到我们的 <code>mega_lotoo gem</code> 来代理我们已经写好的 drawing 方法。</p> <h2>用例</h2> <p>我们想要创建一个命令行工具为 <code>mega_lotto</code> 来代理 <code>#draw</code> 方法在 <code>MegaLotto::Drawing</code> 并且返回这样的东西：</p> <pre class=src lang=sh>
+$ mega_lotto164757
+15
+26
+</pre> <p>由于 #draw 方法已经被实现了, 创建一个可执行命令不会很难。</p> <h2>实现</h2> <p><code>bin/</code> 目录是一个配套的可执行文件的标准位置。再一次看看我们的 <code>mega_lotto.gemspec</code> 注意下面行：</p> <pre class=src lang=ruby>
+spec.executables = spec.files.grep(<span style="background-color:hsla(300,100%,50%,0.06)"><span style="color:#404">%r{</span><span style="color:#808">^bin/</span><span style="color:#404">}</span></span>) { |f| <span style="color:#036;font-weight:bold">File</span>.basename(f) }
+</pre> <p>gemspec 定义了一个可执行文件的列表，通过被提交到 git 并且位于 <code>bin/</code> 目录下。 所以让我们加入文件 =bin/mega_lotto=。</p> <p>由于它是一个脚本会被命令行执行，我们有两个重要的改变要做：</p> <ol> <li>在文件的顶部加入 <code>#!/usr/bin/env</code> 并且使用命令 <code>chomd +x bin/mega_lotto</code> 允许其被执行（假设你在 linux 或者 macOS 平台上）</li> <li>因为这个文件是独立于 gem 的其他部分的，我们不得不加载必要的依赖</li> </ol> <pre class=src lang=ruby>
+<span style="color:#34b">#!/usr/bin/env rubyrequire_relative &quot;../lib/mega_lotto/drawing&quot;</span>
+</pre> <p>现在让我们代理 <code>#draw</code> 方法：</p> <pre class=example>
+#!/usr/bin/env ruby
+require_relative &quot;../lib/mega_lotto/drawing&quot;
+drawing = MegaLotto::Drawing.new.draw
+puts drawing
+</pre> <p>让我们提交我们的改变，并运行 <code>rake install</code></p> <pre class=src lang=sh>
+$ mega_lotto
+8
+11
+9
+38
+43
+</pre> <p>注意: 如果你使用 Rbenv 来管理 Ruby 版本，你可能需要运行 <code>rbenv rehash</code> 在可执行文件可被得到前。</p> <h2>选项解析</h2> <p>很少有命令行不支持选项解析。如果你依赖于命令行， <code>-h</code> 是一个你可能经常使用的选项。因为只有很少一部分人可以记住我们日常使用的可执行文件的选项。</p> <p>允许选项和参数被传入命令行可以呈几何级数地增强它的功能。幸运的是, Ruby 已经有了标准库内置的 <a href="http://ruby-doc.org/stdlib-2.1.0/libdoc/optparse/rdoc/OptionParser.html">OptonParser</a> 类。 我把实现的细节留给了其他资源, 但是这是值得一提的，因为你的可执行文件可不会像上面提到的那么简单。</p> <h2>抽取 CLI 类</h2> <p>可执行命令行需要加载更多的代码而不是仅仅从主命名空间的一两个方法。在这种情况下，通常需要分隔到一个单独的文件，就像 =lib/mega_lotto/cli.rb=。 所以不是加载 <code>require_relative &quot;../lib/mega_lotto/drawing&quot;= 在可执行文件中，而是包含 =require_relative &quot;../lib/mega_lotto/cli&quot;= 。 在可执行命令中, 我们可以添加 =lib/mega_lotto/cli.rb</code> 文件来负责加载依赖并且 <code>lib/mega_lotto/cli.rb</code> 文件可以解析选项(如果有的话)。</p> <h2>现实中的例子</h2> <p>Bundler 采取了后一种策略（和大多数 gem 做法一样）并且实现了一个<a href="https://github.com/bundler/bundler/blob/master/lib/bundler/cli.rb">cli.rb类</a> 来管理依赖和可执行文件。在那里，功能被包裹来一个单独的类中这样就容易测试。测试 shell 脚本是大多数 Ruby 程序员不擅长的，所以我们要尽量把责任转让给 Ruby 本身。</p> <p>Resque 是另一例子, 有一个单独的 CLI 类的例子. 事实上, 看看<a href="https://github.com/resque/resque/blob/master/bin/resque">可执行文件的代码</a>. 非常简单, 不是吗? 这就是我们希望我们的可执行文件看上去的样子 - 简单, 直接并且把所有的功能和错误处理都放到独立的 Ruby 类中。</p> <h2>总结</h2> <p>写一个可执行命令行的结构和最佳实践超出了本书的范围。有很多更好的资源关于这个主题，并且更加深入细节，特别是 David Bryant Copeland 的书 <a href="https://pragprog.com/book/dccar/build-awesome-command-line-applications-in-ruby">build awesome command line application in Ruby</a>。 然而，希望你现在能明白包含一个可执行的命令到你的 gem 中是多么简单的一件事情。</p> <p>在下一章，我们将会实现一个配置模式来提供额外的灵活的价值给我们的 gem 的用户。</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/how-to-build-ruby-gem/commandline-executables"></script> </body> </html>

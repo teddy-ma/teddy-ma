@@ -1,0 +1,71 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_dynamic-rails-i18n posts_dynamic-rails-i18n_index typo"> <article> <h1>为 Rails 项目添加动态 I18n 内容</h1> <p>场景：对于一个已经做好静态 I18n 的 Rails 项目，需要对动态数据内容也适配国际化。</p> <p>首先，动态内容的数据肯定是存在数据库中的，并且字段名也采用统一的 <code>fieldname_#{I18n.locale}</code> ，方便统一管理。</p> <p>问题的核心是如何在尽量不修改现有代码的情况下动态读取模型某些字段的当前 locale 的值。</p> <p>比如：原来的 <code>user.name #=&gt; Marry</code> ，现在需要根据当前 locale （比如 cn）变成 <code>user.name # =&gt; 翠花</code> 。</p> <p>首先接口肯定不能改，view 层中有很多很多的 <code>user.name</code> 的调用，就算用批量修改的方式改为类似 <code>user.name_#{I18n.locale}</code> 的写法， 也很不优雅，何况不只是 <code>name</code> 属性需要国际化，以后每增加一个字段或模型的国际化都将成为很大的负担。</p> <p>说到如何在原有类的基础上增加功能，那自然会想到使用装饰器模式了。</p> <p>关于装饰器模式的实现，一种方式是使用 delegate:</p> <pre class=src lang=ruby>
+require <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">delegate</span><span style="color:#710">'</span></span>
+
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">User</span> &lt; <span style="color:#036;font-weight:bold">ApplicationRecord</span>
+  <span style="color:#777"># attribute name</span>
+<span style="color:#080;font-weight:bold">end</span>
+
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">InternationalUserDecorator</span> &lt; <span style="color:#036;font-weight:bold">SimpleDelegator</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">name</span>
+    __getobj__.send(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">name_</span><span style="background-color:hsla(0,0%,0%,0.07);color:black"><span style="font-weight:bold;color:#666">#{</span><span style="color:#036;font-weight:bold">I18n</span>.locale<span style="font-weight:bold;color:#666">}</span></span><span style="color:#710">&quot;</span></span>)
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+
+user = <span style="color:#036;font-weight:bold">InternationalUserDecorator</span>.new(<span style="color:#036;font-weight:bold">User</span>.find(<span style="color:#00D">12345</span>))
+
+<span style="color:#036;font-weight:bold">I18n</span>.locale = <span style="color:#A60">:en</span>
+user.name <span style="color:#777"># =&gt; 'Marry'</span>
+
+<span style="color:#036;font-weight:bold">I18n</span>.locale = <span style="color:#A60">:cn</span>
+user.name <span style="color:#777"># =&gt; '翠花'</span>
+</pre> <p>但是这显然是不行的，因为这需要修改每一个 User 实例的生成，使用 Decorator 去显式地包装它。</p> <p>类似的，还有一种通过继承 module 的方式，同样需要显示的修改每一个模型的实例，这样的改动对原代码改变很大，也不能使用。</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">EnglishUser</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">name</span>
+    <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Marry</span><span style="color:#710">&quot;</span></span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+
+<span style="color:#080;font-weight:bold">module</span> <span style="color:#B06;font-weight:bold">ChineseUser</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">name</span>
+   <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">翠花</span><span style="color:#710">&quot;</span></span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+
+user = <span style="color:#036;font-weight:bold">User</span>.find(<span style="color:#00D">123</span>)
+user.extend(<span style="color:#036;font-weight:bold">EnglishUser</span>) <span style="color:#777">#=&gt; name &quot;Marry&quot;</span>
+user.extend(<span style="color:#036;font-weight:bold">ChineseUser</span>) <span style="color:#777">#=&gt; name &quot;翠花&quot;</span>
+</pre> <p>可见，需要在获取模型实例时进行修改的思路是行不通，如果项目一开始就使用仓储模式的话，修改起来会容易很多，不过这超出了本文的范围。</p> <p>想要尽可能小的修改原代码，那只能使用元编程了，我们需要一个 Module，来动态生成 locale 对应的 field 供模型调用。</p> <p>当 <code>locale</code> 是 <code>cn</code> 的时候， <code>user.name</code> =&gt; <code>user.name_cn</code> 当 <code>locale</code> 是 <code>en</code> 的时候， <code>user.name</code> =&gt; <code>user.name_en</code></p> <p>当然，不是模型所有的 field 都需要做国际化，必须可以指定需要国际化的字段</p> <p>client 端的代码应该是这样的：</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">User</span> &lt; <span style="color:#036;font-weight:bold">ApplicationRecord</span>
+  <span style="color:#777"># attributes :name, :position, :age</span>
+  include <span style="color:#036;font-weight:bold">I18nDecorator</span>.new(<span style="color:#A60">:name</span>, <span style="color:#A60">:position</span>)
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>这里的难点在于，需要传参数给这个 Module，可 include 的时候是不能传参的。</p> <p>在这里，我们把 <code>I18nDecorator</code> 定义为 Module 的一个子类，这样就可以通过 <code>new</code> 的时候的 <code>initialize</code> 方法中，对父类进行元编程，动态定义 Module 的方法，这样就能在模型中进行调用了。</p> <pre class=src lang=ruby>
+<span style="color:#080;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">I18nDecorator</span> &lt; <span style="color:#036;font-weight:bold">Module</span>
+  <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">initialize</span>(*attrs)
+    <span style="color:#080;font-weight:bold">super</span>() <span style="color:#080;font-weight:bold">do</span>
+      attrs.each <span style="color:#080;font-weight:bold">do</span> |attr|
+        define_method attr <span style="color:#080;font-weight:bold">do</span>
+          send(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="background-color:hsla(0,0%,0%,0.07);color:black"><span style="font-weight:bold;color:#666">#{</span>attr<span style="font-weight:bold;color:#666">}</span></span><span style="color:#D20">_</span><span style="background-color:hsla(0,0%,0%,0.07);color:black"><span style="font-weight:bold;color:#666">#{</span><span style="color:#036;font-weight:bold">I18n</span>.locale<span style="font-weight:bold;color:#666">}</span></span><span style="color:#710">&quot;</span></span>)
+        <span style="color:#080;font-weight:bold">end</span>
+      <span style="color:#080;font-weight:bold">end</span>
+    <span style="color:#080;font-weight:bold">end</span>
+  <span style="color:#080;font-weight:bold">end</span>
+<span style="color:#080;font-weight:bold">end</span>
+</pre> <p>现在，当任何 <code>User</code> 类的实例调用 <code>name</code> 或者 <code>position</code> 的方法时，就会被 <code>I18nDecorator</code> 动态转发给 <code>name_cn</code> 或者 <code>position_en</code> 的属性上了。</p> <p>就这样，一共十几行代码，我们完成了一个 Rails 项目简单的动态 I18n 的功能，以后需要增加模型或属性的时候，都只需要 include 这一行代码就可以了。</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/dynamic-rails-i18n"></script> </body> </html>

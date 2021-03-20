@@ -1,0 +1,32 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_awesome-zsh posts_awesome-zsh_index typo"> <article> <h1>强大的 shell - zsh</h1> <p>正如 ruby on rails 之于 ruby，<a href="https://github.com/robbyrussell/oh-my-zsh">oh-my-zsh</a> 这款插件把 zsh 这个 shell 带进了我们的视线。 和 ruby 的遭遇类似，如果不是 oh-my-zsh 的爆红，我可能也不会知道世界上还有 zsh 这个东西。 和 ruby 一样，虽然以前比较小众，但并不影响它的强大。本文就要用 <code>ruby off rails</code> 的风格来介绍一下原生的 zsh。</p> <h2>安装</h2> <pre class=src lang=sh>
+brew install zsh
+apt-get install zsh
+</pre> <p>记得装好后要设置 zsh 为默认 shell。</p> <pre class=src lang=sh>
+chsh -s $(which zsh)
+</pre> <p><span style="text-decoration:underline;">不少同学装完 oh-my-zsh 之后发现 shell 的样子和功能没任何变化，估计是根本不知道 oh-my-zsh 是一款 zsh 的插件。因此需要你启动了 zsh 才能生效的。</span></p> <p>配置文件方面不多说了，和 bash 基本一致，只要把 <code>bashrc=，=bash_login</code> 之类的文件改成对应的 <code>zshrc</code>, <code>zsh_login</code> 就行了。</p> <h2>配置</h2> <p>前面说了，本文讨论的是原生的 zsh，你可能觉得离开了 <code>oh-my-zsh</code> 这样的一站式（小白）的强大插件就像 ruby 没有了 rails 就不能开发大型 web 应用一样。</p> <p>别怕，跟着我做，你立刻就会变得有自信了。</p> <pre class=src lang=sh>
+echo &quot;autoload -U promptinit&quot; &gt; ~/.zshrc
+</pre> <p>然后新建一个 shell tab，输入 <code>promptinit=，接着再输入 =prompt -p</code>.</p> <p>怎么样，这些主题够漂亮吧，挑一个喜欢的主题的名字，输入 <code>prompt THEME_NAME</code> 就可以应用主题了。</p> <p>想要永久生效，写入下面的配置到 <code>.zshrc</code> 就行了：</p> <pre class=src lang=sh>
+autoload -U promptinit
+promptinit
+prompt adam2
+</pre> <p>当然你可以在主题的基础上进行修改，比如修改 PS1 的值等等，这些和其他 shell 都是类似的，就不介绍了。</p> <p>这样一来是不是觉得要实现 oh-my-zsh 那样的效果也不难了。</p> <h2>line editor</h2> <p>zsh 的 line editor (简称ZLE) 与 bash 是不同的，后者依赖的是 <code>readline</code>, 而 ZLE 是 zsh 自带的模块。</p> <p>ZLE 默认的按键绑定是 emacs 风格的（此处应有掌声）。你以为所谓的按键绑定仅仅是移动，kill，yank 等常见特性吗?</p> <p>图样, 试试按下你的 =meta+x=，怎么样，没想到吧，ZLE 是支持 emacs 的 execute 的。</p> <p>举个例子：你要为你的新项目写一个 README 文件，于是你输入 =touch readme=，这时你发现需要大写 readme, 你只要：</p> <ol> <li>按下 <code>meta+b</code> 把光标移动到 readme 前面</li> <li>按下 <code>meta+x</code>, 然后输入 up-case 再 tab, 就会补全 up-case-word 命令</li> <li>敲下回车，你的 readme 就变成 README 了</li> </ol> <p>ZLE 还有很多特性，比如按下 <code>meta+enter</code> 就能实现传统 <code>\\</code> 表示的折行功能等。</p> <h2>自动补全</h2> <p>没有谁在敲 shell 命令的时候是一个一个字老老实实敲下来的吧，没有补全的 shell 没人会去用的。</p> <p>zsh 的自动补全功能是非常强大的，想要启用的，类似于上面提到的提示符设置，写入下面的配置到 <code>.zshrc</code> 就行了：</p> <pre class=src lang=sh>
+autoload -U compinit
+compinit
+</pre> <p>zsh 可以补全文件，变量，参数等。</p> <h2>插件管理</h2> <p>我觉得直接用 oh-my-zsh 有点太重 （小白）了，这里我推荐 <a href="https://github.com/zsh-users/antigen">antigen</a></p> <blockquote> <p>Antigen is to zsh, what Vundle is to vim.</p> </blockquote> <p>使用 antigen 可以轻松的管理各类 zsh 插件，包括 oh-my-zsh。</p> <h2>总结</h2> <p>可以看到，zsh 只需几行配置，就比 bash 要强上不少。不愧为 『终极 shell』的称号。</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/awesome-zsh"></script> </body> </html>

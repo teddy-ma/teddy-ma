@@ -1,0 +1,102 @@
+<!doctype html> <html lang=zh-CN> <head> <title>Teddy Ma's Homepage | </title> <meta content="IE=edge" http-equiv=X-UA-Compatible> <meta charset=utf-8> <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name=viewport> <meta name=author content="Teddy Ma"> <meta name=description content="Teddy Ma's Personal Website"> <meta name=keywords content="programming, software engineer, code"> <link rel=stylesheet href="https://www.songofcode.com/socss/assets/toolkit/styles/toolkit.css"/> <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> <script>
+window['_fs_debug'] = false;
+window['_fs_host'] = 'fullstory.com';
+window['_fs_org'] = 'MP5K7';
+window['_fs_namespace'] = 'FS';
+(function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+    o=n.createElement(t);o.async=1;o.crossOrigin='anonymous';o.src='https://'+_fs_host+'/s/fs.js';
+    y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+    g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.log = function(a,b) { g("log", [a,b]) };
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+})(window,document,window['_fs_namespace'],'script','user');
+</script> <link href="/assets/stylesheets/highlightjs/a11y-light-3f5cde8e.css" rel=stylesheet /> </head> <body class="posts posts_mastering-akka-note posts_mastering-akka-note_init-project posts_mastering-akka-note_init-project_index typo"> <article> <h2 id="从一个全新的角度来编写-web-应用最初的系统以及存在的问题">从一个全新的角度来编写 web 应用最初的系统以及存在的问题</h2> <p>神书，把很多知识点全都串联起来了。 脉络：先给出一个最“普通”的在线书店的例子，然后一步一步用 AKKA 加以改造，完成一个 reactive 的系统 这本书并没有对原始的项目做过多介绍，本书的例子项目是用 scala 语言编写的，还附带了 docker, 因此这会劝退不少读者。 这对于多年没模过 Java 的我来说，一开始还是有点生疏的，不过我还是通过 Programming Scala 学习了 scala 的基础。 然后又花了不少时间折腾 sbt, 并且暂时抛弃了 docker, 还把依赖升级到了新版，花了好多力气，最后终于成功的跑通了这个项目。</p> <p>在本地简单调试了一遍例子项目的功能后，作者提出了这个项目的不足，这些坑会在之后的章节中被填上。 简单来说，就是不够 scaling.</p> <p><span class=underline>初始项目的结构和脉络</span></p> <p>NOTE idea 会特别卡，建议配合命令行食用，先用 sbt 命令行启动一次，然后再使用 idea 的内置命令就顺畅多了。</p> <h3 id="运行">运行</h3> <p>查看 <code>init-project/server/src/main/resources/application.conf</code> 文件，首先创建数据库， createdb akka-bookstore-example psql akka-bookstore-example 然后 ı database.sql 确保数据库和表结构都存在</p> <p>进入 init-project 根目录，执行</p> <pre class=shell><code>sbt
+server/run
+</code></pre> <p>就会启动 server.scala 这个 main class, 这样 web server 就启动了。</p> <p>访问 <a href="http://localhost:8080/">http://localhost:8080/</a> 虽然没有页面，但是观察终端日志就可以知道服务已经启动。</p> <p>安装 httpie 并执行 interactive.sh 会调用一些命令来和 server 交互，插入一些示例数据，观察终端日志，如果可以成功执行，恭喜，环境配置成功。</p> <p>调用单独接口可以使用 <code>http -v POST http://localhost:8080/api/user &lt; user.json</code></p> <h3 id="脉络"><span class="todo TODO">TODO</span> 脉络</h3> <p>先启动一个 system actor, 再元编程获取各个子系统，让它们 bootup. 关键代码在 <code>com/songofcode/masteringakka/bookstore/server/Server.scala</code> 中：</p> <pre class=scala><code>//Boot up each service module from the config and get the endpoints from it
+val endpoints =
+  conf.
+    getStringList(&quot;serviceBoots&quot;).
+    map(toBootClass).
+    flatMap(_.bootup(system))
+
+val server = endpoints.foldRight(unfiltered.netty.Server.http(8080)){
+  case (endpoint, serv) =&gt;
+    log.info(&quot;Adding endpoint: {}&quot;, endpoint)
+    serv.plan(endpoint)
+}
+
+//Adding in the pretend credit card charging service too so that the app works
+server.plan(PretentCreditCardService).run()
+</code></pre> <p>server 模块会调用各个子模块的 plan (启动) 接口。</p> <p>TODO uml</p> <pre class=plantuml data-file="test-uml.png"><code>@startuml
+
+package &quot;Server&quot; {
+
+}
+
+package &quot;Book Service&quot; {
+
+}
+
+package &quot;Order Service&quot; {
+
+}
+
+package &quot;User Service&quot; {
+
+}
+
+package &quot;Common&quot; {
+
+}
+
+[Server] --&gt; [User Service]
+[Server] --&gt; [Book Service]
+[Server] --&gt; [Order Service]
+
+@enduml
+</code></pre> <h3 id="以创建用户为例">以创建用户为例</h3> <p><code>http -v POST http://localhost:8080/api/user &lt; user.json</code></p> <p>首先会进入 UserEndpoint 的路由</p> <pre class=scala><code>case req @ POST(Path(Seg(&quot;api&quot; :: &quot;user&quot; :: Nil))) =&gt;
+     val input = parseJson[UserInput](Body.string(req))
+     val f = (userManager ? CreateUser(input))
+     respond(f, req)
+</code></pre> <p>这里获取 user 的参数后，向 userManager 发送了 CreateUser 的消息</p> <p>看一下 CreateUser 方法</p> <pre class=scala><code>case CreateUser(UserInput(first, last, email)) =&gt;
+val result =
+  for{
+    _ &lt;- emailUnique(email)
+    daoRes &lt;- dao.createUser(BookstoreUser(0, first, last, email, new Date, new Date))
+  } yield daoRes
+pipeResponse(result.recover(recoverEmailCheck ))
+</code></pre> <p>首先，验证 email 的唯一性。</p> <pre class=scala><code>/**
+  * Checks to make sure the email is unique
+  * @param email The email to check
+  * @param existingId Supplied when the user already exists to avoid matching on the same user
+  * when checking for uniqueness
+  * @return A Future for an Option[Boolean] which will be failed if the email is not unique
+  */
+def emailUnique(email:String, existingId:Option[Int] = None) = {
+  dao.
+    findUserByEmail(email).
+    flatMap{
+      case None =&gt; Future.successful(true)
+      case Some(user) if Some(user.id) == existingId =&gt; Future.successful(true)
+      case _ =&gt; Future.failed(new EmailNotUniqueException)
+    }
+}
+</code></pre> <p>首先一个 email 查找用户，这里返回的是一个 Future, 然后 flatMap 这个 Future. 如果返回是 None, 那么说明 email 没有被使用，返回一个 success 的 Future, 如果找到 user 了，但是这个 user 的 id 和指定的 id 一致，说明也符合要求（这里是 None, 所以目前不同考虑），返回 success. 否则就是有使用了这个 email 的用户了，则抛出异常。</p> <p>回到 CreateUser 方法，现在也调用 dao 的 createUser 方法，</p> <pre class=scala><code>/**
+ * Creates a new user
+ * @param user The user to create
+ * @return a Future wrapping a Bookstore user with the id assigned
+ */
+def createUser(user:BookstoreUser) = {
+  val insert = sqlu&quot;&quot;&quot;
+    insert into StoreUser (firstName, lastName, email, createTs, modifyTs)
+    values (${user.firstName}, ${user.lastName}, ${user.email}, ${user.createTs.toSqlDate}, ${user.modifyTs.toSqlDate})
+  &quot;&quot;&quot;
+  val idget = lastIdSelect(&quot;storeuser&quot;)
+  db.run(insert.andThen(idget).withPinnedSession).map(id =&gt; user.copy(id = id.headOption.getOrElse(0)))
+}
+</code></pre> <p>这里，我们把几个参数构建了一个 BookstoreUser 的 domain, 然后执行了 sql 语句（这里没用 orm).</p> <p>最后， <code>pipeResponse(result.recover(recoverEmailCheck))</code> , 捕获 EmailNotUniqueException 异常。</p> <h3 id="总结">总结</h3> <p>在这最初的代码中，虽然也用上了一些 akka 模型，但是整体还是非常传统的 MVC 形式，从 Http 的 Request 中获取数据， 然后查询验证数据的有效性，最后插入数据实现订单的创建。</p> </article> <script src="/assets/javascripts/all-70879c36.js"></script> <script src="/assets/javascripts/highlight-e7667caa.js"></script> <script>hljs.initHighlightingOnLoad()</script> <div id=github-comments></div> <script src="/assets/javascripts/comment-ddc93c2f.js" id=github-comment data-ssl=true data-theme=green data-username=teddy-ma data-repo="teddy-ma.github.io" data-page-id="posts/mastering-akka-note/init-project"></script> </body> </html>
